@@ -4,7 +4,7 @@ namespace Pleb\VCardIO;
 
 use Pleb\VCardIO\Exceptions\VCardIOParseException;
 
-class VCardIO
+class VCardParser
 {
     public static function parseFile(string $filePath): array
     {

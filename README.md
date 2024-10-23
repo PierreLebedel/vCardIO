@@ -17,6 +17,22 @@ composer require pleb/vcardio
 ## Usage
 
 ```php
+$vCardsArray = \Pleb\VCardIO\VCardParser::parseFile('./contacts.vcf');
+// OR
+$vCardsRawData = 'BEGIN:VCARD
+VERSION:4.0
+N:Doe;John;;;
+END:VCARD';
+$vCardsArray = \Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
+
+// RESULT:
+[
+    \Pleb\VCardIO\Models\VCard {
+        version: 4.0
+        // ...
+    },
+    // ...
+]
 ```
 
 ## Code formatting
