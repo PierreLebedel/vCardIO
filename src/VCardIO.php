@@ -22,7 +22,6 @@ class VCardIO
     {
         $vCards = [];
 
-
         return $vCards;
     }
 }
