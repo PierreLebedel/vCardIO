@@ -2,7 +2,7 @@
 
 namespace Pleb\VCardIO\Exceptions;
 
-class VCardIOParseException extends \Exception
+class VCardIOParserException extends VCardIOException
 {
     public static function fileNotFound(string $filePath)
     {
