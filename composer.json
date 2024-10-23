@@ -1,16 +1,16 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "pleb/vcardio",
+    "description": "Parse & write vCard (vcf) files",
     "keywords": [
-        ":vendor_name",
-        ":package_slug"
+        "vcard",
+        "vcf"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/pleb/vcardio",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Pierre Lebedel",
+            "email": "pierrelebedel@gmail.com",
             "role": "Developer"
         }
     ],
@@ -18,28 +18,30 @@
         "php": "^8.1"
     },
     "require-dev": {
-        :require_dev_testing,
-        :require_dev_codestyle,
-        "spatie/ray": "^1.28"
+        "laravel/pint": "^1.0",
+        "pestphp/pest": "^2.20",
+        "spatie/ray": "^1.28",
+        "symfony/var-dumper": "^7.1"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src"
+            "Pleb\\VCardIO\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "Pleb\\VCardIO\\Tests\\": "tests"
         }
     },
     "scripts": {
-        :scripts_testing,
-        :scripts_codestyle
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            :plugins_testing,
+            "pestphp/pest-plugin": true,
             "phpstan/extension-installer": true
         }
     },
