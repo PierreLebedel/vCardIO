@@ -22,7 +22,6 @@ class VCardParser
     {
         $vCards = [];
 
-
         return $vCards;
     }
 }

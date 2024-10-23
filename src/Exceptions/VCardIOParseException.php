@@ -13,6 +13,4 @@ class VCardIOParseException extends \Exception
     {
         return new self(sprintf('File %s is not readable', $filePath));
     }
-
-
 }
