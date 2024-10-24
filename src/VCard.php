@@ -47,7 +47,11 @@ class VCard
 
     public ?string $title = null;
 
+    public ?stdClass $rev = null;
 
+    public ?string $note = null;
+
+    public ?string $prodid = null;
 
     public array $unparsedData = [];
 }

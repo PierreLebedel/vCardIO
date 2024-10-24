@@ -13,7 +13,7 @@ class VCardFileElement extends VCardElement
 
         $object = new stdClass;
         $object->value = $this->inputValue;
-        $object->type = !empty($this->types) ? implode(';', $this->types) : 'default';
+        $object->type = ! empty($this->types) ? implode(';', $this->types) : 'default';
 
         return $object;
     }

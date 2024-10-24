@@ -10,8 +10,7 @@ class VCardElement implements VCardElementInterface
 {
     public ?array $restrictedTypes = null;
 
-    public function __construct(public string $inputValue, public array $types = [])
-    {}
+    public function __construct(public string $inputValue, public array $types = []) {}
 
     public function isMultiple(): bool
     {

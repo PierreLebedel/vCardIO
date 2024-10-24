@@ -15,7 +15,7 @@ class VCardGeoElement extends VCardElement
         $latitude = str_replace('geo:', '', $latitude);
         $longitude = str_replace('geo:', '', $longitude);
 
-        if(empty($latitude) || empty($longitude)){
+        if (empty($latitude) || empty($longitude)) {
             return null;
         }
 

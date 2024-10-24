@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use DateTimeZone;
-use Pleb\VCardIO\Elements\VCardElement;
-use Pleb\VCardIO\Elements\VCardGeoElement;
-use Pleb\VCardIO\Elements\VCardUriElement;
-use Pleb\VCardIO\Elements\VCardFileElement;
-use Pleb\VCardIO\Elements\VCardNameElement;
-use Pleb\VCardIO\Elements\VCardFloatElement;
 use Pleb\VCardIO\Elements\VCardAddressElement;
 use Pleb\VCardIO\Elements\VCardDatetimeElement;
+use Pleb\VCardIO\Elements\VCardElement;
+use Pleb\VCardIO\Elements\VCardFileElement;
+use Pleb\VCardIO\Elements\VCardFloatElement;
+use Pleb\VCardIO\Elements\VCardGeoElement;
 use Pleb\VCardIO\Elements\VCardMultipleElement;
-use Pleb\VCardIO\Elements\VCardOrganizationElement;
-use Pleb\VCardIO\Exceptions\VCardIOParserException;
 use Pleb\VCardIO\Elements\VCardMultipleTypedElement;
+use Pleb\VCardIO\Elements\VCardNameElement;
+use Pleb\VCardIO\Elements\VCardOrganizationElement;
+use Pleb\VCardIO\Elements\VCardUriElement;
+use Pleb\VCardIO\Exceptions\VCardIOParserException;
 
 class VCardParser
 {
@@ -79,11 +78,11 @@ class VCardParser
             if (empty($lineContents)) {
                 continue;
             }
-            if( !str_contains( $lineContents, ':' ) ){
+            if (! str_contains($lineContents, ':')) {
                 $previousLine = null;
-                for( $i = ($lineNumber-1); $i >= 0; $i-- ){
+                for ($i = ($lineNumber - 1); $i >= 0; $i--) {
 
-                    if(array_key_exists($i, $lines) && is_null($previousLine)){
+                    if (array_key_exists($i, $lines) && is_null($previousLine)) {
                         $previousLine = $i;
                         break;
                     }
@@ -222,37 +221,37 @@ class VCardParser
             'categories'  => (new VCardMultipleElement($value)),
             'class'       => (new VCardElement($value)),
             // 'clientpidmap => ,
-            'email' => (new VCardMultipleTypedElement($value, $types))->typed(['internet', 'x400', 'pref']),
-            'fburl' => (new VCardUriElement($value)),
-            'fn'    => (new VCardElement($value)),
+            'email'  => (new VCardMultipleTypedElement($value, $types))->typed(['internet', 'x400', 'pref']),
+            'fburl'  => (new VCardUriElement($value)),
+            'fn'     => (new VCardElement($value)),
             'gender' => (new VCardElement($value)),
-            'geo' => (new VCardGeoElement($value)),
-            'impp' => (new VCardMultipleTypedElement($value, $types))->typed(['personal', 'business', 'home', 'work', 'mobile', 'pref']),
-            'key' => (new VCardElement($value)),
-            //'kind' => ,
-            'label' => (new VCardAddressElement($value, $types))->typed(['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
-            //'lang' => ,
-            'logo' => (new VCardFileElement($value, $types)),
-            //'mailer' => ,
+            'geo'    => (new VCardGeoElement($value)),
+            'impp'   => (new VCardMultipleTypedElement($value, $types))->typed(['personal', 'business', 'home', 'work', 'mobile', 'pref']),
+            'key'    => (new VCardElement($value)),
+            'kind'   => (new VCardElement($value)),
+            'label'  => (new VCardAddressElement($value, $types))->typed(['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
+            'lang'   => (new VCardElement($value)),
+            'logo'   => (new VCardFileElement($value, $types)),
+            'mailer' => (new VCardElement($value)),
             //'member' => ,
             'n'        => (new VCardNameElement($value)),
             'nickname' => (new VCardMultipleElement($value)),
-            //'note' => ,
-            'org' => (new VCardOrganizationElement($value)),
-            'photo' => (new VCardFileElement($value, $types)),
-            //'prodid' => ,
-            //'profile' => ,
+            'note'     => (new VCardElement($value)),
+            'org'      => (new VCardOrganizationElement($value)),
+            'photo'    => (new VCardFileElement($value, $types)),
+            'prodid'   => (new VCardElement($value)),
+            'profile'  => (new VCardElement($value)),
             //'related' => ,
-            //'rev' => ,
-            //'role' => ,
-            //'sort-string' => ,
-            'sound' => (new VCardFileElement($value, $types)),
-            //'source' => ,
-            'tel' => (new VCardMultipleTypedElement($value, $types))->typed(['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
-            'title' => (new VCardElement($value)),
+            'rev'         => (new VCardDatetimeElement($value)),
+            'role'        => (new VCardElement($value)),
+            'sort-string' => (new VCardElement($value)),
+            //'sound' => (new VCardFileElement($value, $types))->typed(['ogg', 'ogg/audio']),
+            'source' => (new VCardUriElement($value, $types)),
+            'tel'    => (new VCardMultipleTypedElement($value, $types))->typed(['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
+            'title'  => (new VCardElement($value)),
             //'tz' => ,
             //'uid' => ,
-            'url' => (new VCardUriElement($value)),
+            'url'     => (new VCardUriElement($value)),
             'version' => (new VCardFloatElement($value)),
             'xml'     => (new VCardElement($value)),
             default   => null,
@@ -271,16 +270,6 @@ class VCardParser
         $this->getVCard()->unparsedData[$name] = $value;
 
         //dump('no implementation for '.$name);
-        return;
-    }
 
-    public function parseEmail(string $value, array $types = []): void
-    {
-        $this->getVCard()->addEmail($value, in_array('pref', $types), $types);
-    }
-
-    public function parsePhone(string $value, array $types = []): void
-    {
-        $this->getVCard()->addPhone($value, in_array('pref', $types), $types);
     }
 }

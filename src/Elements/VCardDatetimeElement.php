@@ -21,7 +21,9 @@ class VCardDatetimeElement extends VCardElement
             $isYearExact = false;
         }
 
-        if (strlen($this->inputValue) == 10) {
+        if (strlen($this->inputValue) == 16) {
+            $datetime = DateTime::createFromFormat('Ymd\THisZ ', $this->inputValue);
+        } elseif (strlen($this->inputValue) == 10) {
             $datetime = DateTime::createFromFormat('Y-m-d', $this->inputValue);
         } elseif (strlen($this->inputValue) == 8) {
             $datetime = DateTime::createFromFormat('Ymd', $this->inputValue);
