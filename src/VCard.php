@@ -43,5 +43,11 @@ class VCard
 
     public $sound = null;
 
+    public ?string $url = null;
+
+    public ?string $title = null;
+
+
+
     public array $unparsedData = [];
 }

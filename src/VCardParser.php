@@ -249,10 +249,10 @@ class VCardParser
             'sound' => (new VCardFileElement($value, $types)),
             //'source' => ,
             'tel' => (new VCardMultipleTypedElement($value, $types))->typed(['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
-            //'title' => ,
+            'title' => (new VCardElement($value)),
             //'tz' => ,
             //'uid' => ,
-            //'url' => ,
+            'url' => (new VCardUriElement($value)),
             'version' => (new VCardFloatElement($value)),
             'xml'     => (new VCardElement($value)),
             default   => null,
@@ -272,9 +272,6 @@ class VCardParser
 
         //dump('no implementation for '.$name);
         return;
-
-        dd('ici');
-
     }
 
     public function parseEmail(string $value, array $types = []): void
