@@ -1,29 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Exceptions\VCardIOArrayAccessException;
-use Pleb\VCardIO\Exceptions\VCardIOIteratorException;
+use DateTimeZone;
+use Pleb\VCardIO\Elements\VCardElement;
+use Pleb\VCardIO\Elements\VCardGeoElement;
+use Pleb\VCardIO\Elements\VCardUriElement;
+use Pleb\VCardIO\Elements\VCardNameElement;
+use Pleb\VCardIO\Elements\VCardFloatElement;
+use Pleb\VCardIO\Elements\VCardAddressElement;
+use Pleb\VCardIO\Elements\VCardDatetimeElement;
+use Pleb\VCardIO\Elements\VCardMultipleElement;
+use Pleb\VCardIO\Elements\VCardOrganizationElement;
 use Pleb\VCardIO\Exceptions\VCardIOParserException;
-use Pleb\VCardIO\Models\VCard;
+use Pleb\VCardIO\Elements\VCardMultipleTypedElement;
 
-class VCardParser implements \ArrayAccess, \Countable, \Iterator
+class VCardParser
 {
-    protected array $vCards;
+    protected string $rawData;
 
-    protected int $iteratorKey;
+    protected VCardsCollection $vCards;
+
+    protected ?VCard $currentVCard = null;
+
+    protected ?VCard $currentVCardAgent = null;
 
     public function __construct(string $rawData)
     {
-        $this->rewind();
-
-        $this->vCards = [
-            new VCard,
-            new VCard,
-        ];
+        $this->rawData = $rawData;
+        $this->vCards = new VCardsCollection;
+        $this->parse();
     }
 
-    public static function parseFile(string $filePath): self
+    public static function parseFile(string $filePath): VCardsCollection
     {
         if (! file_exists($filePath)) {
             throw VCardIOParserException::fileNotFound($filePath);
@@ -35,100 +46,243 @@ class VCardParser implements \ArrayAccess, \Countable, \Iterator
         return self::parseRaw(file_get_contents($filePath));
     }
 
-    public static function parseRaw(string $rawData): self
+    public static function parseRaw(string $rawData): VCardsCollection
     {
-        return new self($rawData);
+        $instance = new self($rawData);
+
+        return $instance->vCards;
     }
 
-    public function getVCards(): array
+    protected function parse()
     {
-        return $this->vCards;
-    }
+        $this->rawData = str_replace("\r", "\n", $this->rawData);
+        $this->rawData = preg_replace('{(\n+)}', "\n", $this->rawData);
+        $this->rawData = preg_replace('{(\n\s.+)=(\n)}', '$1-base64=-$2', $this->rawData);
+        $this->rawData = str_replace("=\n", '', $this->rawData);
+        $this->rawData = str_replace(["\n ", "\n\t"], "\n", $this->rawData);
+        $this->rawData = str_replace("-base64=-\n", "=\n", $this->rawData);
 
-    public function getVCard(int $index): VCard
-    {
-        if (! array_key_exists($index, $this->vCards)) {
-            throw new \OutOfBoundsException('Invalid index');
+        $beginEndMatches = [];
+        $vCardBeginCount = preg_match_all('{BEGIN\:VCARD}miS', $this->rawData, $beginEndMatches);
+        $vCardEndCount = preg_match_all('{END\:VCARD}miS', $this->rawData, $beginEndMatches);
+
+        if (($vCardBeginCount != $vCardEndCount)) {
+            throw VCardIOParserException::invalidObjects('BEGIN:VCARD count differs of END:VCARD count');
         }
 
-        return $this->vCards[$index];
-    }
+        $lines = explode("\n", $this->rawData);
 
-    /**
-     * Countable interface implementation
-     */
-    public function count(): int
-    {
-        return count($this->vCards);
-    }
+        // Groups child line with its parent above
+        foreach ($lines as $lineNumber => $lineContents) {
+            $lineContents = trim($lineContents);
+            if (empty($lineContents)) {
+                continue;
+            }
+            if( !str_contains( $lineContents, ':' ) ){
+                $previousLine = null;
+                for( $i = ($lineNumber-1); $i >= 0; $i-- ){
 
-    /**
-     * Iterator interface implementation
-     */
-    public function rewind(): void
-    {
-        $this->iteratorKey = 0;
-    }
-
-    public function current(): mixed
-    {
-        if (! $this->valid()) {
-            throw VCardIOIteratorException::invalidIndex();
+                    if(array_key_exists($i, $lines) && is_null($previousLine)){
+                        $previousLine = $i;
+                        break;
+                    }
+                }
+                $lines[$previousLine] .= $lineContents;
+            }
         }
 
-        return $this->vCards[$this->key()] ?? null;
+        foreach ($lines as $lineNumber => $lineContents) {
+            $this->parseLine($lineNumber, $lineContents);
+        }
     }
 
-    public function key(): mixed
+    private function getVCard(): VCard
     {
-        return $this->iteratorKey;
-    }
-
-    public function next(): void
-    {
-        $this->iteratorKey++;
-    }
-
-    public function valid(): bool
-    {
-        return array_key_exists($this->key(), $this->vCards);
-    }
-
-    /**
-     * ArrayAccess interface implementation
-     */
-    public function offsetExists(mixed $offset): bool
-    {
-        return array_key_exists($offset, $this->vCards);
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        if (! $this->offsetExists($offset)) {
-            throw VCardIOArrayAccessException::invalidIndex();
+        if ($this->currentVCardAgent) {
+            return $this->currentVCardAgent;
         }
 
-        return $this->getVCard($offset);
+        return $this->currentVCard;
     }
 
-    public function offsetSet(mixed $offset, mixed $value): void
+    protected function fileElements(): array
     {
-        if (! is_int($offset)) {
-            throw VCardIOArrayAccessException::invalidIndex('Invalid interger index');
-        }
-        if (! $value instanceof VCard) {
-            throw VCardIOArrayAccessException::invalidValue('Invalid VCard value');
-        }
-
-        $this->vCards[$offset] = $value;
+        return [
+            'photo',
+            'logo',
+            'sound',
+        ];
     }
 
-    public function offsetUnset(mixed $offset): void
+    protected function parseLine(int $lineNumber, string $lineContents): void
     {
-        if (! $this->offsetExists($offset)) {
-            throw VCardIOArrayAccessException::invalidIndex();
+        if (strtoupper($lineContents) == 'BEGIN:VCARD') {
+            $this->currentVCard = new VCard;
+
+            return;
         }
 
-        unset($this->vCards[$offset]);
+        if (strtoupper($lineContents) == 'AGENT:BEGIN:VCARD') {
+            if (! $this->currentVCard) {
+                throw VCardIOParserException::unexpectedLine($lineNumber, 'AGENT:BEGIN:VCARD');
+            }
+
+            $this->currentVCardAgent = new VCard;
+
+            return;
+        }
+
+        if (strtoupper($lineContents) == 'END:VCARD') {
+            if (! $this->currentVCard) {
+                throw VCardIOParserException::unexpectedLine($lineNumber, 'END:VCARD');
+            }
+
+            if ($this->currentVCardAgent) {
+                $this->currentVCard->agent = $this->currentVCardAgent;
+                $this->currentVCardAgent = null;
+
+                return;
+            }
+
+            $this->vCards->addVCard($this->currentVCard);
+            $this->currentVCard = null;
+
+            return;
+        }
+
+        if (! $this->currentVCard) {
+            throw VCardIOParserException::unexpectedLine($lineNumber, $lineContents);
+        }
+
+        $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
+        $lineContents = preg_replace('/^\w+\./', '', $lineContents);
+        //$lineContents = str_replace('-wrap');
+
+        @[$name, $value] = explode(':', $lineContents, 2);
+        if (empty($value)) {
+            return;
+        }
+
+        $typesAll = explode(';', $name);
+        $name = mb_strtolower($typesAll[0]);
+        array_shift($typesAll);
+
+        $types = [];
+        if (! empty($typesAll)) {
+            foreach ($typesAll as $type) {
+                if (str_starts_with(strtolower($type), 'type=')) {
+                    $subTypes = array_filter(explode(',', preg_replace('/^type=/i', '', $type)));
+                    foreach ($subTypes as $subType) {
+                        $typeOk = trim(strtolower($subType));
+                        if (! empty($typeOk)) {
+                            $types[] = $typeOk;
+                        }
+                    }
+                }
+                $type = preg_replace('/^type=/i', '', $type);
+
+            }
+        }
+
+        $isRawValue = false;
+        foreach ($types as $k => $type) {
+            if (preg_match('/base64/', $type)) {
+                $value = base64_decode($value);
+                unset($types[$k]);
+                $isRawValue = true;
+
+            } elseif (preg_match('/encoding=b/', $type)) {
+                $value = base64_decode($value);
+                unset($types[$k]);
+                $isRawValue = true;
+
+            } elseif (preg_match('/quoted-printable/', $type)) {
+                $value = quoted_printable_decode($value);
+                unset($types[$k]);
+                $isRawValue = true;
+
+            } elseif (strpos($type, 'charset=') === 0) {
+                try {
+                    $value = mb_convert_encoding($value, 'UTF-8', substr($type, 8));
+                } catch (\Exception $e) {
+                    throw VCardIOParserException::invalidCharset($lineNumber, $type);
+                }
+                unset($types[$k]);
+            }
+        }
+
+        $elementInstance = match ($name) {
+            'adr'         => (new VCardAddressElement($value, $types)),
+            'agent'       => (new VCardElement($value)),
+            'anniversary' => (new VCardDatetimeElement($value)),
+            'bday'        => (new VCardDatetimeElement($value)),
+            'caladruri'   => (new VCardUriElement($value)),
+            'caluri'      => (new VCardUriElement($value)),
+            'categories'  => (new VCardMultipleElement($value)),
+            'class'       => (new VCardElement($value)),
+            // 'clientpidmap => ,
+            'email' => (new VCardMultipleTypedElement($value, $types))->typed(['internet', 'x400', 'pref']),
+            'fburl' => (new VCardUriElement($value)),
+            'fn'    => (new VCardElement($value)),
+            'gender' => (new VCardElement($value)),
+            'geo' => (new VCardGeoElement($value)),
+            'impp' => (new VCardMultipleTypedElement($value, $types))->typed(['personal', 'business', 'home', 'work', 'mobile', 'pref']),
+            'key' => (new VCardElement($value)),
+            //'kind' => ,
+            'label' => (new VCardAddressElement($value, $types))->typed(['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
+            //'lang' => ,
+            //'logo' => ,
+            //'mailer' => ,
+            //'member' => ,
+            'n'        => (new VCardNameElement($value)),
+            'nickname' => (new VCardMultipleElement($value)),
+            //'note' => ,
+            'org' => (new VCardOrganizationElement($value)),
+            //'photo' => ,
+            //'prodid' => ,
+            //'profile' => ,
+            //'related' => ,
+            //'rev' => ,
+            //'role' => ,
+            //'sort-string' => ,
+            //'sound' => ,
+            //'source' => ,
+            'tel' => (new VCardMultipleTypedElement($value, $types))->typed(['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
+            //'title' => ,
+            //'tz' => ,
+            //'uid' => ,
+            //'url' => ,
+            'version' => (new VCardFloatElement($value)),
+            'xml'     => (new VCardElement($value)),
+            default   => null,
+        };
+
+        if ($elementInstance) {
+            if ($elementInstance->isMultiple()) {
+                $this->getVCard()->{$name}[] = $elementInstance->outputValue();
+            } else {
+                $this->getVCard()->{$name} = $elementInstance->outputValue();
+            }
+
+            return;
+        }
+
+        $this->getVCard()->unparsedData[$name] = $value;
+
+        //dump('no implementation for '.$name);
+        return;
+
+        dd('ici');
+
+    }
+
+    public function parseEmail(string $value, array $types = []): void
+    {
+        $this->getVCard()->addEmail($value, in_array('pref', $types), $types);
+    }
+
+    public function parsePhone(string $value, array $types = []): void
+    {
+        $this->getVCard()->addPhone($value, in_array('pref', $types), $types);
     }
 }

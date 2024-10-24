@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Exceptions;
 
 class VCardIOArrayAccessException extends VCardIOException
