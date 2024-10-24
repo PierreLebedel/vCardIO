@@ -37,5 +37,11 @@ class VCard
 
     public $agent = null;
 
+    public $photo = null;
+
+    public $logo = null;
+
+    public $sound = null;
+
     public array $unparsedData = [];
 }

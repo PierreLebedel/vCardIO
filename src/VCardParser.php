@@ -8,6 +8,7 @@ use DateTimeZone;
 use Pleb\VCardIO\Elements\VCardElement;
 use Pleb\VCardIO\Elements\VCardGeoElement;
 use Pleb\VCardIO\Elements\VCardUriElement;
+use Pleb\VCardIO\Elements\VCardFileElement;
 use Pleb\VCardIO\Elements\VCardNameElement;
 use Pleb\VCardIO\Elements\VCardFloatElement;
 use Pleb\VCardIO\Elements\VCardAddressElement;
@@ -231,21 +232,21 @@ class VCardParser
             //'kind' => ,
             'label' => (new VCardAddressElement($value, $types))->typed(['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
             //'lang' => ,
-            //'logo' => ,
+            'logo' => (new VCardFileElement($value, $types)),
             //'mailer' => ,
             //'member' => ,
             'n'        => (new VCardNameElement($value)),
             'nickname' => (new VCardMultipleElement($value)),
             //'note' => ,
             'org' => (new VCardOrganizationElement($value)),
-            //'photo' => ,
+            'photo' => (new VCardFileElement($value, $types)),
             //'prodid' => ,
             //'profile' => ,
             //'related' => ,
             //'rev' => ,
             //'role' => ,
             //'sort-string' => ,
-            //'sound' => ,
+            'sound' => (new VCardFileElement($value, $types)),
             //'source' => ,
             'tel' => (new VCardMultipleTypedElement($value, $types))->typed(['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
             //'title' => ,

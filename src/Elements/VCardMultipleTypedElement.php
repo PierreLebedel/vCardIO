@@ -17,7 +17,9 @@ class VCardMultipleTypedElement extends VCardElement
     {
         $object = new stdClass;
         $object->value = $this->inputValue;
-        $object->type = implode(';', array_intersect($this->types, $this->restrictedTypes)) ?? 'default';
+
+        $types = array_intersect($this->types, $this->restrictedTypes);
+        $object->type = !empty($types) ? implode(';', $types) : 'default';
 
         return $object;
     }
