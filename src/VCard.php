@@ -16,13 +16,13 @@ class VCard
 
     public function __construct()
     {
-        $this->formattedData = new stdClass;
+        $this->formattedData = new stdClass();
         $this->rawData = new stdClass;
         $this->unexpectedData = new stdClass;
     }
 
     public function getVersion(): string
     {
-        return $this->formattedData->version;
+        return $this->formattedData->version ?? '4.0';
     }
 }

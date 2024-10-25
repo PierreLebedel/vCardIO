@@ -16,6 +16,8 @@ class VCardField
 
     public mixed $formattedValue = null;
 
+    public ?string $formattedName = null;
+
     public mixed $rawValue = null;
 
     public array $attributes = [];
@@ -40,6 +42,7 @@ class VCardField
         $this->value = $value;
         $this->attributes = explode(';', $nameAttributes);
         $this->name = mb_strtolower($this->attributes[0]);
+        $this->formattedName = $this->name;
         array_shift($this->attributes);
 
         $this->parseAttributes();
@@ -82,6 +85,15 @@ class VCardField
         }
 
         $this->attributes = $newAttributes;
+    }
+
+    public function version(): self
+    {
+        $this->isString = true;
+        $this->formattedValue = $this->value;
+        $this->rawValue = $this->value;
+
+        return $this;
     }
 
     public function string(): self
@@ -225,6 +237,12 @@ class VCardField
         return $this;
     }
 
+    public function as(string $formattedName) :self
+    {
+        $this->formattedName = $formattedName;
+        return $this;
+    }
+
     public function in(array $stringPossibilities): self
     {
         if (! is_string($this->value) || ! in_array($this->value, $stringPossibilities)) {
@@ -313,13 +331,13 @@ class VCardField
 
         if ($this->isMultiple) {
             if (is_string($this->formattedValue)) {
-                $vCard->formattedData->{$this->name} = explode(',', $this->formattedValue);
+                $vCard->formattedData->{$this->formattedName} = explode(',', $this->formattedValue);
             } else {
-                $vCard->formattedData->{$this->name}[] = $this->formattedValue;
+                $vCard->formattedData->{$this->formattedName}[] = $this->formattedValue;
             }
 
         } else {
-            $vCard->formattedData->{$this->name} = $this->formattedValue;
+            $vCard->formattedData->{$this->formattedName} = $this->formattedValue;
 
         }
     }
