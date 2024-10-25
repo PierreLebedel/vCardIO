@@ -17,27 +17,35 @@ composer require pleb/vcardio
 ## Usage
 
 ```php
-use Pleb\VCardIO\VCard;
-use Pleb\VCardIO\VCardParser;
-
-$vCardsArray = VCardParser::parseFile('./contacts.vcf');
+$vCardsCollection = VCardParser::parseFile('./contacts.vcf');
 
 // OR
 
 $vCardsRawData = 'BEGIN:VCARD
 VERSION:4.0
-N:Doe;John;;;
+FN:John Doe
 END:VCARD';
-$vCardsArray = VCardParser::parseRaw($vCardsRawData);
+$vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
 
 // RESULT:
-[
-    VCard {
-        version: 4.0
-        // ...
-    },
-    // ...
-]
+
+Pleb\VCardIO\VCardsCollection {
+    vCards: [
+        Pleb\VCardIO\VCard {
+            version: '4.0'
+            formattedData: {
+                fullName: 'John Doe',
+                // ...
+            },
+            rawData: {
+                fn: 'John Doe',
+                // ...
+            },
+            invalidData: {},
+            unprocessedData: {},
+        },
+    ],
+}
 ```
 
 ## Code formatting
@@ -55,15 +63,6 @@ composer test
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [Pierre Lebedel](https://github.com/PierreLebedel)
-- [All Contributors](../../contributors)
 
 ## License
 
