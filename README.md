@@ -16,6 +16,8 @@ composer require pleb/vcardio
 
 ## Usage
 
+### Parse vCards
+
 ```php
 $vCardsCollection = VCardParser::parseFile('./contacts.vcf');
 
@@ -48,8 +50,17 @@ Pleb\VCardIO\VCardsCollection {
 }
 ```
 
-## Code formatting
+### Read data
 
+```php
+$vCardsCollection = VCardParser::parseFile('./contacts.vcf');
+
+foreach($vCards as $vCard){
+
+}
+```
+
+## Code formatting
 ```bash
 composer format
 ```
