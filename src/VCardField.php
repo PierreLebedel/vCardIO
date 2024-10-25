@@ -16,8 +16,6 @@ class VCardField
 
     public mixed $formattedValue = null;
 
-    public ?string $formattedName = null;
-
     public mixed $rawValue = null;
 
     public array $attributes = [];
@@ -42,7 +40,6 @@ class VCardField
         $this->value = $value;
         $this->attributes = explode(';', $nameAttributes);
         $this->name = mb_strtolower($this->attributes[0]);
-        $this->formattedName = $this->name;
         array_shift($this->attributes);
 
         $this->parseAttributes();
@@ -228,13 +225,6 @@ class VCardField
         return $this;
     }
 
-    public function as(string $formattedName): self
-    {
-        $this->formattedName = $formattedName;
-
-        return $this;
-    }
-
     public function in(array $stringPossibilities): self
     {
         if (! is_string($this->value) || ! in_array($this->value, $stringPossibilities)) {
@@ -303,14 +293,8 @@ class VCardField
             return;
         }
 
-        if (! property_exists($vCard->rawData, $this->name)) {
+        if (! array_key_exists($this->name, $vCard->getDataFields())) {
             $vCard->invalidData->{$this->name} = $this->rawContents;
-
-            return;
-        }
-
-        if (! property_exists($vCard->formattedData, $this->formattedName)) {
-            $vCard->invalidData->{$this->name} = '[formatted] '.$this->rawContents;
 
             return;
         }
@@ -333,16 +317,18 @@ class VCardField
             }
         }
 
+        $alias = $vCard->getDataFields()[$this->name];
+
         if ($this->isMultiple) {
             if (is_string($this->formattedValue)) {
-                $vCard->formattedData->{$this->formattedName} = explode(',', $this->formattedValue);
+                $vCard->formattedData->{$alias} = explode(',', $this->formattedValue);
             } else {
-                $vCard->formattedData->{$this->formattedName}[] = $this->formattedValue;
+                $vCard->formattedData->{$alias}[] = $this->formattedValue;
             }
 
         } else {
-            $vCard->formattedData->{$this->formattedName} = $this->formattedValue;
-
+            $vCard->formattedData->{$alias} = $this->formattedValue;
         }
+
     }
 }

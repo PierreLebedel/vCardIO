@@ -39,10 +39,10 @@ class VCard
         return $this->version;
     }
 
-    public function initVersionData(): self
+    public function getDataFields(): array
     {
         if (! $this->version) {
-            return $this;
+            return [];
         }
 
         $dataFields = [
@@ -112,6 +112,17 @@ class VCard
                 'source'       => 'source',
                 'xml'          => 'xml',
             ];
+        }
+
+        return $dataFields;
+    }
+
+    public function initVersionData(): self
+    {
+        $dataFields = $this->getDataFields();
+
+        if (empty($dataFields)) {
+            return $this;
         }
 
         foreach ($dataFields as $field => $alias) {
