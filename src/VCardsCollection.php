@@ -11,6 +11,8 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 {
     protected int $iteratorKey;
 
+    public array $versions = [];
+
     public function __construct(protected array $vCards = [])
     {
         $this->rewind();
@@ -24,6 +26,15 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
     public function addVCard(VCard $vCard): self
     {
         $this->vCards[] = $vCard;
+
+        $vCardVersion = $vCard->getVersion();
+        if (! array_key_exists($vCardVersion, $this->versions)) {
+            $this->versions[$vCardVersion] = 0;
+        }
+
+        $this->versions[$vCardVersion]++;
+
+        ksort($this->versions);
 
         return $this;
     }

@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Elements\VCardAddressElement;
-use Pleb\VCardIO\Elements\VCardDatetimeElement;
-use Pleb\VCardIO\Elements\VCardElement;
-use Pleb\VCardIO\Elements\VCardFileElement;
-use Pleb\VCardIO\Elements\VCardFloatElement;
-use Pleb\VCardIO\Elements\VCardGeoElement;
-use Pleb\VCardIO\Elements\VCardMultipleElement;
-use Pleb\VCardIO\Elements\VCardMultipleTypedElement;
-use Pleb\VCardIO\Elements\VCardNameElement;
-use Pleb\VCardIO\Elements\VCardOrganizationElement;
-use Pleb\VCardIO\Elements\VCardUriElement;
 use Pleb\VCardIO\Exceptions\VCardIOParserException;
 
 class VCardParser
@@ -138,7 +127,7 @@ class VCardParser
             }
 
             if ($this->currentVCardAgent) {
-                $this->currentVCard->agent = $this->currentVCardAgent;
+                $this->currentVCard->formattedData->agent = $this->currentVCardAgent;
                 $this->currentVCardAgent = null;
 
                 return;
@@ -156,120 +145,90 @@ class VCardParser
 
         $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
         $lineContents = preg_replace('/^\w+\./', '', $lineContents);
-        //$lineContents = str_replace('-wrap');
 
-        @[$name, $value] = explode(':', $lineContents, 2);
-        if (empty($value)) {
+        $field = new VCardField($lineContents);
+
+        if (! $field->name) {
             return;
         }
 
-        $typesAll = explode(';', $name);
-        $name = mb_strtolower($typesAll[0]);
-        array_shift($typesAll);
-
-        $types = [];
-        if (! empty($typesAll)) {
-            foreach ($typesAll as $type) {
-                if (str_starts_with(strtolower($type), 'type=')) {
-                    $subTypes = array_filter(explode(',', preg_replace('/^type=/i', '', $type)));
-                    foreach ($subTypes as $subType) {
-                        $typeOk = trim(strtolower($subType));
-                        if (! empty($typeOk)) {
-                            $types[] = $typeOk;
-                        }
-                    }
-                }
-                $type = preg_replace('/^type=/i', '', $type);
-
-            }
-        }
-
-        $isRawValue = false;
-        foreach ($types as $k => $type) {
-            if (preg_match('/base64/', $type)) {
-                $value = base64_decode($value);
-                unset($types[$k]);
-                $isRawValue = true;
-
-            } elseif (preg_match('/encoding=b/', $type)) {
-                $value = base64_decode($value);
-                unset($types[$k]);
-                $isRawValue = true;
-
-            } elseif (preg_match('/quoted-printable/', $type)) {
-                $value = quoted_printable_decode($value);
-                unset($types[$k]);
-                $isRawValue = true;
-
-            } elseif (strpos($type, 'charset=') === 0) {
-                try {
-                    $value = mb_convert_encoding($value, 'UTF-8', substr($type, 8));
-                } catch (\Exception $e) {
-                    throw VCardIOParserException::invalidCharset($lineNumber, $type);
-                }
-                unset($types[$k]);
-            }
-        }
-
-        $elementInstance = match ($name) {
-            'adr'         => (new VCardAddressElement($value, $types)),
-            'agent'       => (new VCardElement($value)),
-            'anniversary' => (new VCardDatetimeElement($value)),
-            'bday'        => (new VCardDatetimeElement($value)),
-            'caladruri'   => (new VCardUriElement($value)),
-            'caluri'      => (new VCardUriElement($value)),
-            'categories'  => (new VCardMultipleElement($value)),
-            'class'       => (new VCardElement($value)),
-            // 'clientpidmap => ,
-            'email'  => (new VCardMultipleTypedElement($value, $types))->typed(['internet', 'x400', 'pref']),
-            'fburl'  => (new VCardUriElement($value)),
-            'fn'     => (new VCardElement($value)),
-            'gender' => (new VCardElement($value)),
-            'geo'    => (new VCardGeoElement($value)),
-            'impp'   => (new VCardMultipleTypedElement($value, $types))->typed(['personal', 'business', 'home', 'work', 'mobile', 'pref']),
-            'key'    => (new VCardElement($value)),
-            'kind'   => (new VCardElement($value)),
-            'label'  => (new VCardAddressElement($value, $types))->typed(['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
-            'lang'   => (new VCardElement($value)),
-            'logo'   => (new VCardFileElement($value, $types)),
-            'mailer' => (new VCardElement($value)),
-            //'member' => ,
-            'n'        => (new VCardNameElement($value)),
-            'nickname' => (new VCardMultipleElement($value)),
-            'note'     => (new VCardElement($value)),
-            'org'      => (new VCardOrganizationElement($value)),
-            'photo'    => (new VCardFileElement($value, $types)),
-            'prodid'   => (new VCardElement($value)),
-            'profile'  => (new VCardElement($value)),
-            //'related' => ,
-            'rev'         => (new VCardDatetimeElement($value)),
-            'role'        => (new VCardElement($value)),
-            'sort-string' => (new VCardElement($value)),
-            //'sound' => (new VCardFileElement($value, $types))->typed(['ogg', 'ogg/audio']),
-            'source' => (new VCardUriElement($value, $types)),
-            'tel'    => (new VCardMultipleTypedElement($value, $types))->typed(['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
-            'title'  => (new VCardElement($value)),
-            //'tz' => ,
-            //'uid' => ,
-            'url'     => (new VCardUriElement($value)),
-            'version' => (new VCardFloatElement($value)),
-            'xml'     => (new VCardElement($value)),
-            default   => null,
+        match ($field->name) {
+            'adr' => $field->array([
+                'postOfficeAddress',
+                'extendedAddress',
+                'street',
+                'locality',
+                'region',
+                'postalCode',
+                'country',
+            ])->multiple()->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'])->addAttribute('label'),
+            'agent'        => $field->string(),
+            'anniversary'  => $field->datetime(),
+            'bday'         => $field->datetime(),
+            'caladruri'    => $field->uri(),
+            'caluri'       => $field->uri()->addAttribute('type'),
+            'categories'   => $field->string()->multiple()->addAttribute('type'),
+            'class'        => $field->string(),
+            'clientpidmap' => $field->array([
+                'pid',
+                'uri',
+            ])->multiple(),
+            'email'  => $field->object()->multiple()->addAttribute('type'),
+            'fburl'  => $field->uri()->addAttribute('type'),
+            'fn'     => $field->string()->addAttribute('type'),
+            'gender' => $field->string(),
+            'geo'    => $field->coordinates()->addAttribute('type'),
+            'impp'   => $field->object()->multiple()->addAttribute('type', ['personal', 'business', 'home', 'work', 'mobile', 'pref']),
+            'key'    => $field->uri()->addAttribute('type'),
+            'kind'   => $field->string()->in(['invividual', 'group', 'org', 'location']),
+            'label'  => $field->array([
+                'postOfficeAddress',
+                'extendedAddress',
+                'street',
+                'locality',
+                'region',
+                'postalCode',
+                'country',
+            ])->multiple()->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
+            'lang'   => $field->object()->multiple()->addAttribute('type'),
+            'logo'   => $field->uri()->addAttribute('type'),
+            'mailer' => $field->string(),
+            'member' => $field->uri(),
+            'n'      => $field->array([
+                'lastName',
+                'firstName',
+                'middleName',
+                'namePrefix',
+                'nameSuffix',
+            ]),
+            'nickname' => $field->string()->multiple()->addAttribute('type'),
+            'note'     => $field->string()->addAttribute('type'),
+            'org'      => $field->array([
+                'name',
+                'units1',
+                'units2',
+            ])->addAttribute('type'),
+            'photo'       => $field->uri()->addAttribute('type'),
+            'prodid'      => $field->string(),
+            'profile'     => $field->string(),
+            'related'     => $field->uri()->addAttribute('type'),
+            'rev'         => $field->datetime(),
+            'role'        => $field->string()->addAttribute('type'),
+            'sort-string' => $field->string(),
+            'sound'       => $field->uri()->addAttribute('type'),
+            'source'      => $field->uri(),
+            'tel'         => $field->object()->multiple()->addAttribute('type', ['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
+            'title'       => $field->string()->addAttribute('type'),
+            'tz'          => $field->timezone()->addAttribute('type'),
+            'uid'         => $field->string()->ltrim(['urn:uuid:']),
+            'url'         => $field->uri()->addAttribute('type'),
+            'version'     => $field->string(),
+            'xml'         => $field->string(),
+            default       => $field->unexpected(),
         };
 
-        if ($elementInstance) {
-            if ($elementInstance->isMultiple()) {
-                $this->getVCard()->{$name}[] = $elementInstance->outputValue();
-            } else {
-                $this->getVCard()->{$name} = $elementInstance->outputValue();
-            }
+        //dump($field);
 
-            return;
-        }
-
-        $this->getVCard()->unparsedData[$name] = $value;
-
-        //dump('no implementation for '.$name);
-
+        $field->render($this->getVCard());
     }
 }

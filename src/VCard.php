@@ -4,54 +4,25 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use DateTimeZone;
 use stdClass;
 
 class VCard
 {
-    public ?float $version = null;
+    public stdClass $formattedData;
 
-    public ?stdClass $n = null;
+    public stdClass $rawData;
 
-    public ?string $fn = null;
+    public stdClass $unexpectedData;
 
-    public array $nickname = [];
+    public function __construct()
+    {
+        $this->formattedData = new stdClass;
+        $this->rawData = new stdClass;
+        $this->unexpectedData = new stdClass;
+    }
 
-    public array $adr = [];
-
-    public ?stdClass $bday = null;
-
-    public array $categories = [];
-
-    public array $email = [];
-
-    public array $tel = [];
-
-    public ?stdClass $geo = null;
-
-    public ?stdClass $org = null;
-
-    public ?DateTimeZone $tz = null;
-
-    public ?string $xml = null;
-
-    public $agent = null;
-
-    public $photo = null;
-
-    public $logo = null;
-
-    public $sound = null;
-
-    public ?string $url = null;
-
-    public ?string $title = null;
-
-    public ?stdClass $rev = null;
-
-    public ?string $note = null;
-
-    public ?string $prodid = null;
-
-    public array $unparsedData = [];
+    public function getVersion(): string
+    {
+        return $this->formattedData->version;
+    }
 }
