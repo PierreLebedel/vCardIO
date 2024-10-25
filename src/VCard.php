@@ -29,7 +29,7 @@ class VCard
 
     public function setVersion(string $version): self
     {
-        if(!in_array($version, ['2.1', '3.0', '4.0'])){
+        if (! in_array($version, ['2.1', '3.0', '4.0'])) {
             throw VCardException::invalidVersion($version);
         }
 
@@ -118,6 +118,8 @@ class VCard
                 'xml'          => 'xml',
             ];
         }
+
+        ksort($dataFields);
 
         return $dataFields;
     }

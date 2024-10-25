@@ -267,14 +267,6 @@ class VCardField
             $this->formattedValue->attributes[$attribute] = $foundAttributes ?? null;
         }
 
-        // if(is_string($this->formattedValue)){
-        //     $stringObject = new stdClass;
-        //     $stringObject->value = $this->formattedValue;
-        //     $stringObject->attributes[$attribute] = $foundAttributes ?? null;
-
-        //     $this->formattedValue = $stringObject;
-        // }
-
         return $this;
     }
 

@@ -127,7 +127,12 @@ class VCardParser
             }
 
             if ($this->currentVCardAgent) {
-                $this->currentVCard->formattedData->agent = $this->currentVCardAgent;
+                if (array_key_exists('agent', $this->currentVCard->getDataFields())) {
+                    $this->currentVCard->formattedData->agent = $this->currentVCardAgent;
+                    $this->currentVCard->rawData->agent = $this->currentVCardAgent->rawData;
+                } else {
+                    $this->currentVCard->invalidData->agent = $this->currentVCardAgent;
+                }
                 $this->currentVCardAgent = null;
 
                 return;

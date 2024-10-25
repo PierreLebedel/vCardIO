@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Pleb\VCardIO\Exceptions\VCardException;
 use Pleb\VCardIO\VCard;
 use Pleb\VCardIO\VCardParser;
-
 use Pleb\VCardIO\VCardsCollection;
+
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertNull;
 
@@ -14,7 +14,7 @@ it('can test', function () {
     expect(true)->toBeTrue();
 });
 
-it('make simple collection from raw data', function(){
+it('make simple collection from raw data', function () {
 
     $collection = VCardParser::parseRaw('BEGIN:VCARD
 VERSION:4.0
@@ -29,7 +29,7 @@ END:VCARD');
 
 });
 
-it('make multiple collection from raw data', function(){
+it('make multiple collection from raw data', function () {
 
     $collection = VCardParser::parseRaw('BEGIN:VCARD
 VERSION:4.0
@@ -49,7 +49,7 @@ END:VCARD');
 
 });
 
-it('make formatted vCard', function(){
+it('make formatted vCard', function () {
 
     $collection = VCardParser::parseRaw('BEGIN:VCARD
 VERSION:4.0
@@ -70,11 +70,11 @@ END:VCARD');
 
 });
 
-it("can't instanciate vCard with wrong version", function(){
+it("can't instanciate vCard with wrong version", function () {
 
     $collection = VCardParser::parseRaw('BEGIN:VCARD
 VERSION:3.5
 FN:John Doe
 END:VCARD');
 
-})->throws(VCardException::class)->only();
+})->throws(VCardException::class);
