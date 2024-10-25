@@ -30,7 +30,7 @@ class VCardField
 
     protected $isMultiple = false;
 
-    protected $isUnexpected = false;
+    protected $isUnprocessed = false;
 
     public function __construct(public string $rawContents)
     {
@@ -85,15 +85,6 @@ class VCardField
         }
 
         $this->attributes = $newAttributes;
-    }
-
-    public function version(): self
-    {
-        $this->isString = true;
-        $this->formattedValue = $this->value;
-        $this->rawValue = $this->value;
-
-        return $this;
     }
 
     public function string(): self
@@ -237,9 +228,10 @@ class VCardField
         return $this;
     }
 
-    public function as(string $formattedName) :self
+    public function as(string $formattedName): self
     {
         $this->formattedName = $formattedName;
+
         return $this;
     }
 
@@ -254,8 +246,8 @@ class VCardField
 
     public function addAttribute(string $attribute, array $constrainedBy = []): self
     {
-        if($attribute=='type' && array_key_exists('type', $this->attributes)){
-            if(in_array('pref', array_map('strtolower', $this->attributes['type']))){
+        if ($attribute == 'type' && array_key_exists('type', $this->attributes)) {
+            if (in_array('pref', array_map('strtolower', $this->attributes['type']))) {
                 $this->formattedValue->attributes['pref'] = 1;
             }
         }
@@ -296,17 +288,29 @@ class VCardField
         return $this;
     }
 
-    public function unexpected(): self
+    public function unprocecced(): self
     {
-        $this->isUnexpected = true;
+        $this->isUnprocessed = true;
 
         return $this;
     }
 
     public function render(VCard $vCard)
     {
-        if ($this->isUnexpected) {
-            $vCard->unexpectedData->{$this->name} = $this->rawContents;
+        if ($this->isUnprocessed) {
+            $vCard->unprocessedData->{$this->name} = $this->rawContents;
+
+            return;
+        }
+
+        if (! property_exists($vCard->rawData, $this->name)) {
+            $vCard->invalidData->{$this->name} = $this->rawContents;
+
+            return;
+        }
+
+        if (! property_exists($vCard->formattedData, $this->formattedName)) {
+            $vCard->invalidData->{$this->name} = '[formatted] '.$this->rawContents;
 
             return;
         }

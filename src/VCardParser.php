@@ -207,27 +207,31 @@ class VCardParser
                 'name',
                 'units1',
                 'units2',
-            ])->addAttribute('type'),
+            ])->addAttribute('type')->as('organization'),
             'photo'       => $field->uri()->addAttribute('type'),
             'prodid'      => $field->string(),
             'profile'     => $field->string(),
             'related'     => $field->uri()->addAttribute('type'),
-            'rev'         => $field->datetime(),
+            'rev'         => $field->datetime()->as('revision'),
             'role'        => $field->string()->addAttribute('type'),
             'sort-string' => $field->string(),
             'sound'       => $field->uri()->addAttribute('type'),
             'source'      => $field->uri(),
             'tel'         => $field->object()->multiple()->addAttribute('type', ['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs'])->as('phones'),
             'title'       => $field->string()->addAttribute('type'),
-            'tz'          => $field->timezone()->addAttribute('type'),
+            'tz'          => $field->timezone()->addAttribute('type')->as('timezone'),
             'uid'         => $field->string()->ltrim(['urn:uuid:']),
             'url'         => $field->uri()->addAttribute('type'),
-            'version'     => $field->version(),
+            'version'     => $field->string(),
             'xml'         => $field->string(),
-            default       => $field->unexpected(),
+            default       => $field->unprocecced(),
         };
 
         //dump($field);
+
+        if ($field->name == 'version') {
+            $this->getVCard()->setVersion($field->value);
+        }
 
         $field->render($this->getVCard());
     }
