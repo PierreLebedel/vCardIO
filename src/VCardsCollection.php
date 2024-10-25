@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Exceptions\VCardIOArrayAccessException;
-use Pleb\VCardIO\Exceptions\VCardIOIteratorException;
+use Pleb\VCardIO\Exceptions\VCardCollectionArrayAccessException;
+use Pleb\VCardIO\Exceptions\VCardCollectionIteratorException;
 
 class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 {
@@ -67,7 +67,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
     public function current(): mixed
     {
         if (! $this->valid()) {
-            throw VCardIOIteratorException::invalidIndex();
+            throw VCardCollectionIteratorException::invalidIndex();
         }
 
         return $this->vCards[$this->key()] ?? null;
@@ -99,7 +99,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
     public function offsetGet(mixed $offset): mixed
     {
         if (! $this->offsetExists($offset)) {
-            throw VCardIOArrayAccessException::invalidIndex();
+            throw VCardCollectionArrayAccessException::invalidIndex();
         }
 
         return $this->getVCard($offset);
@@ -108,10 +108,10 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if (! is_int($offset)) {
-            throw VCardIOArrayAccessException::invalidIndex('Invalid interger index');
+            throw VCardCollectionArrayAccessException::invalidIndex('Invalid interger index');
         }
         if (! $value instanceof VCard) {
-            throw VCardIOArrayAccessException::invalidValue('Invalid VCard value');
+            throw VCardCollectionArrayAccessException::invalidValue('Invalid VCard value');
         }
 
         $this->vCards[$offset] = $value;
@@ -120,7 +120,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
     public function offsetUnset(mixed $offset): void
     {
         if (! $this->offsetExists($offset)) {
-            throw VCardIOArrayAccessException::invalidIndex();
+            throw VCardCollectionArrayAccessException::invalidIndex();
         }
 
         unset($this->vCards[$offset]);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Exceptions;
 
-class VCardIOArrayAccessException extends VCardIOException
+class VCardCollectionArrayAccessException extends VCardIOException
 {
     public static function invalidIndex(?string $message = null)
     {

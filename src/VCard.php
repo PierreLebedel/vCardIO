@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use Pleb\VCardIO\Exceptions\VCardException;
 use stdClass;
 
 class VCard
@@ -28,6 +29,10 @@ class VCard
 
     public function setVersion(string $version): self
     {
+        if(!in_array($version, ['2.1', '3.0', '4.0'])){
+            throw VCardException::invalidVersion($version);
+        }
+
         $this->version = $version;
         $this->initVersionData();
 

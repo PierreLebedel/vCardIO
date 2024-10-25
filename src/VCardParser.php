@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Exceptions\VCardIOParserException;
+use Pleb\VCardIO\Exceptions\VCardParserException;
 
 class VCardParser
 {
@@ -26,10 +26,10 @@ class VCardParser
     public static function parseFile(string $filePath): VCardsCollection
     {
         if (! file_exists($filePath)) {
-            throw VCardIOParserException::fileNotFound($filePath);
+            throw VCardParserException::fileNotFound($filePath);
         }
         if (! is_readable($filePath)) {
-            throw VCardIOParserException::fileUnreadable($filePath);
+            throw VCardParserException::fileUnreadable($filePath);
         }
 
         return self::parseRaw(file_get_contents($filePath));
@@ -56,7 +56,7 @@ class VCardParser
         $vCardEndCount = preg_match_all('{END\:VCARD}miS', $this->rawData, $beginEndMatches);
 
         if (($vCardBeginCount != $vCardEndCount)) {
-            throw VCardIOParserException::invalidObjects('BEGIN:VCARD count differs of END:VCARD count');
+            throw VCardParserException::invalidObjects('BEGIN:VCARD count differs of END:VCARD count');
         }
 
         $lines = explode("\n", $this->rawData);
@@ -113,7 +113,7 @@ class VCardParser
 
         if (strtoupper($lineContents) == 'AGENT:BEGIN:VCARD') {
             if (! $this->currentVCard) {
-                throw VCardIOParserException::unexpectedLine($lineNumber, 'AGENT:BEGIN:VCARD');
+                throw VCardParserException::unexpectedLine($lineNumber, 'AGENT:BEGIN:VCARD');
             }
 
             $this->currentVCardAgent = new VCard;
@@ -123,7 +123,7 @@ class VCardParser
 
         if (strtoupper($lineContents) == 'END:VCARD') {
             if (! $this->currentVCard) {
-                throw VCardIOParserException::unexpectedLine($lineNumber, 'END:VCARD');
+                throw VCardParserException::unexpectedLine($lineNumber, 'END:VCARD');
             }
 
             if ($this->currentVCardAgent) {
@@ -140,7 +140,7 @@ class VCardParser
         }
 
         if (! $this->currentVCard) {
-            throw VCardIOParserException::unexpectedLine($lineNumber, $lineContents);
+            throw VCardParserException::unexpectedLine($lineNumber, $lineContents);
         }
 
         $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
