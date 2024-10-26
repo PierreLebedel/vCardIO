@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardParserException;
 
 class VCardParser
@@ -105,6 +106,13 @@ class VCardParser
 
     protected function parseLine(int $lineNumber, string $lineContents): void
     {
+        $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
+        $lineContents = preg_replace('/^\w+\./', '', $lineContents);
+
+        if (! $lineContents) {
+            return;
+        }
+
         if (strtoupper($lineContents) == 'BEGIN:VCARD') {
             $this->currentVCard = new VCard;
 
@@ -144,12 +152,12 @@ class VCardParser
             return;
         }
 
+        //dump($this->currentVCard, $lineContents);
+
         if (! $this->currentVCard) {
+            dump($this->currentVCard);
             throw VCardParserException::unexpectedLine($lineNumber, $lineContents);
         }
-
-        $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
-        $lineContents = preg_replace('/^\w+\./', '', $lineContents);
 
         $field = new VCardField($lineContents);
 
@@ -158,7 +166,7 @@ class VCardParser
         }
 
         match ($field->name) {
-            'adr' => $field->array([
+            'adr' => $field->assoc([
                 'postOfficeAddress',
                 'extendedAddress',
                 'street',
@@ -166,27 +174,27 @@ class VCardParser
                 'region',
                 'postalCode',
                 'country',
-            ])->multiple()->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'])->addAttribute('label'),
+            ])->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'])->addAttribute('label'),
             'agent'        => $field->string(),
             'anniversary'  => $field->datetime(),
             'bday'         => $field->datetime(),
             'caladruri'    => $field->uri(),
             'caluri'       => $field->uri()->addAttribute('type'),
-            'categories'   => $field->string()->multiple()->addAttribute('type'),
+            'categories'   => $field->array()->addAttribute('type'),
             'class'        => $field->string(),
-            'clientpidmap' => $field->array([
+            'clientpidmap' => $field->assoc([
                 'pid',
                 'uri',
-            ])->multiple(),
-            'email'  => $field->object()->multiple()->addAttribute('type'),
+            ]),
+            'email'  => $field->object()->addAttribute('type'),
             'fburl'  => $field->uri()->addAttribute('type'),
             'fn'     => $field->string()->addAttribute('type'),
             'gender' => $field->string(),
             'geo'    => $field->coordinates()->addAttribute('type'),
-            'impp'   => $field->object()->multiple()->addAttribute('type', ['personal', 'business', 'home', 'work', 'mobile', 'pref']),
+            'impp'   => $field->object()->addAttribute('type', ['personal', 'business', 'home', 'work', 'mobile', 'pref']),
             'key'    => $field->uri()->addAttribute('type'),
             'kind'   => $field->string()->in(['invividual', 'group', 'org', 'location']),
-            'label'  => $field->array([
+            'label'  => $field->assoc([
                 'postOfficeAddress',
                 'extendedAddress',
                 'street',
@@ -194,21 +202,21 @@ class VCardParser
                 'region',
                 'postalCode',
                 'country',
-            ])->multiple()->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
-            'lang'   => $field->object()->multiple()->addAttribute('type'),
+            ])->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
+            'lang'   => $field->object()->addAttribute('type'),
             'logo'   => $field->uri()->addAttribute('type'),
             'mailer' => $field->string(),
             'member' => $field->uri(),
-            'n'      => $field->array([
+            'n'      => $field->assoc([
                 'lastName',
                 'firstName',
                 'middleName',
                 'namePrefix',
                 'nameSuffix',
             ]),
-            'nickname' => $field->string()->multiple()->addAttribute('type'),
+            'nickname' => $field->array()->addAttribute('type'),
             'note'     => $field->string()->addAttribute('type'),
-            'org'      => $field->array([
+            'org'      => $field->assoc([
                 'name',
                 'units1',
                 'units2',
@@ -222,7 +230,7 @@ class VCardParser
             'sort-string' => $field->string(),
             'sound'       => $field->uri()->addAttribute('type'),
             'source'      => $field->uri(),
-            'tel'         => $field->object()->multiple()->addAttribute('type', ['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
+            'tel'         => $field->object()->addAttribute('type', ['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
             'title'       => $field->string()->addAttribute('type'),
             'tz'          => $field->timezone()->addAttribute('type'),
             'uid'         => $field->string()->ltrim(['urn:uuid:']),
@@ -235,7 +243,8 @@ class VCardParser
         //dump($field);
 
         if ($field->name == 'version') {
-            $this->getVCard()->setVersion($field->value);
+            $versionEnum = VCardVersionEnum::from($field->value);
+            $this->getVCard()->setVersion($versionEnum);
         }
 
         $field->render($this->getVCard());

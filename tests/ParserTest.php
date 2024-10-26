@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardException;
 use Pleb\VCardIO\VCard;
 use Pleb\VCardIO\VCardParser;
@@ -9,6 +10,7 @@ use Pleb\VCardIO\VCardsCollection;
 
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertNull;
+use function PHPUnit\Framework\assertSame;
 
 it('can test', function () {
     expect(true)->toBeTrue();
@@ -64,7 +66,8 @@ END:VCARD');
 
     assertInstanceOf(VCard::class, $vCard);
 
-    assert($vCard->getVersion(), '4.0');
+    assertSame($vCard->getVersion(), VCardVersionEnum::V40);
+
     assert($vCard->formattedData->fullName, 'John Doe');
     assertNull($vCard->formattedData->name);
 

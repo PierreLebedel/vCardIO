@@ -28,11 +28,11 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         $this->vCards[] = $vCard;
 
         $vCardVersion = $vCard->getVersion();
-        if (! array_key_exists($vCardVersion, $this->versions)) {
-            $this->versions[$vCardVersion] = 0;
+        if (! array_key_exists($vCardVersion->value, $this->versions)) {
+            $this->versions[$vCardVersion->value] = 0;
         }
 
-        $this->versions[$vCardVersion]++;
+        $this->versions[$vCardVersion->value]++;
 
         ksort($this->versions);
 

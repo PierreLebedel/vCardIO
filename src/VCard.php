@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Exceptions\VCardException;
+use Pleb\VCardIO\Enums\VCardVersionEnum;
 use stdClass;
 
 class VCard
 {
-    public ?string $version = null;
+    public ?VCardVersionEnum $version = null;
 
     public stdClass $formattedData;
 
@@ -27,106 +27,65 @@ class VCard
         $this->unprocessedData = new stdClass;
     }
 
-    public function setVersion(string $version): self
+    public function setVersion(VCardVersionEnum $version): self
     {
-        if (! in_array($version, ['2.1', '3.0', '4.0'])) {
-            throw VCardException::invalidVersion($version);
-        }
-
         $this->version = $version;
         $this->initVersionData();
 
         return $this;
     }
 
-    public function getVersion(): ?string
+    public function getVersion(): ?VCardVersionEnum
     {
         return $this->version;
     }
 
     public function getDataFields(): array
     {
-        if (! $this->version) {
-            return [];
-        }
+        return $this->version?->getDataFields() ?? [];
+    }
 
-        $dataFields = [
-            'fn'      => 'fullName',
-            'n'       => 'name',
-            'adr'     => 'addresses',
-            'bday'    => 'birthday',
-            'email'   => 'emails',
-            'geo'     => 'geo',
-            'key'     => 'key',
-            'logo'    => 'logo',
-            'n'       => 'name',
-            'note'    => 'note',
-            'org'     => 'organization',
-            'photo'   => 'photo',
-            'rev'     => 'revision',
-            'role'    => 'role',
-            'sound'   => 'sound',
-            'tel'     => 'phones',
-            'title'   => 'title',
-            'tz'      => 'timezone',
-            'uid'     => 'uid',
-            'url'     => 'url',
-            'version' => 'version',
+    public static function getSingularFields(): array
+    {
+        return [
+            'version',
+            'fn',
+            'n',
+            'bday',
+            'logo',
+            'photo',
+            'note',
+            'rev',
+            'sound',
+            'tz',
+            'uid',
+            'agent',
+            'mailer',
+            'categories',
+            'nickname',
+            'class',
+            'prodid',
+            'anniversary',
+            'caladruri',
+            'caluri',
+            'clientpidmap',
+            'fburl',
+            'gender',
+            'kind',
+            'nickname',
+            'prodid',
+            'related',
+            'xml',
         ];
-
-        if ($this->version == '2.1') {
-            $dataFields += [
-                'agent'  => 'agent',
-                'label'  => 'label',
-                'lang'   => 'lang',
-                'mailer' => 'mailer',
-            ];
-
-        } elseif ($this->version == '3.0') {
-            $dataFields += [
-                'agent'       => 'agent',
-                'categories'  => 'categories',
-                'class'       => 'class',
-                'impp'        => 'impp',
-                'label'       => 'label',
-                'mailer'      => 'mailer',
-                'name'        => 'name',
-                'nickname'    => 'nicknames',
-                'prodid'      => 'prodid',
-                'profile'     => 'profile',
-                'sort-string' => 'sort-string',
-                'source'      => 'source',
-            ];
-
-        } elseif ($this->version == '4.0') {
-            $dataFields += [
-                'anniversary'  => 'anniversary',
-                'caladruri'    => 'caladruri',
-                'caluri'       => 'caluri',
-                'categories'   => 'categories',
-                'clientpidmap' => 'clientpidmap',
-                'fburl'        => 'fburl',
-                'gender'       => 'gender',
-                'impp'         => 'impp',
-                'kind'         => 'kind',
-                'lang'         => 'langs',
-                'member'       => 'member',
-                'nickname'     => 'nicknames',
-                'prodid'       => 'prodid',
-                'related'      => 'related',
-                'source'       => 'source',
-                'xml'          => 'xml',
-            ];
-        }
-
-        ksort($dataFields);
-
-        return $dataFields;
     }
 
     public function initVersionData(): self
     {
-        $dataFields = $this->getDataFields();
+        if (! $this->version) {
+            return [];
+        }
+
+        $dataFields = $this->version->getDataFields();
 
         if (empty($dataFields)) {
             return $this;
@@ -138,5 +97,16 @@ class VCard
         }
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return implode(PHP_EOL, [
+            'BEGIN:VCARD',
+            'VERSION:'.$this->getVersion()->value,
+            'FN;CHARSET=UTF-8:Todo ToString',
+            'PRODID:-//Pleb vCardIO',
+            'END:VCARD',
+        ]);
     }
 }

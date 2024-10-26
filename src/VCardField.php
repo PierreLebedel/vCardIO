@@ -47,6 +47,10 @@ class VCardField
         if (array_key_exists('charset', $this->attributes) && ! empty($this->attributes['charset'])) {
             $this->value = mb_convert_encoding($this->value, 'UTF-8', $this->attributes['charset']);
         }
+
+        if (! in_array($this->name, VCard::getSingularFields())) {
+            $this->multiple();
+        }
     }
 
     protected function parseAttributes()
@@ -110,7 +114,15 @@ class VCardField
         return $this;
     }
 
-    public function array(array $keys): self
+    public function array(): self
+    {
+        $this->formattedValue = explode(',', $this->value);
+        $this->rawValue = explode(',', $this->value);
+
+        return $this;
+    }
+
+    public function assoc(array $keys): self
     {
         $this->isArray = true;
 
@@ -238,7 +250,7 @@ class VCardField
     {
         if ($attribute == 'type' && array_key_exists('type', $this->attributes)) {
             if (in_array('pref', array_map('strtolower', $this->attributes['type']))) {
-                $this->formattedValue->attributes['pref'] = 1;
+                $this->attributes['pref'] = 1;
             }
         }
 
