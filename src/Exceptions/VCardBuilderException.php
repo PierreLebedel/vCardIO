@@ -18,6 +18,6 @@ class VCardBuilderException extends VCardIOException
 
     public static function wrongStringValue(string $field, string $value)
     {
-        return new self(sprintf("Wrong value %s for field %s", $value, $field));
+        return new self(sprintf('Wrong value %s for field %s', $value, $field));
     }
 }

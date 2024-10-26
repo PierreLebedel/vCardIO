@@ -26,15 +26,15 @@ class VCardBuilder
         return new static($version);
     }
 
-    protected function property(string $name, string $value, array $attributes = [] ) :self
+    protected function property(string $name, string $value, array $attributes = []): self
     {
         if (! array_key_exists($name, $this->version->getDataFields())) {
             dd('no property: '.$name);
         }
 
         $formattedAttributes = [];
-        foreach($attributes as $k => $v){
-            $formattedAttributes[] = strtoupper($k).'='. (is_array($v) ? implode(',', $v) : $v);
+        foreach ($attributes as $k => $v) {
+            $formattedAttributes[] = strtoupper($k).'='.(is_array($v) ? implode(',', $v) : $v);
         }
 
         $property = implode(';', array_merge([strtoupper($name)], $formattedAttributes));
@@ -42,7 +42,7 @@ class VCardBuilder
 
         if (in_array($name, VCard::getSingularFields())) {
             $this->properties[$name] = $property;
-        }else{
+        } else {
             $this->properties[$name][] = $property;
         }
 
@@ -129,7 +129,8 @@ class VCardBuilder
         $names = $this->properties['N'] ?? ';;;;';
         $namesArray = explode(';', $names, 5);
         $namesArray[0] = $lastName;
-        $this->property('n', implode(';',$namesArray));
+        $this->property('n', implode(';', $namesArray));
+
         return $this;
     }
 
@@ -138,7 +139,8 @@ class VCardBuilder
         $names = $this->properties['n'] ?? ';;;;';
         $namesArray = explode(';', $names, 5);
         $namesArray[1] = $firstName;
-        $this->property('n', implode(';',$namesArray));
+        $this->property('n', implode(';', $namesArray));
+
         return $this;
     }
 
@@ -147,7 +149,8 @@ class VCardBuilder
         $names = $this->properties['n'] ?? ';;;;';
         $namesArray = explode(';', $names, 5);
         $namesArray[2] = $middleName;
-        $this->property('n', implode(';',$namesArray));
+        $this->property('n', implode(';', $namesArray));
+
         return $this;
     }
 
@@ -156,7 +159,8 @@ class VCardBuilder
         $names = $this->properties['n'] ?? ';;;;';
         $namesArray = explode(';', $names, 5);
         $namesArray[3] = $namePrefix;
-        $this->property('n', implode(';',$namesArray));
+        $this->property('n', implode(';', $namesArray));
+
         return $this;
     }
 
@@ -165,7 +169,8 @@ class VCardBuilder
         $names = $this->properties['n'] ?? ';;;;';
         $namesArray = explode(';', $names, 5);
         $namesArray[4] = $nameSuffix;
-        $this->property('n', implode(';',$namesArray));
+        $this->property('n', implode(';', $namesArray));
+
         return $this;
     }
 
@@ -213,19 +218,21 @@ class VCardBuilder
 
     public function kind(string $kind): self
     {
-        if( !in_array( strtolower($kind), ['individual', 'group', 'org', 'location'] ) ){
+        if (! in_array(strtolower($kind), ['individual', 'group', 'org', 'location'])) {
             throw VCardBuilderException::wrongStringValue('kind', $kind);
         }
         $this->property('kind', strtolower($kind));
+
         return $this;
     }
 
     public function gender(string $gender): self
     {
-        if( !in_array( strtolower($gender), ['f', 'm', 'o', 'n', 'u'] ) ){
+        if (! in_array(strtolower($gender), ['f', 'm', 'o', 'n', 'u'])) {
             throw VCardBuilderException::wrongStringValue('gender', $gender);
         }
         $this->property('gender', strtolower($gender));
+
         return $this;
     }
 
@@ -298,34 +305,35 @@ class VCardBuilder
     public function get(): VCard
     {
         $collection = VCardParser::parseRaw((string) $this);
+
         return $collection->getVCard(0);
     }
 
     public function __toString(): string
     {
         $propertiesArray = [];
-        foreach([
+        foreach ([
             'BEGIN:VCARD',
             'VERSION:'.$this->version->value,
-        ] as $property){
+        ] as $property) {
             $propertiesArray[] = $property;
         }
 
-        foreach($this->properties as $name => $values){
-            if(is_array($values)){
-                foreach($values as $value){
+        foreach ($this->properties as $name => $values) {
+            if (is_array($values)) {
+                foreach ($values as $value) {
                     $propertiesArray[] = $value;
                 }
-            }else{
+            } else {
                 $propertiesArray[] = $values;
             }
         }
 
-        foreach([
+        foreach ([
             'PRODID:-//Pleb vCardIO',
             'REV:'.(new DateTime('now'))->format('Ymd\THis\Z'),
             'END:VCARD',
-        ] as $property){
+        ] as $property) {
             $propertiesArray[] = $property;
         }
 
