@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Exceptions\VCardException;
 use Pleb\VCardIO\Exceptions\VCardParserException;
 
 class VCardParser
@@ -152,10 +153,7 @@ class VCardParser
             return;
         }
 
-        //dump($this->currentVCard, $lineContents);
-
         if (! $this->currentVCard) {
-            dump($this->currentVCard);
             throw VCardParserException::unexpectedLine($lineNumber, $lineContents);
         }
 
@@ -243,7 +241,10 @@ class VCardParser
         //dump($field);
 
         if ($field->name == 'version') {
-            $versionEnum = VCardVersionEnum::from($field->value);
+            $versionEnum = VCardVersionEnum::tryFrom($field->value);
+            if (! $versionEnum) {
+                throw VCardException::invalidVersion($field->value);
+            }
             $this->getVCard()->setVersion($versionEnum);
         }
 
