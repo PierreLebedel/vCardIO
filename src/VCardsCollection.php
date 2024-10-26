@@ -48,6 +48,11 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this->vCards[$index];
     }
 
+    public function first(): ?VCard
+    {
+        return $this->vCards[0] ?? null;
+    }
+
     /**
      * Countable interface implementation
      */

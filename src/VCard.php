@@ -32,6 +32,9 @@ class VCard
         $this->version = $version;
         $this->initVersionData();
 
+        $this->formattedData->version = $this->version->value;
+        $this->rawData->version = $this->version->value;
+
         return $this;
     }
 

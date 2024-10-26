@@ -15,4 +15,9 @@ class VCardBuilderException extends VCardIOException
     {
         return new self(sprintf("Field %s isn't multiple", $field));
     }
+
+    public static function wrongStringValue(string $field, string $value)
+    {
+        return new self(sprintf("Wrong value %s for field %s", $value, $field));
+    }
 }
