@@ -178,7 +178,7 @@ class VCardBuilder
 
     public function kind(string $kind): self
     {
-        if( !in_array( strtolower($kind), ['individual', 'group', 'org', 'location'] ) ){
+        if (! in_array(strtolower($kind), ['individual', 'group', 'org', 'location'])) {
             throw VCardBuilderException::wrongStringValue('kind', $kind);
         }
         //$this->property('kind', strtolower($kind));
@@ -187,7 +187,7 @@ class VCardBuilder
 
     public function gender(string $gender): self
     {
-        if( !in_array( strtolower($gender), ['f', 'm', 'o', 'n', 'u'] ) ){
+        if (! in_array(strtolower($gender), ['f', 'm', 'o', 'n', 'u'])) {
             throw VCardBuilderException::wrongStringValue('gender', $gender);
         }
         //$this->property('gender', strtolower($gender));
