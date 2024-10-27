@@ -5,16 +5,13 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use DateTime;
-use stdClass;
 use DateTimeInterface;
-use Pleb\VCardIO\Fields\NameField;
-use Pleb\VCardIO\Fields\FullNameField;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
-use Pleb\VCardIO\Exceptions\VCardException;
-use Pleb\VCardIO\Exceptions\VCardParserException;
 use Pleb\VCardIO\Exceptions\VCardBuilderException;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Fields\Emailfield;
+use Pleb\VCardIO\Fields\FullNameField;
+use Pleb\VCardIO\Fields\NameField;
 use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardBuilder
@@ -54,15 +51,15 @@ class VCardBuilder
     //     return $this;
     // }
 
-    public function addField(AbstractField $field) :self
+    public function addField(AbstractField $field): self
     {
-        if( !array_key_exists( $field->getName(), $this->fields ) ){
+        if (! array_key_exists($field->getName(), $this->fields)) {
             $this->fields[$field->getName()] = [];
         }
 
-        if(!$field->isMultiple()){
+        if (! $field->isMultiple()) {
             $this->fields[$field->getName()][0] = $field;
-        }else{
+        } else {
             $this->fields[$field->getName()][] = $field;
         }
 
@@ -99,13 +96,16 @@ class VCardBuilder
 
     protected function namePart(int $index, string $namePart): self
     {
-        if( !$fieldClass = VCardParser::fields()['n'] ) return $this;
-        $currentNameField = (array_key_exists('n', $this->fields) && count($this->fields['n'])==1)
-            ? array_values((array)$this->fields['n'][0]->render())
+        if (! $fieldClass = VCardParser::fields()['n']) {
+            return $this;
+        }
+        $currentNameField = (array_key_exists('n', $this->fields) && count($this->fields['n']) == 1)
+            ? array_values((array) $this->fields['n'][0]->render())
             : $fieldClass::getDefaultValue();
         $currentNameField[$index] = $namePart;
 
         $this->addField(new NameField($currentNameField));
+
         return $this;
     }
 
@@ -181,6 +181,7 @@ class VCardBuilder
         if (! in_array(strtolower($kind), ['individual', 'group', 'org', 'location'])) {
             throw VCardBuilderException::wrongStringValue('kind', $kind);
         }
+
         //$this->property('kind', strtolower($kind));
         return $this;
     }
@@ -190,6 +191,7 @@ class VCardBuilder
         if (! in_array(strtolower($gender), ['f', 'm', 'o', 'n', 'u'])) {
             throw VCardBuilderException::wrongStringValue('gender', $gender);
         }
+
         //$this->property('gender', strtolower($gender));
         return $this;
     }
@@ -264,10 +266,10 @@ class VCardBuilder
     {
         $vCardClass = $this->version->getVCardClass();
 
-        $vCard = new $vCardClass();
+        $vCard = new $vCardClass;
 
-        foreach($this->fields as $name => $fields){
-            foreach($fields as $field){
+        foreach ($this->fields as $name => $fields) {
+            foreach ($fields as $field) {
                 $vCard->applyField($field);
             }
         }

@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Fields;
 
-use Pleb\VCardIO\VCard;
-use Pleb\VCardIO\Models\AbstractVCard;
 use Pleb\VCardIO\Exceptions\VCardFieldException;
+use Pleb\VCardIO\Models\AbstractVCard;
 use Pleb\VCardIO\VCardParser;
 
 abstract class AbstractField
 {
-
     protected string $name;
+
     protected ?string $alias = null;
+
     protected bool $multiple;
 
     public static function parse(string $rawData): ?AbstractField
@@ -30,8 +32,9 @@ abstract class AbstractField
 
         $fieldClass = VCardParser::fields()[$name] ?? null;
 
-        if(!$fieldClass || !class_exists($fieldClass)){
+        if (! $fieldClass || ! class_exists($fieldClass)) {
             dump('@todo field for name:'.$name);
+
             return null;
             //throw VCardFieldException::unknownField($name);
         }
@@ -39,7 +42,7 @@ abstract class AbstractField
         return $fieldClass::make($value, $attributes);
     }
 
-    protected static function parseAttributes(array $attributes = []) :array
+    protected static function parseAttributes(array $attributes = []): array
     {
         if (empty($attributes)) {
             return [];
@@ -74,38 +77,38 @@ abstract class AbstractField
         return $newAttributes;
     }
 
-    public function getName() :string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getAlias() :string
+    public function getAlias(): string
     {
         return $this->alias ?? $this->name;
     }
 
-    public function isMultiple() :bool
+    public function isMultiple(): bool
     {
         return $this->multiple;
     }
 
-    public static function getDefaultValue() :mixed
+    public static function getDefaultValue(): mixed
     {
         return null;
     }
 
-    public function apply(AbstractVCard $vCard) :AbstractVCard
+    public function apply(AbstractVCard $vCard): AbstractVCard
     {
-        if($this->multiple){
+        if ($this->multiple) {
             $vCard->{$this->getAlias()}[] = $this->render();
-        }else{
+        } else {
             $vCard->{$this->getAlias()} = $this->render();
         }
 
         return $vCard;
     }
 
-    public function toString(string $value, array $attributes = []) :string
+    public function toString(string $value, array $attributes = []): string
     {
         $attributes = self::parseAttributes($attributes);
 
@@ -115,10 +118,9 @@ abstract class AbstractField
         return $property;
     }
 
-    abstract public static function make(string $value, array $attributes = []) :self;
+    abstract public static function make(string $value, array $attributes = []): self;
 
-    abstract public function render() :mixed;
+    abstract public function render(): mixed;
 
-    abstract public function __toString() :string;
-
+    abstract public function __toString(): string;
 }

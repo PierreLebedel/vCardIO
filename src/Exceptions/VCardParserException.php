@@ -38,11 +38,11 @@ class VCardParserException extends VCardIOException
 
     public static function emptyValue(int $lineNumber)
     {
-        return new self("Empty value on line ".$lineNumber);
+        return new self('Empty value on line '.$lineNumber);
     }
 
     public static function noVersionOnVCardStart(int $lineNumber)
     {
-        return new self("No version on vCard start on line".$lineNumber);
+        return new self('No version on vCard start on line'.$lineNumber);
     }
 }

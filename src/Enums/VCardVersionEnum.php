@@ -7,8 +7,6 @@ namespace Pleb\VCardIO\Enums;
 use Pleb\VCardIO\Models\VCardV21;
 use Pleb\VCardIO\Models\VCardV30;
 use Pleb\VCardIO\Models\VCardV40;
-use Pleb\VCardIO\Fields\NameField;
-use Pleb\VCardIO\Fields\FullNameField;
 
 enum VCardVersionEnum: string
 {
@@ -16,7 +14,7 @@ enum VCardVersionEnum: string
     case V30 = '3.0';
     case V40 = '4.0';
 
-    public function getVCardClass() :string
+    public function getVCardClass(): string
     {
         return match ($this) {
             self::V21 => VCardV21::class,
@@ -24,5 +22,4 @@ enum VCardVersionEnum: string
             self::V40 => VCardV40::class,
         };
     }
-
 }

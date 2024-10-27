@@ -83,15 +83,14 @@ class VCard
         ];
     }
 
-
-    public function addField(AbstractField $field) :self
+    public function addField(AbstractField $field): self
     {
-        if($field->isMultiple()){
-            if(!array_key_exists($field->name, $this->fields)){
+        if ($field->isMultiple()) {
+            if (! array_key_exists($field->name, $this->fields)) {
                 $this->fields[$field->name] = [];
             }
             $this->fields[$field->name][] = $field;
-        }else{
+        } else {
             $this->fields[$field->name] = $field;
         }
 
@@ -102,10 +101,10 @@ class VCard
     {
         $propertiesArray = [];
 
-        foreach([
+        foreach ([
             'BEGIN:VCARD',
             'VERSION:'.$this->getVersion()->value,
-        ] as $property){
+        ] as $property) {
             $propertiesArray[] = $property;
         }
 
@@ -113,18 +112,18 @@ class VCard
 
         dump($this->fields);
 
-        foreach($this->fields as $name => $fields){
-            if(is_array($fields)){
-                foreach($fields as $field){
+        foreach ($this->fields as $name => $fields) {
+            if (is_array($fields)) {
+                foreach ($fields as $field) {
                     $propertiesArray[] = $field->toString();
                 }
-            }else{
+            } else {
                 $propertiesArray[] = $fields->toString();
             }
         }
-        foreach([
+        foreach ([
             'END:VCARD',
-        ] as $property){
+        ] as $property) {
             $propertiesArray[] = $property;
         }
 

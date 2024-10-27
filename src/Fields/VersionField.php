@@ -1,39 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Fields;
 
 use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardException;
-use Pleb\VCardIO\VCard;
-use Pleb\VCardIO\Models\AbstractVCard;
 
 class VersionField extends AbstractField
 {
-
     protected string $name = 'version';
+
     protected bool $multiple = false;
 
-    public function __construct(public VCardVersionEnum $versionEnum)
-    {}
+    public function __construct(public VCardVersionEnum $versionEnum) {}
 
-    public static function make(string $value, array $attributes = []) :self
+    public static function make(string $value, array $attributes = []): self
     {
         $versionEnum = VCardVersionEnum::tryFrom($value);
-        if(!$versionEnum){
+        if (! $versionEnum) {
             throw VCardException::invalidVersion($value);
         }
 
         return new self(VCardVersionEnum::from($value));
     }
 
-    public function render() :mixed
+    public function render(): mixed
     {
         return $this->versionEnum->value;
     }
 
-    public function __toString() :string
+    public function __toString(): string
     {
         return $this->toString($this->versionEnum->value);
     }
-
 }

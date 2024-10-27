@@ -1,30 +1,30 @@
 <?php
 
-namespace Pleb\VCardIO\Fields;
+declare(strict_types=1);
 
-use Pleb\VCardIO\VCard;
-use Pleb\VCardIO\Models\AbstractVCard;
+namespace Pleb\VCardIO\Fields;
 
 class NameField extends AbstractField
 {
     protected string $name = 'n';
+
     protected ?string $alias = 'name';
+
     protected bool $multiple = false;
 
-    public function __construct(public array $nameParts)
-    {}
+    public function __construct(public array $nameParts) {}
 
-    public static function make(string $value, array $attributes = []) :self
+    public static function make(string $value, array $attributes = []): self
     {
         return new self(explode(';', $value, 5));
     }
 
-    public static function getDefaultValue() :mixed
+    public static function getDefaultValue(): mixed
     {
         return [null, null, null, null, null];
     }
 
-    public function render() :mixed
+    public function render(): mixed
     {
         return (object) [
             'lastName'   => $this->nameParts[0] ?? '',
@@ -35,7 +35,7 @@ class NameField extends AbstractField
         ];
     }
 
-    public function __toString() :string
+    public function __toString(): string
     {
         return $this->toString(implode(';', array_values($this->nameParts)));
     }
