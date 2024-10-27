@@ -4,36 +4,37 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use AllowDynamicProperties;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Fields\AbstractField;
 use stdClass;
 
+#[AllowDynamicProperties]
 class VCard
 {
     public ?VCardVersionEnum $version = null;
 
-    public stdClass $formattedData;
+    // public stdClass $formattedData;
 
-    public stdClass $rawData;
+    // public stdClass $rawData;
 
-    public stdClass $invalidData;
+    // public stdClass $invalidData;
 
-    public stdClass $unprocessedData;
+    // public stdClass $unprocessedData;
+
+    public array $fields = [];
 
     public function __construct()
     {
-        $this->formattedData = new stdClass;
-        $this->rawData = new stdClass;
-        $this->invalidData = new stdClass;
-        $this->unprocessedData = new stdClass;
+        // $this->formattedData = new stdClass;
+        // $this->rawData = new stdClass;
+        // $this->invalidData = new stdClass;
+        // $this->unprocessedData = new stdClass;
     }
 
     public function setVersion(VCardVersionEnum $version): self
     {
         $this->version = $version;
-        $this->initVersionData();
-
-        $this->formattedData->version = $this->version->value;
-        $this->rawData->version = $this->version->value;
 
         return $this;
     }
@@ -43,9 +44,9 @@ class VCard
         return $this->version;
     }
 
-    public function getDataFields(): array
+    public function getVersionFields(): array
     {
-        return $this->version?->getDataFields() ?? [];
+        return $this->version?->getFields() ?? [];
     }
 
     public static function getSingularFields(): array
@@ -82,34 +83,51 @@ class VCard
         ];
     }
 
-    public function initVersionData(): self
+
+    public function addField(AbstractField $field) :self
     {
-        if (! $this->version) {
-            return [];
+        if($field->isMultiple()){
+            if(!array_key_exists($field->name, $this->fields)){
+                $this->fields[$field->name] = [];
+            }
+            $this->fields[$field->name][] = $field;
+        }else{
+            $this->fields[$field->name] = $field;
         }
 
-        $dataFields = $this->version->getDataFields();
-
-        if (empty($dataFields)) {
-            return $this;
-        }
-
-        foreach ($dataFields as $field => $alias) {
-            $this->formattedData->{$alias} = null;
-            $this->rawData->{$field} = null;
-        }
-
-        return $this;
+        return $field->apply($this);
     }
 
     public function __toString(): string
     {
-        return implode(PHP_EOL, [
+        $propertiesArray = [];
+
+        foreach([
             'BEGIN:VCARD',
             'VERSION:'.$this->getVersion()->value,
-            'FN;CHARSET=UTF-8:Todo ToString',
-            'PRODID:-//Pleb vCardIO',
+        ] as $property){
+            $propertiesArray[] = $property;
+        }
+
+        // $fields = $this->version->getFields();
+
+        dump($this->fields);
+
+        foreach($this->fields as $name => $fields){
+            if(is_array($fields)){
+                foreach($fields as $field){
+                    $propertiesArray[] = $field->toString();
+                }
+            }else{
+                $propertiesArray[] = $fields->toString();
+            }
+        }
+        foreach([
             'END:VCARD',
-        ]);
+        ] as $property){
+            $propertiesArray[] = $property;
+        }
+
+        return implode(PHP_EOL, $propertiesArray);
     }
 }

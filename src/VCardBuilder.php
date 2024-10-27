@@ -5,20 +5,30 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use DateTime;
-use DateTimeInterface;
-use Pleb\VCardIO\Enums\VCardVersionEnum;
-use Pleb\VCardIO\Exceptions\VCardBuilderException;
 use stdClass;
+use DateTimeInterface;
+use Pleb\VCardIO\Fields\NameField;
+use Pleb\VCardIO\Fields\FullNameField;
+use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Exceptions\VCardException;
+use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Exceptions\VCardBuilderException;
+use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Fields\Emailfield;
+use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardBuilder
 {
     public VCardVersionEnum $version;
 
-    public array $properties = [];
+    public array $fields = [];
 
     public function __construct(?VCardVersionEnum $version = null)
     {
-        $this->version = $version ?? VCardVersionEnum::V40;
+        $this->setVersion($version ?? VCardVersionEnum::V40);
+
+        // $this->vCard->PRODID = '-//Pleb vCardIO';
+        // $this->vCard->REV = (new DateTime('now'))->format('Ymd\THis\Z');
     }
 
     public static function make(?VCardVersionEnum $version = null): self
@@ -26,79 +36,42 @@ class VCardBuilder
         return new static($version);
     }
 
-    protected function property(string $name, string $value, array $attributes = [] ) :self
+    public function setVersion(VCardVersionEnum $version): self
     {
-        if (! array_key_exists($name, $this->version->getDataFields())) {
-            dd('no property: '.$name);
+        $this->version = $version;
+
+        return $this;
+    }
+
+    public function getVersion(): ?VCardVersionEnum
+    {
+        return $this->version;
+    }
+
+    // public function setAgent(VCard $agent) :self
+    // {
+    //     $this->vCardAgent = $agent;
+    //     return $this;
+    // }
+
+    public function addField(AbstractField $field) :self
+    {
+        if( !array_key_exists( $field->getName(), $this->fields ) ){
+            $this->fields[$field->getName()] = [];
         }
 
-        $formattedAttributes = [];
-        foreach($attributes as $k => $v){
-            $formattedAttributes[] = strtoupper($k).'='. (is_array($v) ? implode(',', $v) : $v);
-        }
-
-        $property = implode(';', array_merge([strtoupper($name)], $formattedAttributes));
-        $property .= ':'.$value;
-
-        if (in_array($name, VCard::getSingularFields())) {
-            $this->properties[$name] = $property;
+        if(!$field->isMultiple()){
+            $this->fields[$field->getName()][0] = $field;
         }else{
-            $this->properties[$name][] = $property;
+            $this->fields[$field->getName()][] = $field;
         }
 
         return $this;
     }
 
-    // protected function property(string $property, mixed $formattedValue, mixed $rawValue = null): self
-    // {
-    //     if (! $rawValue) {
-    //         $rawValue = $formattedValue;
-    //     }
-
-    //     @[$property, $subProperty] = explode(':', $property, 2);
-
-    //     if (! array_key_exists($property, $this->vCard->getDataFields())) {
-    //         $this->vCard->invalidData->{$property} = $rawValue;
-
-    //         return $this;
-    //     }
-
-    //     $alias = $this->vCard->getDataFields()[$property];
-
-    //     if ($subProperty) {
-    //         if (! in_array($property, VCard::getSingularFields())) {
-    //             throw VCardBuilderException::notSingularField($property);
-    //         }
-    //         if (! $this->vCard->formattedData->{$alias}) {
-    //             $this->vCard->formattedData->{$alias} = new stdClass;
-    //         }
-    //         $this->vCard->formattedData->{$alias}->{$subProperty} = $formattedValue;
-
-    //     } else {
-    //         if (in_array($property, VCard::getSingularFields())) {
-    //             $this->vCard->formattedData->{$alias} = $formattedValue;
-    //             $this->vCard->rawData->{$property} = $rawValue;
-
-    //         } else {
-    //             if (! is_array($this->vCard->formattedData->{$alias})) {
-    //                 $this->vCard->formattedData->{$alias} = [];
-    //             }
-    //             $this->vCard->formattedData->{$alias}[] = $formattedValue;
-
-    //             if (! is_array($this->vCard->rawData->{$property})) {
-    //                 $this->vCard->rawData->{$property} = [];
-    //             }
-    //             $this->vCard->rawData->{$property}[] = $rawValue;
-    //         }
-
-    //     }
-
-    //     return $this;
-    // }
-
     public function fullName(?string $fullName): self
     {
-        $this->property('fn', $fullName);
+        $this->addField(new FullNameField($fullName));
 
         return $this;
     }
@@ -111,7 +84,7 @@ class VCardBuilder
         ?string $nameSuffix = null
     ): self {
 
-        $formattedValue = [
+        $nameParts = [
             $lastName,
             $firstName,
             $middleName,
@@ -119,94 +92,86 @@ class VCardBuilder
             $nameSuffix,
         ];
 
-        $this->property('n', implode(';', $formattedValue));
+        $this->addField(new NameField($nameParts));
 
+        return $this;
+    }
+
+    protected function namePart(int $index, string $namePart): self
+    {
+        if( !$fieldClass = VCardParser::fields()['n'] ) return $this;
+        $currentNameField = (array_key_exists('n', $this->fields) && count($this->fields['n'])==1)
+            ? array_values((array)$this->fields['n'][0]->render())
+            : $fieldClass::getDefaultValue();
+        $currentNameField[$index] = $namePart;
+
+        $this->addField(new NameField($currentNameField));
         return $this;
     }
 
     public function lastName(?string $lastName): self
     {
-        $names = $this->properties['N'] ?? ';;;;';
-        $namesArray = explode(';', $names, 5);
-        $namesArray[0] = $lastName;
-        $this->property('n', implode(';',$namesArray));
-        return $this;
+        return $this->namePart(0, $lastName);
     }
 
     public function firstName(?string $firstName): self
     {
-        $names = $this->properties['n'] ?? ';;;;';
-        $namesArray = explode(';', $names, 5);
-        $namesArray[1] = $firstName;
-        $this->property('n', implode(';',$namesArray));
-        return $this;
+        return $this->namePart(1, $firstName);
     }
 
     public function middleName(?string $middleName): self
     {
-        $names = $this->properties['n'] ?? ';;;;';
-        $namesArray = explode(';', $names, 5);
-        $namesArray[2] = $middleName;
-        $this->property('n', implode(';',$namesArray));
-        return $this;
+        return $this->namePart(2, $middleName);
     }
 
     public function namePrefix(?string $namePrefix): self
     {
-        $names = $this->properties['n'] ?? ';;;;';
-        $namesArray = explode(';', $names, 5);
-        $namesArray[3] = $namePrefix;
-        $this->property('n', implode(';',$namesArray));
-        return $this;
+        return $this->namePart(3, $namePrefix);
     }
 
     public function nameSuffix(?string $nameSuffix): self
     {
-        $names = $this->properties['n'] ?? ';;;;';
-        $namesArray = explode(';', $names, 5);
-        $namesArray[4] = $nameSuffix;
-        $this->property('n', implode(';',$namesArray));
-        return $this;
+        return $this->namePart(4, $nameSuffix);
     }
 
-    public function email(string $email, array $attributes = []): self
+    public function email(string $email, array $types = []): self
     {
-        $this->property('email', $email, $attributes);
+        $this->addField(new Emailfield($email, $types));
 
         return $this;
     }
 
     public function tel(string $number, array $attributes = []): self
     {
-        $this->property('tel', $number, $attributes);
+        //$this->property('tel', $number, $attributes);
 
         return $this;
     }
 
     public function url(string $url): self
     {
-        $this->property('url', $url);
+        //$this->property('url', $url);
 
         return $this;
     }
 
     public function photo(string $photo): self
     {
-        $this->property('photo', $photo);
+        //$this->property('photo', $photo);
 
         return $this;
     }
 
     public function bday(DateTimeInterface $bday): self
     {
-        $this->property('bday', $bday->format('Y-m-d'));
+        //$this->property('bday', $bday->format('Y-m-d'));
 
         return $this;
     }
 
     public function anniversary(DateTimeInterface $anniversary): self
     {
-        $this->property('anniversary', $anniversary->format('Y-m-d'));
+        //$this->property('anniversary', $anniversary->format('Y-m-d'));
 
         return $this;
     }
@@ -216,7 +181,7 @@ class VCardBuilder
         if( !in_array( strtolower($kind), ['individual', 'group', 'org', 'location'] ) ){
             throw VCardBuilderException::wrongStringValue('kind', $kind);
         }
-        $this->property('kind', strtolower($kind));
+        //$this->property('kind', strtolower($kind));
         return $this;
     }
 
@@ -225,7 +190,7 @@ class VCardBuilder
         if( !in_array( strtolower($gender), ['f', 'm', 'o', 'n', 'u'] ) ){
             throw VCardBuilderException::wrongStringValue('gender', $gender);
         }
-        $this->property('gender', strtolower($gender));
+        //$this->property('gender', strtolower($gender));
         return $this;
     }
 
@@ -295,40 +260,23 @@ class VCardBuilder
     //     return $this;
     // }
 
-    public function get(): VCard
+    public function get(): AbstractVCard
     {
-        $collection = VCardParser::parseRaw((string) $this);
-        return $collection->getVCard(0);
+        $vCardClass = $this->version->getVCardClass();
+
+        $vCard = new $vCardClass();
+
+        foreach($this->fields as $name => $fields){
+            foreach($fields as $field){
+                $vCard->applyField($field);
+            }
+        }
+
+        return $vCard;
     }
 
     public function __toString(): string
     {
-        $propertiesArray = [];
-        foreach([
-            'BEGIN:VCARD',
-            'VERSION:'.$this->version->value,
-        ] as $property){
-            $propertiesArray[] = $property;
-        }
-
-        foreach($this->properties as $name => $values){
-            if(is_array($values)){
-                foreach($values as $value){
-                    $propertiesArray[] = $value;
-                }
-            }else{
-                $propertiesArray[] = $values;
-            }
-        }
-
-        foreach([
-            'PRODID:-//Pleb vCardIO',
-            'REV:'.(new DateTime('now'))->format('Ymd\THis\Z'),
-            'END:VCARD',
-        ] as $property){
-            $propertiesArray[] = $property;
-        }
-
-        return implode(PHP_EOL, $propertiesArray);
+        return (string) $this->get();
     }
 }

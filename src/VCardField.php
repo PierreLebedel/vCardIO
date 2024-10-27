@@ -297,7 +297,7 @@ class VCardField
             return;
         }
 
-        if (! array_key_exists($this->name, $vCard->getDataFields())) {
+        if (! array_key_exists($this->name, $vCard->getVersionFields())) {
             $vCard->invalidData->{$this->name} = $this->rawContents;
 
             return;
@@ -321,7 +321,7 @@ class VCardField
             }
         }
 
-        $alias = $vCard->getDataFields()[$this->name];
+        $alias = $vCard->getVersionFields()[$this->name];
 
         if ($this->isMultiple) {
             if (is_string($this->formattedValue)) {

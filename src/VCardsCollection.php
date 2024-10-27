@@ -6,6 +6,7 @@ namespace Pleb\VCardIO;
 
 use Pleb\VCardIO\Exceptions\VCardCollectionArrayAccessException;
 use Pleb\VCardIO\Exceptions\VCardCollectionIteratorException;
+use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 {
@@ -23,16 +24,15 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this->vCards;
     }
 
-    public function addVCard(VCard $vCard): self
+    public function addVCard(AbstractVCard $vCard): self
     {
         $this->vCards[] = $vCard;
 
-        $vCardVersion = $vCard->getVersion();
-        if (! array_key_exists($vCardVersion->value, $this->versions)) {
-            $this->versions[$vCardVersion->value] = 0;
+        if (! array_key_exists($vCard->version, $this->versions)) {
+            $this->versions[$vCard->version] = 0;
         }
 
-        $this->versions[$vCardVersion->value]++;
+        $this->versions[$vCard->version]++;
 
         ksort($this->versions);
 

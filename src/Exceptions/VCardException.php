@@ -10,4 +10,9 @@ class VCardException extends VCardIOException
     {
         return new self(sprintf('Invalid version :  %s', $version));
     }
+
+    public static function missingVersion()
+    {
+        return new self('Missing version');
+    }
 }
