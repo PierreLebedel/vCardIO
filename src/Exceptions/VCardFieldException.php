@@ -11,8 +11,6 @@ class VCardFieldException extends VCardIOException
         return new self(sprintf('Invalid data for field %s', $field));
     }
 
-
-
     public static function emptyValue()
     {
         return new self('Empty value');

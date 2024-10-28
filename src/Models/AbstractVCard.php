@@ -90,7 +90,7 @@ abstract class AbstractVCard
             }
         }
 
-        $vCardString .= 'BEGIN:VCARD';
+        $vCardString .= 'END:VCARD';
 
         return $vCardString;
     }

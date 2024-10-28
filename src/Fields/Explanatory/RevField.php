@@ -6,8 +6,8 @@ namespace Pleb\VCardIO\Fields\Explanatory;
 
 use DateTime;
 use DateTimeInterface;
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AbstractField;
 
 class RevField extends AbstractField
 {

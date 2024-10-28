@@ -19,7 +19,13 @@ class CategoriesField extends AbstractField
     public static function make(string $value, array $attributes = []): self
     {
         $categories = explode(',', $value);
+
         return new self($categories);
+    }
+
+    public static function getDefaultValue(): mixed
+    {
+        return [];
     }
 
     public function render(): mixed

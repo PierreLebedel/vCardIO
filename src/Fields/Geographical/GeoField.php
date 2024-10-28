@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields\Geographical;
 
-use stdClass;
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AbstractField;
+use stdClass;
 
 class GeoField extends AbstractField
 {
@@ -16,7 +16,7 @@ class GeoField extends AbstractField
 
     protected bool $multiple = true;
 
-    public function __construct(public float $latitude, public float $longitude, public array $attributes) {}
+    public function __construct(public float $latitude, public float $longitude, public array $attributes = []) {}
 
     public static function make(string $value, array $attributes = []): self
     {

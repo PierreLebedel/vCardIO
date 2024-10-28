@@ -19,7 +19,7 @@ class GenderField extends AbstractField
     {
         $value = strtoupper($value);
 
-        if (!in_array($value, ['M', 'F', 'O', 'N', 'U'])) {
+        if (! in_array($value, ['M', 'F', 'O', 'N', 'U'])) {
             throw VCardParserException::unableToDecodeValue('gender', $value);
         }
 

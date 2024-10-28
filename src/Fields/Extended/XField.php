@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields\Extended;
 
+use Pleb\VCardIO\Exceptions\VCardBuilderException;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Models\AbstractVCard;
-use Pleb\VCardIO\Exceptions\VCardBuilderException;
 use stdClass;
 
 class XField extends AbstractField
@@ -38,7 +38,7 @@ class XField extends AbstractField
 
     public function apply(AbstractVCard $vCard): AbstractVCard
     {
-        if(!is_object($vCard->{$this->getAlias()})){
+        if (! is_object($vCard->{$this->getAlias()})) {
             $vCard->{$this->getAlias()} = new stdClass;
         }
 

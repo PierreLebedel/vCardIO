@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields\Explanatory;
 
-use stdClass;
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AbstractField;
+use stdClass;
 
 class ClientPidMapField extends AbstractField
 {
@@ -22,11 +22,11 @@ class ClientPidMapField extends AbstractField
     {
         $parts = explode(';', $value, 2);
 
-        if( count($parts) != 2 ) {
+        if (count($parts) != 2) {
             throw VCardParserException::unableToDecodeValue('Client PID Map', $value);
         }
 
-        if( !is_numeric($parts[0]) ) {
+        if (! is_numeric($parts[0])) {
             throw VCardParserException::unableToDecodeValue('Client PID Map', $value);
         }
 

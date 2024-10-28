@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields\Communications;
 
-use stdClass;
 use Pleb\VCardIO\Fields\AbstractField;
+use stdClass;
 
 class LangField extends AbstractField
 {

@@ -6,7 +6,7 @@ namespace Pleb\VCardIO\Fields\Explanatory;
 
 use Pleb\VCardIO\Fields\AbstractField;
 
-class ProdIdField extends AbstractField
+class ProdidField extends AbstractField
 {
     protected string $name = 'prodid';
 

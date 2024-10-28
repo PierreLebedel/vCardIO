@@ -6,8 +6,8 @@ namespace Pleb\VCardIO\Fields\Identification;
 
 use DateTime;
 use DateTimeInterface;
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AbstractField;
 
 class BirthdayField extends AbstractField
 {

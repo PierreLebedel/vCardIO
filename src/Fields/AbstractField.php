@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields;
 
-use Pleb\VCardIO\VCardParser;
-use Pleb\VCardIO\Models\AbstractVCard;
-use Pleb\VCardIO\Fields\Extended\XField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\Extended\XField;
+use Pleb\VCardIO\Models\AbstractVCard;
+use Pleb\VCardIO\VCardParser;
 
 abstract class AbstractField
 {
@@ -35,7 +35,7 @@ abstract class AbstractField
 
         $fieldClass = VCardParser::fieldsMap()[$name] ?? null;
 
-        if( !$fieldClass && substr($name, 0, 2) == 'x-' ){
+        if (! $fieldClass && substr($name, 0, 2) == 'x-') {
             return XField::makeX($name, $value, $attributes);
         }
 
@@ -73,7 +73,7 @@ abstract class AbstractField
                 $newAttributes[$k] = null;
             }
 
-            if(is_array($v)){
+            if (is_array($v)) {
                 $newAttributes[$k] = array_map('strtolower', $v);
             } else {
                 $newAttributes[$k] = strtolower($v);

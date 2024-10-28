@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields\Security;
 
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AbstractField;
 
 class ClassField extends AbstractField
 {
@@ -19,7 +19,7 @@ class ClassField extends AbstractField
     {
         $value = strtoupper($value);
 
-        if (!in_array($value, ['PUBLIC', 'PRIVATE', 'CONFIDENTIAL'])) {
+        if (! in_array($value, ['PUBLIC', 'PRIVATE', 'CONFIDENTIAL'])) {
             throw VCardParserException::unableToDecodeValue('class', $value);
         }
 

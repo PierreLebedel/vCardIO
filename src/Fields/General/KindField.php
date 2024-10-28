@@ -17,7 +17,7 @@ class KindField extends AbstractField
 
     public static function make(string $value, array $attributes = []): self
     {
-        if (!in_array($value, ['individual', 'group', 'org', 'location', 'iana-token', 'x-name'])) {
+        if (! in_array($value, ['individual', 'group', 'org', 'location', 'iana-token', 'x-name'])) {
             throw VCardParserException::unableToDecodeValue('kind', $value);
         }
 

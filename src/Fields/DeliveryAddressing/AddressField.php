@@ -16,13 +16,13 @@ class AddressField extends AbstractField
 
     // 'type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']
 
-    public function __construct(public array $addressParts) {}
+    public function __construct(public array $addressParts, public array $types = []) {}
 
     public static function make(string $value, array $attributes = []): self
     {
         $parts = explode(',', $value)[0] ?? ';;;;;;';
 
-        return new self(explode(';', $parts, 7));
+        return new self(explode(';', $parts, 7), $attributes['type'] ?? []);
     }
 
     public static function getDefaultValue(): mixed
@@ -40,11 +40,12 @@ class AddressField extends AbstractField
             'region'            => $this->addressParts[4] ?? null,
             'postalCode'        => $this->addressParts[5] ?? null,
             'country'           => $this->addressParts[6] ?? null,
+            'types'             => $this->types,
         ];
     }
 
     public function __toString(): string
     {
-        return $this->toString(implode(';', array_values($this->addressParts)));
+        return $this->toString(implode(';', array_values($this->addressParts)), ['type' => $this->types]);
     }
 }

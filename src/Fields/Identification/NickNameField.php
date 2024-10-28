@@ -19,7 +19,13 @@ class NickNameField extends AbstractField
     public static function make(string $value, array $attributes = []): self
     {
         $nickNames = explode(',', $value);
+
         return new self($nickNames);
+    }
+
+    public static function getDefaultValue(): mixed
+    {
+        return [];
     }
 
     public function render(): mixed

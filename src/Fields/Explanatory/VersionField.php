@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields\Explanatory;
 
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardException;
+use Pleb\VCardIO\Fields\AbstractField;
 
 class VersionField extends AbstractField
 {

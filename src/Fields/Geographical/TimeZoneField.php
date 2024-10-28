@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Pleb\VCardIO\Fields\Geographical;
 
 use DateTimeZone;
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AbstractField;
 
 class TimeZoneField extends AbstractField
 {

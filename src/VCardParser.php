@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Fields\General;
-use Pleb\VCardIO\Fields\Calendar;
-use Pleb\VCardIO\Fields\Security;
-use Pleb\VCardIO\Fields\Explanatory;
-use Pleb\VCardIO\Fields\Geographical;
+use Pleb\VCardIO\Exceptions\VCardParserException;
 use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Fields\Calendar;
 use Pleb\VCardIO\Fields\Communications;
+use Pleb\VCardIO\Fields\DeliveryAddressing;
+use Pleb\VCardIO\Fields\Explanatory;
+use Pleb\VCardIO\Fields\General;
+use Pleb\VCardIO\Fields\Geographical;
 use Pleb\VCardIO\Fields\Identification;
 use Pleb\VCardIO\Fields\Organizational;
-use Pleb\VCardIO\Fields\DeliveryAddressing;
-use Pleb\VCardIO\Exceptions\VCardParserException;
-
+use Pleb\VCardIO\Fields\Security;
 
 class VCardParser
 {
@@ -235,7 +234,7 @@ class VCardParser
             'note'         => Explanatory\NoteField::class,
             'org'          => Organizational\OrganizationField::class,
             'photo'        => Identification\PhotoField::class,
-            'prodid'       => Explanatory\ProdIdField::class,
+            'prodid'       => Explanatory\ProdidField::class,
             'profile'      => General\ProfileField::class,
             'related'      => Organizational\RelatedField::class,
             'rev'          => Explanatory\RevField::class,
