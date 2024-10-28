@@ -15,6 +15,7 @@ use Pleb\VCardIO\Fields\Geographical;
 use Pleb\VCardIO\Fields\Identification;
 use Pleb\VCardIO\Fields\Organizational;
 use Pleb\VCardIO\Fields\Security;
+use Sabre\VObject\Reader;
 
 class VCardParser
 {
@@ -124,7 +125,7 @@ class VCardParser
 
         if (strtoupper($lineContents) == 'BEGIN:VCARD') {
             $this->currentVCardBuilder = new VCardBuilder;
-
+            $this->getVCardBuilder()->addLine($lineContents);
             return;
         }
 
@@ -134,7 +135,7 @@ class VCardParser
             }
 
             $this->currentVCardAgentBuilder = new VCardBuilder;
-
+            $this->getVCardBuilder()->addLine($lineContents);
             return;
         }
 
@@ -143,8 +144,11 @@ class VCardParser
                 throw VCardParserException::unexpectedLine($lineNumber, 'END:VCARD');
             }
 
+            $this->getVCardBuilder()->addLine($lineContents);
+
             if ($this->currentVCardAgentBuilder) {
-                $this->currentVCardBuilder->agent($this->currentVCardAgentBuilder->get());
+                //$this->currentVCardBuilder->agent($this->currentVCardAgentBuilder->get());
+                dump('@todo agent');
                 $this->currentVCardAgentBuilder = null;
 
                 return;
@@ -159,6 +163,15 @@ class VCardParser
         if (! $this->currentVCardBuilder) {
             throw VCardParserException::unexpectedLine($lineNumber, $lineContents);
         }
+
+        $this->getVCardBuilder()->addLine($lineContents);
+
+        return;
+
+
+
+
+
 
         $field = AbstractField::makeFromRaw($lineContents);
 

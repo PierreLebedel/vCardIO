@@ -4,55 +4,16 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use DateTimeImmutable;
-use DateTimeInterface;
-use DateTimeZone;
-use Pleb\VCardIO\Enums\VCardVersionEnum;
-use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Fields\Calendar\CalAdrUriField;
-use Pleb\VCardIO\Fields\Calendar\CalUriField;
-use Pleb\VCardIO\Fields\Calendar\FbUrlField;
-use Pleb\VCardIO\Fields\Communications\EmailField;
-use Pleb\VCardIO\Fields\Communications\ImppField;
-use Pleb\VCardIO\Fields\Communications\LangField;
-use Pleb\VCardIO\Fields\Communications\PhoneField;
-use Pleb\VCardIO\Fields\DeliveryAddressing\AddressField;
-use Pleb\VCardIO\Fields\Explanatory\CategoriesField;
-use Pleb\VCardIO\Fields\Explanatory\ClientPidMapField;
-use Pleb\VCardIO\Fields\Explanatory\NoteField;
-use Pleb\VCardIO\Fields\Explanatory\ProdidField;
-use Pleb\VCardIO\Fields\Explanatory\RevField;
-use Pleb\VCardIO\Fields\Explanatory\SoundField;
-use Pleb\VCardIO\Fields\Explanatory\UidField;
-use Pleb\VCardIO\Fields\Explanatory\UrlField;
-use Pleb\VCardIO\Fields\Extended\XField;
-use Pleb\VCardIO\Fields\General\KindField;
-use Pleb\VCardIO\Fields\General\SourceField;
-use Pleb\VCardIO\Fields\General\XmlField;
-use Pleb\VCardIO\Fields\Geographical\GeoField;
-use Pleb\VCardIO\Fields\Geographical\TimeZoneField;
-use Pleb\VCardIO\Fields\Identification\AnniversaryField;
-use Pleb\VCardIO\Fields\Identification\BirthdayField;
-use Pleb\VCardIO\Fields\Identification\FullNameField;
-use Pleb\VCardIO\Fields\Identification\GenderField;
-use Pleb\VCardIO\Fields\Identification\NameField;
-use Pleb\VCardIO\Fields\Identification\NickNameField;
-use Pleb\VCardIO\Fields\Identification\PhotoField;
-use Pleb\VCardIO\Fields\Organizational\AgentField;
-use Pleb\VCardIO\Fields\Organizational\LogoField;
-use Pleb\VCardIO\Fields\Organizational\MemberField;
-use Pleb\VCardIO\Fields\Organizational\OrganizationField;
-use Pleb\VCardIO\Fields\Organizational\RelatedField;
-use Pleb\VCardIO\Fields\Organizational\RoleField;
-use Pleb\VCardIO\Fields\Organizational\TitleField;
-use Pleb\VCardIO\Fields\Security\KeyField;
-use Pleb\VCardIO\Models\AbstractVCard;
+use Sabre\VObject;
+use Sabre\VObject\Reader;
 
 class VCardBuilder
 {
-    public ?VCardVersionEnum $version = null;
+    //public ?VCardVersionEnum $version = null;
 
-    public array $fields = [];
+    //public array $fields = [];
+
+    public string $rawData = '';
 
     public function __construct() {}
 
@@ -61,7 +22,15 @@ class VCardBuilder
         return new static;
     }
 
-    public function setVersion(VCardVersionEnum $version): self
+    public function addLine(string $lineRawData)
+    {
+        if(!empty($this->rawData)){
+            $this->rawData .= PHP_EOL;
+        }
+        $this->rawData .= $lineRawData;
+    }
+
+    /*public function setVersion(VCardVersionEnum $version): self
     {
         $this->version = $version;
 
@@ -284,7 +253,7 @@ class VCardBuilder
         return $this;
     }
 
-    /*public function category(string $category): self
+    public function category(string $category): self
     {
         if (! $fieldClass = VCardParser::fieldsMap()['categories']) {
             return $this;
@@ -299,10 +268,11 @@ class VCardBuilder
             $currentCategoriesField[] = $category;
         }
 
-        $this->addField(new CategoriesField($currentCategoriesField));
+        // @todo
+        //$this->addField(new CategoriesField($currentCategoriesField));
 
         return $this;
-    }*/
+    }
 
     public function nickNames(array $nicknames): self
     {
@@ -458,37 +428,17 @@ class VCardBuilder
         $this->addField(new XField($name, $value));
 
         return $this;
-    }
+    }*/
 
-    public function get(): AbstractVCard
+    public function get()
     {
-        if (! $this->version) {
-            $this->setVersion(VCardVersionEnum::V40);
-        }
-
-        $vCardClass = $this->version->getVCardClass();
-
-        $vCard = new $vCardClass;
-
-        foreach ($this->fields as $name => $fields) {
-            foreach ($fields as $field) {
-                $vCard->applyField($field);
-            }
-        }
-
-        if (property_exists($vCard, 'revision') && ! $vCard->revision) {
-            $vCard->applyField(new RevField(new DateTimeImmutable('now')));
-        }
-
-        if (property_exists($vCard, 'prodid') && ! $vCard->prodid) {
-            $vCard->applyField(new ProdidField('-//Pleb//Pleb vCardIO '.VCardLibrary::VERSION.' //EN'));
-        }
-
-        return $vCard;
+        $parser = new VCardReader();
+        $parser->setCharset('UTF-8');
+        return $parser->parse($this->rawData, 0);
     }
 
     public function __toString(): string
     {
-        return (string) $this->get();
+        return $this->get()->serialize();
     }
 }

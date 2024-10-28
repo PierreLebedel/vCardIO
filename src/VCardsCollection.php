@@ -7,6 +7,7 @@ namespace Pleb\VCardIO;
 use Pleb\VCardIO\Exceptions\VCardCollectionArrayAccessException;
 use Pleb\VCardIO\Exceptions\VCardCollectionIteratorException;
 use Pleb\VCardIO\Models\AbstractVCard;
+use Sabre\VObject\Component\VCard;
 
 class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 {
@@ -24,22 +25,24 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this->vCards;
     }
 
-    public function addVCard(AbstractVCard $vCard): self
+    public function addVCard(VCard $vCard): self
     {
         $this->vCards[] = $vCard;
 
-        if (! array_key_exists($vCard->version, $this->versions)) {
-            $this->versions[$vCard->version] = 0;
+        $version = (string)$vCard->VERSION;
+
+        if (! array_key_exists($version, $this->versions)) {
+            $this->versions[$version] = 0;
         }
 
-        $this->versions[$vCard->version]++;
+        $this->versions[$version]++;
 
         ksort($this->versions);
 
         return $this;
     }
 
-    public function getVCard(int $index): VCard
+    public function getVCard(int $index): Vcard
     {
         if (! array_key_exists($index, $this->vCards)) {
             throw new \OutOfBoundsException('Invalid index');
