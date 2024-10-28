@@ -4,71 +4,66 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use DateTimeInterface;
+
 class VCardBuilder
 {
     //public ?VCardVersionEnum $version = null;
 
     //public array $fields = [];
 
+    public VCard $vCard;
+
     public string $rawData = '';
 
-    public function __construct() {}
+    public array $lines = [];
 
-    public static function make(): self
+    public function __construct(?string $rawData = null)
     {
-        return new static;
+        if ($rawData) {
+            $parser = new VCardReader;
+            $parser->setCharset('UTF-8');
+
+            $this->vCard = $parser->parse($rawData, 0);
+        } else {
+            $this->vCard = new VCard;
+        }
+    }
+
+    public static function make(?string $rawData = null): self
+    {
+        return new static($rawData);
     }
 
     public function addLine(string $lineRawData)
     {
-        if (! empty($this->rawData)) {
-            $this->rawData .= PHP_EOL;
-        }
-        $this->rawData .= $lineRawData;
+        //dump($lineRawData);
+
+        //$result = $this->reader->parseLinePublic($lineRawData);
+
+        //dd($result);
+
+        // $result = $this->reader->parseLine($line);
+        // if ($result) {
+        //     $this->root->add($result);
+        // }
     }
 
-    /*public function setVersion(VCardVersionEnum $version): self
-    {
-        $this->version = $version;
-
-        return $this;
-    }
-
-    public function getVersion(): ?VCardVersionEnum
-    {
-        return $this->version;
-    }
-
-    public function addField(AbstractField $field): self
-    {
-        if (! array_key_exists($field->getName(), $this->fields)) {
-            $this->fields[$field->getName()] = [];
-        }
-
-        if (! $field->isMultiple()) {
-            $this->fields[$field->getName()][0] = $field;
-        } else {
-            $this->fields[$field->getName()][] = $field;
-        }
-
-        return $this;
-    }
-
-    public function agent(string|AbstractVCard $agent): self
+    /*public function agent(string|AbstractVCard $agent): self
     {
         $this->addField(new AgentField($agent));
 
         return $this;
-    }
+    }*/
 
     public function fullName(?string $fullName): self
     {
-        $this->addField(new FullNameField($fullName));
+        $this->get()->FN = $fullName;
 
         return $this;
     }
 
-    public function name(
+    /*public function name(
         ?string $lastName = null,
         ?string $firstName = null,
         ?string $middleName = null,
@@ -155,16 +150,16 @@ class VCardBuilder
         $this->addField(new PhotoField($photo));
 
         return $this;
-    }
+    }*/
 
-    public function birthday(DateTimeInterface $bday): self
+    public function birthday(DateTimeInterface $bday, bool $withYear = true): self
     {
-        $this->addField(new BirthdayField($bday));
+        $this->get()->add('BDAY', $bday->format($withYear ? 'Ymd' : '--md'));
 
         return $this;
     }
 
-    public function anniversary(DateTimeInterface $anniversary): self
+    /*public function anniversary(DateTimeInterface $anniversary): self
     {
         $this->addField(new AnniversaryField($anniversary));
 
@@ -301,11 +296,11 @@ class VCardBuilder
         $this->addField(new TimeZoneField($timeZone));
 
         return $this;
-    }
+    }*/
 
     public function uid(string $uid): self
     {
-        $this->addField(UidField::make($uid));
+        $this->get()->UID = $uid;
 
         return $this;
     }
@@ -315,7 +310,7 @@ class VCardBuilder
         return $this->uid($uuid);
     }
 
-    public function calendarAddressUri(string $uri): self
+    /*public function calendarAddressUri(string $uri): self
     {
         $this->addField(new CalAdrUriField($uri));
 
@@ -427,12 +422,18 @@ class VCardBuilder
         return $this;
     }*/
 
-    public function get()
+    public function get(): VCard
     {
-        $parser = new VCardReader;
-        $parser->setCharset('UTF-8');
+        // $parser = new VCardReader;
+        // $parser->setCharset('UTF-8');
+        // $vCard = $parser->parse($this->getContents(), 0);
 
-        return $parser->parse($this->rawData, 0);
+        // dump($vCard->serialize());
+
+        // $result = $vCard->validate();
+        // dump($result);
+
+        return $this->vCard;
     }
 
     public function __toString(): string

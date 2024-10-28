@@ -6,7 +6,6 @@ namespace Pleb\VCardIO;
 
 use Pleb\VCardIO\Exceptions\VCardCollectionArrayAccessException;
 use Pleb\VCardIO\Exceptions\VCardCollectionIteratorException;
-use Sabre\VObject\Component\VCard;
 
 class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 {
@@ -41,7 +40,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
-    public function getVCard(int $index): Vcard
+    public function getVCard(int $index): VCard
     {
         if (! array_key_exists($index, $this->vCards)) {
             throw new \OutOfBoundsException('Invalid index');

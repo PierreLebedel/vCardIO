@@ -54,4 +54,9 @@ class VCardReader extends SabreParserMimeDir
             throw new ParseException('Invalid MimeDir file. expected: "END:'.$this->root->name.'" got: "END:'.$name.'"');
         }
     }
+
+    public function parseLinePublic($line)
+    {
+        return $this->parseLine($line);
+    }
 }
