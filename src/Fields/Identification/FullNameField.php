@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pleb\VCardIO\Fields;
+namespace Pleb\VCardIO\Fields\Identification;
+
+use Pleb\VCardIO\Fields\AbstractField;
 
 class FullNameField extends AbstractField
 {

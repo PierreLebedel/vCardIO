@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Models;
 
+use SimpleXMLElement;
+
 class VCardV40 extends AbstractVCard
 {
     public string $version = '4.0';
@@ -26,11 +28,11 @@ class VCardV40 extends AbstractVCard
 
     public $kind = null;
 
-    public $lang = null;
+    public array $langs = [];
 
     public $member = null;
 
-    public $nickname = null;
+    public array $nickNames = [];
 
     public $prodid = null;
 

@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Pleb\VCardIO\Fields;
+namespace Pleb\VCardIO\Fields\Communications;
 
 use stdClass;
+use Pleb\VCardIO\Fields\AbstractField;
 
-class EmailField extends AbstractField
+class Emailfield extends AbstractField
 {
     protected string $name = 'email';
 

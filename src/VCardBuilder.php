@@ -6,31 +6,31 @@ namespace Pleb\VCardIO;
 
 use DateTime;
 use DateTimeInterface;
-use Pleb\VCardIO\Enums\VCardVersionEnum;
-use Pleb\VCardIO\Exceptions\VCardBuilderException;
 use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Fields\Emailfield;
-use Pleb\VCardIO\Fields\FullNameField;
-use Pleb\VCardIO\Fields\NameField;
 use Pleb\VCardIO\Models\AbstractVCard;
+use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Fields\Identification\NameField;
+use Pleb\VCardIO\Exceptions\VCardBuilderException;
+use Pleb\VCardIO\Fields\Communications\EmailField;
+use Pleb\VCardIO\Fields\Organizational\AgentField;
+use Pleb\VCardIO\Fields\Identification\FullNameField;
 
 class VCardBuilder
 {
-    public VCardVersionEnum $version;
+    public ?VCardVersionEnum $version = null;
 
     public array $fields = [];
 
-    public function __construct(?VCardVersionEnum $version = null)
+    public function __construct()
     {
-        $this->setVersion($version ?? VCardVersionEnum::V40);
 
         // $this->vCard->PRODID = '-//Pleb vCardIO';
         // $this->vCard->REV = (new DateTime('now'))->format('Ymd\THis\Z');
     }
 
-    public static function make(?VCardVersionEnum $version = null): self
+    public static function make(): self
     {
-        return new static($version);
+        return new static();
     }
 
     public function setVersion(VCardVersionEnum $version): self
@@ -45,12 +45,6 @@ class VCardBuilder
         return $this->version;
     }
 
-    // public function setAgent(VCard $agent) :self
-    // {
-    //     $this->vCardAgent = $agent;
-    //     return $this;
-    // }
-
     public function addField(AbstractField $field): self
     {
         if (! array_key_exists($field->getName(), $this->fields)) {
@@ -62,6 +56,13 @@ class VCardBuilder
         } else {
             $this->fields[$field->getName()][] = $field;
         }
+
+        return $this;
+    }
+
+    public function agent(string|AbstractVCard $agent): self
+    {
+        $this->addField(new AgentField($agent));
 
         return $this;
     }
@@ -136,7 +137,7 @@ class VCardBuilder
 
     public function email(string $email, array $types = []): self
     {
-        $this->addField(new Emailfield($email, $types));
+        $this->addField(new EmailField($email, $types));
 
         return $this;
     }
@@ -264,6 +265,10 @@ class VCardBuilder
 
     public function get(): AbstractVCard
     {
+        if(!$this->version){
+            $this->setVersion(VCardVersionEnum::V40);
+        }
+
         $vCardClass = $this->version->getVCardClass();
 
         $vCard = new $vCardClass;

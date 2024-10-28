@@ -51,5 +51,8 @@ class VCardParserException extends VCardIOException
         return new self('No version on vCard start on line'.$lineNumber);
     }
 
-
+    public static function unknownField(string $field)
+    {
+        return new self(sprintf('Unknown field %s', $field));
+    }
 }

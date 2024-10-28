@@ -20,4 +20,9 @@ class VCardBuilderException extends VCardIOException
     {
         return new self(sprintf('Wrong value %s for field %s', $value, $field));
     }
+
+    public static function cantMakeXField()
+    {
+        return new self('Can\'t make the x-field by this way');
+    }
 }

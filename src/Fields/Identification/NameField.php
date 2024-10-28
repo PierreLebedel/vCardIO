@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pleb\VCardIO\Fields;
+namespace Pleb\VCardIO\Fields\Identification;
+
+use Pleb\VCardIO\Fields\AbstractField;
 
 class NameField extends AbstractField
 {
@@ -16,8 +18,9 @@ class NameField extends AbstractField
 
     public static function make(string $value, array $attributes = []): self
     {
-        $names = explode(',', $value)[0] ?? ';;;;';
-        return new self(explode(';', $names, 5));
+        $parts = explode(',', $value)[0] ?? ';;;;';
+
+        return new self(explode(';', $parts, 5));
     }
 
     public static function getDefaultValue(): mixed
@@ -28,11 +31,11 @@ class NameField extends AbstractField
     public function render(): mixed
     {
         return (object) [
-            'lastName'   => $this->nameParts[0] ?? '',
-            'firstName'  => $this->nameParts[1] ?? '',
-            'middleName' => $this->nameParts[2] ?? '',
-            'namePrefix' => $this->nameParts[3] ?? '',
-            'nameSuffix' => $this->nameParts[4] ?? '',
+            'lastName'   => $this->nameParts[0] ?? null,
+            'firstName'  => $this->nameParts[1] ?? null,
+            'middleName' => $this->nameParts[2] ?? null,
+            'namePrefix' => $this->nameParts[3] ?? null,
+            'nameSuffix' => $this->nameParts[4] ?? null,
         ];
     }
 

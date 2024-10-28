@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields;
 
-use Pleb\VCardIO\Exceptions\VCardFieldException;
-use Pleb\VCardIO\Models\AbstractVCard;
 use Pleb\VCardIO\VCardParser;
+use Pleb\VCardIO\Models\AbstractVCard;
+use Pleb\VCardIO\Fields\Extended\XField;
+use Pleb\VCardIO\Exceptions\VCardParserException;
 
 abstract class AbstractField
 {
@@ -34,11 +35,12 @@ abstract class AbstractField
 
         $fieldClass = VCardParser::fieldsMap()[$name] ?? null;
 
-        if (! $fieldClass || ! class_exists($fieldClass)) {
-            dump('@todo field for name:'.$name);
+        if( !$fieldClass && substr($name, 0, 2) == 'x-' ){
+            return XField::makeX($name, $value, $attributes);
+        }
 
-            return null;
-            //throw VCardFieldException::unknownField($name);
+        if (! $fieldClass || ! class_exists($fieldClass)) {
+            throw VCardParserException::unknownField($name);
         }
 
         return $fieldClass::make($value, $attributes);
@@ -53,7 +55,7 @@ abstract class AbstractField
         $newAttributes = [];
         foreach ($attributes as $k => $v) {
 
-            if(is_numeric($k) && is_string($v)){
+            if (is_numeric($k) && is_string($v)) {
                 $keyValues = explode('=', $v, 2);
 
                 if (count($keyValues) === 2) {
@@ -71,10 +73,10 @@ abstract class AbstractField
                 $newAttributes[$k] = null;
             }
 
-            if(is_array($v) && count($v) <= 1 && ! in_array($k, ['type'])){
-                $newAttributes[$k] = $v[0] ?? null;
+            if(is_array($v)){
+                $newAttributes[$k] = array_map('strtolower', $v);
             } else {
-                $newAttributes[$k] = $v;
+                $newAttributes[$k] = strtolower($v);
             }
         }
 
@@ -118,11 +120,13 @@ abstract class AbstractField
 
         $property = strtoupper($this->getName());
 
-        if(!empty($attributes)){
-            foreach($attributes as $k=>$v){
-                if(empty($v)) continue;
-                $property .= ';'.$k.'=';
-                $property .= is_array($v) ? implode(',', array_values($v)) : $v;
+        if (! empty($attributes)) {
+            foreach ($attributes as $k => $v) {
+                if (empty($v)) {
+                    continue;
+                }
+                $property .= ';'.strtoupper($k).'=';
+                $property .= is_array($v) ? strtoupper(implode(',', array_values($v))) : strtoupper($v);
             }
         }
 

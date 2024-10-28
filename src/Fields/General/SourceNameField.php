@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pleb\VCardIO\Fields;
+namespace Pleb\VCardIO\Fields\General;
+
+use Pleb\VCardIO\Fields\AbstractField;
 
 class SourceNameField extends AbstractField
 {

@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Fields\NameField;
-use Pleb\VCardIO\Fields\EmailField;
-use Pleb\VCardIO\Fields\VersionField;
+use Pleb\VCardIO\Fields\General;
+use Pleb\VCardIO\Fields\Calendar;
+use Pleb\VCardIO\Fields\Security;
+use Pleb\VCardIO\Fields\Explanatory;
+use Pleb\VCardIO\Fields\Geographical;
 use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Fields\FullNameField;
+use Pleb\VCardIO\Fields\Communications;
+use Pleb\VCardIO\Fields\Identification;
+use Pleb\VCardIO\Fields\Organizational;
+use Pleb\VCardIO\Fields\DeliveryAddressing;
 use Pleb\VCardIO\Exceptions\VCardParserException;
-use Pleb\VCardIO\Fields\AnniversaryField;
-use Pleb\VCardIO\Fields\BirthdayField;
-use Pleb\VCardIO\Fields\GeoField;
-use Pleb\VCardIO\Fields\PhoneField;
+
 
 class VCardParser
 {
@@ -143,7 +145,7 @@ class VCardParser
             }
 
             if ($this->currentVCardAgentBuilder) {
-                //$this->currentVCardBuilder->setAgent($this->currentVCardAgentBuilder->get());
+                $this->currentVCardBuilder->agent($this->currentVCardAgentBuilder->get());
                 $this->currentVCardAgentBuilder = null;
 
                 return;
@@ -170,7 +172,7 @@ class VCardParser
         }
 
         if (! $this->currentVCardBuilder->getVersion()) {
-            if (! $field instanceof VersionField) {
+            if (! $field instanceof Explanatory\VersionField) {
                 throw VCardParserException::noVersionOnVCardStart($lineNumber);
             }
 
@@ -180,30 +182,11 @@ class VCardParser
         $this->getVCardBuilder()->addField($field);
 
         // match ($field->name) {
-        // 'adr' => $field->assoc([
-        //     'postOfficeAddress',
-        //     'extendedAddress',
-        //     'street',
-        //     'locality',
-        //     'region',
-        //     'postalCode',
-        //     'country',
-        // ])->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'])->addAttribute('label'),
-        // 'agent'        => $field->string(),
-        // 'anniversary'  => $field->datetime(),
         // 'caladruri'    => $field->uri(),
         // 'caluri'       => $field->uri()->addAttribute('type'),
-        // 'categories'   => $field->array()->addAttribute('type'),
         // 'class'        => $field->string(),
-        // 'clientpidmap' => $field->assoc([
-        //     'pid',
-        //     'uri',
-        // ]),
         // 'fburl'  => $field->uri()->addAttribute('type'),
-        // 'gender' => $field->string(),
-        // 'impp'   => $field->object()->addAttribute('type', ['personal', 'business', 'home', 'work', 'mobile', 'pref']),
         // 'key'    => $field->uri()->addAttribute('type'),
-        // 'kind'   => $field->string()->in(['invividual', 'group', 'org', 'location']),
         // 'label'  => $field->assoc([
         //     'postOfficeAddress',
         //     'extendedAddress',
@@ -213,31 +196,10 @@ class VCardParser
         //     'postalCode',
         //     'country',
         // ])->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
-        // 'lang'   => $field->object()->addAttribute('type'),
-        // 'logo'   => $field->uri()->addAttribute('type'),
         // 'mailer' => $field->string(),
-        // 'member' => $field->uri(),
-        // 'nickname' => $field->array()->addAttribute('type'),
-        // 'note'     => $field->string()->addAttribute('type'),
-        // 'org'      => $field->assoc([
-        //     'name',
-        //     'units1',
-        //     'units2',
-        // ])->addAttribute('type'),
-        // 'photo'       => $field->uri()->addAttribute('type'),
         // 'prodid'      => $field->string(),
         // 'profile'     => $field->string(),
-        // 'related'     => $field->uri()->addAttribute('type'),
-        // 'rev'         => $field->datetime(),
-        // 'role'        => $field->string()->addAttribute('type'),
         // 'sort-string' => $field->string(),
-        // 'sound'       => $field->uri()->addAttribute('type'),
-        // 'source'      => $field->uri(),
-        // 'title'       => $field->string()->addAttribute('type'),
-        // 'tz'          => $field->timezone()->addAttribute('type'),
-        // 'uid'         => $field->string()->ltrim(['urn:uuid:']),
-        // 'url'         => $field->uri()->addAttribute('type'),
-        // 'xml'         => $field->string(),
         // default       => $field->unprocecced(),
         // };
     }
@@ -245,51 +207,49 @@ class VCardParser
     public static function fieldsMap(): array
     {
         return [
-            'adr'          => 'addresses',
-            'agent'        => 'agent',
-            'anniversary'  => AnniversaryField::class,
-            'bday'         => BirthdayField::class,
-            'caladruri'    => 'caladruri',
-            'caluri'       => 'caluri',
-            'categories'   => 'categories',
-            'class'        => 'class',
-            'clientpidmap' => 'clientpidmap',
-            'email'        => EmailField::class,
-            'fburl'        => 'fburl',
-            'fn'           => FullNameField::class,
-            'gender'       => 'gender',
-            'geo'          => GeoField::class,
-            'impp'         => 'impp',
-            'key'          => 'key',
-            'kind'         => 'kind',
-            'label'        => 'label',
-            'lang'         => 'lang',
-            'langs'        => 'langs',
-            'logo'         => 'logo',
-            'mailer'       => 'mailer',
-            'member'       => 'member',
-            'n'            => NameField::class,
-            'name'         => 'name',
-            'nickname'     => 'nicknames',
-            'nicknames'    => 'nicknames',
-            'note'         => 'note',
-            'org'          => 'organization',
-            'photo'        => 'photo',
-            'prodid'       => 'prodid',
-            'profile'      => 'profile',
-            'related'      => 'related',
-            'rev'          => 'revision',
-            'role'         => 'role',
-            'sort-string'  => 'sort-string',
-            'sound'        => 'sound',
-            'source'       => 'source',
-            'tel'          => PhoneField::class,
-            'title'        => 'title',
-            'tz'           => 'timezone',
-            'uid'          => 'uid',
-            'url'          => 'url',
-            'version'      => VersionField::class,
-            'xml'          => 'xml',
+            'adr'          => DeliveryAddressing\AddressField::class,
+            'agent'        => Organizational\AgentField::class,
+            'anniversary'  => Identification\AnniversaryField::class,
+            'bday'         => Identification\BirthdayField::class,
+            'caladruri'    => Calendar\CalUriField::class,
+            'caluri'       => Calendar\CalAdrUriField::class,
+            'categories'   => Explanatory\CategoriesField::class,
+            'class'        => Security\ClassField::class,
+            'clientpidmap' => Explanatory\ClientPidMapField::class,
+            'email'        => Communications\EmailField::class,
+            'fburl'        => Calendar\FbUrlField::class,
+            'fn'           => Identification\FullNameField::class,
+            'gender'       => Identification\GenderField::class,
+            'geo'          => Geographical\GeoField::class,
+            'impp'         => Communications\ImppField::class,
+            'key'          => Security\KeyField::class,
+            'kind'         => General\KindField::class,
+            'label'        => DeliveryAddressing\LabelField::class,
+            'lang'         => Communications\LangField::class,
+            'logo'         => Organizational\LogoField::class,
+            'mailer'       => Communications\MailerField::class,
+            'member'       => Organizational\MemberField::class,
+            'n'            => Identification\NameField::class,
+            'name'         => General\SourceNameField::class,
+            'nickname'     => Identification\NickNameField::class,
+            'note'         => Explanatory\NoteField::class,
+            'org'          => Organizational\OrganizationField::class,
+            'photo'        => Identification\PhotoField::class,
+            'prodid'       => Explanatory\ProdIdField::class,
+            'profile'      => General\ProfileField::class,
+            'related'      => Organizational\RelatedField::class,
+            'rev'          => Explanatory\RevField::class,
+            'role'         => Organizational\RoleField::class,
+            'sort-string'  => Explanatory\SortStringField::class,
+            'sound'        => Explanatory\SoundField::class,
+            'source'       => General\SourceField::class,
+            'tel'          => Communications\PhoneField::class,
+            'title'        => Organizational\TitleField::class,
+            'tz'           => Geographical\TimeZoneField::class,
+            'uid'          => Explanatory\UidField::class,
+            'url'          => Explanatory\UrlField::class,
+            'version'      => Explanatory\VersionField::class,
+            'xml'          => General\XmlField::class,
         ];
     }
 }

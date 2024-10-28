@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Models;
 
+use DateTimeInterface;
+use DateTimeZone;
 use Pleb\VCardIO\Fields\AbstractField;
+use stdClass;
 
 abstract class AbstractVCard
 {
     public string $version;
 
-    public $adr = null;
+    public array $addresses = [];
 
-    public $birthday = null;
+    public ?DateTimeInterface $birthday = null;
 
     public array $emails = [];
 
@@ -28,32 +31,35 @@ abstract class AbstractVCard
 
     public $note = null;
 
-    public $org = null;
+    public array $organizations = [];
 
     public $photo = null;
 
-    public $rev = null;
+    public ?DateTimeInterface $revision = null;
 
     public $role = null;
 
     public $sound = null;
 
-    public $tel = null;
+    public array $phones = [];
 
     public $title = null;
 
-    public $tz = null;
+    public ?DateTimeZone $timeZone = null;
 
     public $uid = null;
 
     public $url = null;
 
+    public ?stdClass $x = null;
+
     protected $fields = [];
 
     public function applyField(AbstractField $field): self
     {
-        if( !property_exists($this, $field->getAlias()) ){
+        if (! property_exists($this, $field->getAlias())) {
             dump('property not exists alias:'.$field->getAlias().' in '.get_class($this));
+
             return $this;
         }
 
@@ -76,7 +82,9 @@ abstract class AbstractVCard
         $vCardString .= 'VERSION:'.$this->version.PHP_EOL;
 
         foreach ($this->fields as $name => $fields) {
-            if($name=='version') continue;
+            if ($name == 'version') {
+                continue;
+            }
             foreach ($fields as $field) {
                 $vCardString .= (string) $field.PHP_EOL;
             }

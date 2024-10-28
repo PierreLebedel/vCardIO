@@ -2,29 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Pleb\VCardIO\Fields;
+namespace Pleb\VCardIO\Fields\Identification;
 
 use DateTime;
 use DateTimeInterface;
 use Pleb\VCardIO\Exceptions\VCardParserException;
 
-class BirthdayField extends AbstractField
+class AnniversaryField extends \Pleb\VCardIO\Fields\AbstractField
 {
-    protected string $name = 'bday';
-
-    protected ?string $alias = 'birthday';
+    protected string $name = 'anniversary';
 
     protected bool $multiple = false;
 
-    public function __construct(public DateTimeInterface $dateTime) {
-    }
+    public function __construct(public DateTimeInterface $dateTime) {}
 
     public static function make(string $value, array $attributes = []): self
     {
         $input = $value;
-        if (substr($input, 0, 2) == '--') {
-            $input = str_replace('--', date('Y'), $input);
-        }
 
         if (strlen($input) == 18 && (str_contains($input, '-') || str_contains($input, '+'))) {
             $dateTime = DateTime::createFromFormat('Ymd\THiO', $input);
@@ -38,11 +32,11 @@ class BirthdayField extends AbstractField
             $dateTime = DateTime::createFromFormat('ymd', $input);
         }
 
-        if(!$dateTime) {
+        if (! $dateTime) {
             throw VCardParserException::unableToDecodeValue('datetime', $value);
         }
 
-        $dateTime->setTime(0,0,0,0);
+        $dateTime->setTime(0, 0, 0, 0);
 
         return new self($dateTime);
     }

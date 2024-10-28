@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Pleb\VCardIO\Fields;
+namespace Pleb\VCardIO\Fields\Geographical;
 
-use Pleb\VCardIO\Exceptions\VCardParserException;
 use stdClass;
+use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Exceptions\VCardParserException;
 
 class GeoField extends AbstractField
 {
@@ -29,7 +30,7 @@ class GeoField extends AbstractField
 
         $coordinates = explode(',', $input, 2);
 
-        if( count($coordinates) != 2 ){
+        if (count($coordinates) != 2) {
             throw VCardParserException::unableToDecodeValue('coordinates', $value);
         }
 
@@ -39,8 +40,8 @@ class GeoField extends AbstractField
     public function render(): mixed
     {
         $object = new stdClass;
-        $object->latitude   = $this->latitude;
-        $object->longitude  = $this->longitude;
+        $object->latitude = $this->latitude;
+        $object->longitude = $this->longitude;
         $object->attributes = $this->attributes;
 
         return $object;
@@ -48,7 +49,8 @@ class GeoField extends AbstractField
 
     public function __toString(): string
     {
-        $geoLink = 'geo:' . $this->latitude . ',' . $this->longitude;
+        $geoLink = 'geo:'.$this->latitude.','.$this->longitude;
+
         return $this->toString($geoLink, $this->attributes);
     }
 }
