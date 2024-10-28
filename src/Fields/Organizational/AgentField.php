@@ -30,6 +30,16 @@ class AgentField extends AbstractField
 
     public function __toString(): string
     {
-        return $this->toString((string) $this->agent);
+        $agentVCardArray = explode(PHP_EOL, (string) $this->agent);
+
+        $agentVCardString = '';
+        foreach ($agentVCardArray as $lineNumber => $lineContents) {
+            if($lineNumber>0){
+                $lineContents = ' '.$lineContents;
+            }
+            $agentVCardString .= $lineContents.PHP_EOL;
+        }
+
+        return $this->toString($agentVCardString);
     }
 }
