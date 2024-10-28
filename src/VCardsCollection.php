@@ -6,7 +6,6 @@ namespace Pleb\VCardIO;
 
 use Pleb\VCardIO\Exceptions\VCardCollectionArrayAccessException;
 use Pleb\VCardIO\Exceptions\VCardCollectionIteratorException;
-use Pleb\VCardIO\Models\AbstractVCard;
 use Sabre\VObject\Component\VCard;
 
 class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
@@ -29,7 +28,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
     {
         $this->vCards[] = $vCard;
 
-        $version = (string)$vCard->VERSION;
+        $version = (string) $vCard->VERSION;
 
         if (! array_key_exists($version, $this->versions)) {
             $this->versions[$version] = 0;

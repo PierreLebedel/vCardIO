@@ -10,17 +10,16 @@ use Sabre\VObject\Parser\MimeDir as SabreParserMimeDir;
 
 class VCardReader extends SabreParserMimeDir
 {
-
     protected function parseDocument()
     {
         $line = $this->readLine();
 
         // BOM is ZERO WIDTH NO-BREAK SPACE (U+FEFF).
         // It's 0xEF 0xBB 0xBF in UTF-8 hex.
-        if (3 <= strlen($line)
-            && 0xef === ord($line[0])
-            && 0xbb === ord($line[1])
-            && 0xbf === ord($line[2])) {
+        if (strlen($line) >= 3
+            && ord($line[0]) === 0xEF
+            && ord($line[1]) === 0xBB
+            && ord($line[2]) === 0xBF) {
             $line = substr($line, 3);
         }
 
@@ -41,7 +40,7 @@ class VCardReader extends SabreParserMimeDir
             } catch (EofException $oEx) {
                 $line = 'END:'.$this->root->name;
             }
-            if ('END:' === strtoupper(substr($line, 0, 4))) {
+            if (strtoupper(substr($line, 0, 4)) === 'END:') {
                 break;
             }
             $result = $this->parseLine($line);
@@ -55,5 +54,4 @@ class VCardReader extends SabreParserMimeDir
             throw new ParseException('Invalid MimeDir file. expected: "END:'.$this->root->name.'" got: "END:'.$name.'"');
         }
     }
-
 }

@@ -111,7 +111,7 @@ abstract class AbstractField
     public function apply(AbstractVCard $vCard): AbstractVCard
     {
         if ($this->multiple) {
-            if(!is_array($vCard->{$this->getAlias()})){
+            if (! is_array($vCard->{$this->getAlias()})) {
                 $vCard->{$this->getAlias()} = [];
             }
             $vCard->{$this->getAlias()}[] = $this->render();

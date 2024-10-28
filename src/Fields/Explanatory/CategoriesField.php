@@ -6,7 +6,6 @@ namespace Pleb\VCardIO\Fields\Explanatory;
 
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Formatters\TagsFormatter;
-use Pleb\VCardIO\Formatters\ArrayFormatter;
 
 class CategoriesField extends AbstractField
 {

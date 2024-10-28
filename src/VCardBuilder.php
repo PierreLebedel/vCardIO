@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Sabre\VObject;
-use Sabre\VObject\Reader;
-
 class VCardBuilder
 {
     //public ?VCardVersionEnum $version = null;
@@ -24,7 +21,7 @@ class VCardBuilder
 
     public function addLine(string $lineRawData)
     {
-        if(!empty($this->rawData)){
+        if (! empty($this->rawData)) {
             $this->rawData .= PHP_EOL;
         }
         $this->rawData .= $lineRawData;
@@ -432,8 +429,9 @@ class VCardBuilder
 
     public function get()
     {
-        $parser = new VCardReader();
+        $parser = new VCardReader;
         $parser->setCharset('UTF-8');
+
         return $parser->parse($this->rawData, 0);
     }
 

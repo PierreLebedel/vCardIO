@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO;
 
 use Sabre\VObject\Component\VCard as SabreVCard;
 
 class VCard extends SabreVCard
 {
-
     public static $componentMap = [
         'VCARD' => VCard::class,
     ];
@@ -15,5 +16,4 @@ class VCard extends SabreVCard
     {
         return $this->serialize();
     }
-
 }
