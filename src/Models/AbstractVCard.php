@@ -14,11 +14,11 @@ abstract class AbstractVCard
 
     public $bday = null;
 
-    public ?array $emails = null;
+    public array $emails = [];
 
     public ?string $fullName = null;
 
-    public $geo = null;
+    public array $geoLocations = [];
 
     public $key = null;
 
@@ -48,14 +48,43 @@ abstract class AbstractVCard
 
     public $url = null;
 
+    protected $fields = [];
+
     public function applyField(AbstractField $field): self
     {
+        if( !property_exists($this, $field->getAlias()) ){
+            dump('property not exists alias:'.$field->getAlias().' in '.get_class($this));
+            return $this;
+        }
+
+        if (! array_key_exists($field->getName(), $this->fields)) {
+            $this->fields[$field->getName()] = [];
+        }
+
+        if (! $field->isMultiple()) {
+            $this->fields[$field->getName()][0] = $field;
+        } else {
+            $this->fields[$field->getName()][] = $field;
+        }
+
         return $field->apply($this);
     }
 
     public function toString(): string
     {
-        return 'todo tostring';
+        $vCardString = 'BEGIN:VCARD'.PHP_EOL;
+        $vCardString .= 'VERSION:'.$this->version.PHP_EOL;
+
+        foreach ($this->fields as $name => $fields) {
+            if($name=='version') continue;
+            foreach ($fields as $field) {
+                $vCardString .= (string) $field.PHP_EOL;
+            }
+        }
+
+        $vCardString .= 'BEGIN:VCARD';
+
+        return $vCardString;
     }
 
     public function __toString()

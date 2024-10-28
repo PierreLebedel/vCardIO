@@ -96,7 +96,7 @@ class VCardBuilder
 
     protected function namePart(int $index, string $namePart): self
     {
-        if (! $fieldClass = VCardParser::fields()['n']) {
+        if (! $fieldClass = VCardParser::fieldsMap()['n']) {
             return $this;
         }
         $currentNameField = (array_key_exists('n', $this->fields) && count($this->fields['n']) == 1)

@@ -30,73 +30,6 @@ class VCardField
 
     protected $isUnprocessed = false;
 
-    public function __construct(public string $rawContents)
-    {
-        @[$nameAttributes, $value] = explode(':', $this->rawContents, 2);
-        if (empty($value)) {
-            return;
-        }
-
-        $this->value = $value;
-        $this->attributes = explode(';', $nameAttributes);
-        $this->name = mb_strtolower($this->attributes[0]);
-        array_shift($this->attributes);
-
-        $this->parseAttributes();
-
-        if (array_key_exists('charset', $this->attributes) && ! empty($this->attributes['charset'])) {
-            $this->value = mb_convert_encoding($this->value, 'UTF-8', $this->attributes['charset']);
-        }
-
-        if (! in_array($this->name, VCard::getSingularFields())) {
-            $this->multiple();
-        }
-    }
-
-    protected function parseAttributes()
-    {
-        if (empty($this->attributes)) {
-            return;
-        }
-
-        $newAttributes = [];
-        foreach ($this->attributes as $attribute) {
-
-            $keyValues = explode('=', $attribute, 2);
-
-            if (count($keyValues) === 2) {
-                $key = strtolower($keyValues[0]);
-                $values = explode(',', $keyValues[1]);
-            } elseif (count($keyValues) === 1) {
-                $key = 'type';
-                $values = explode(',', $keyValues[0]);
-            } else {
-                continue;
-            }
-
-            if (! array_key_exists($key, $newAttributes)) {
-                $newAttributes[$key] = null;
-            }
-
-            if (count($values) <= 1 && ! in_array($key, ['type'])) {
-                $newAttributes[$key] = $values[0] ?? null;
-            } else {
-                $newAttributes[$key] = $values;
-            }
-        }
-
-        $this->attributes = $newAttributes;
-    }
-
-    public function string(): self
-    {
-        $this->isString = true;
-        $this->formattedValue = $this->value;
-        $this->rawValue = $this->value;
-
-        return $this;
-    }
-
     public function uri(): self
     {
         $this->isString = true;
@@ -159,37 +92,6 @@ class VCardField
                 }
             }
         }
-
-        return $this;
-    }
-
-    public function coordinates(): self
-    {
-        $this->isArray = true;
-
-        $this->rawValue = $this->value;
-
-        $coordinates = null;
-
-        if (strpos($this->value, 'geo:') === 0) {
-            $input = substr($this->value, 4);
-            $coordinates = explode(',', $input);
-
-        } elseif (strpos($this->value, ';') !== false) {
-            $coordinates = explode(';', $this->value);
-        } elseif (strpos($this->value, ',') !== false) {
-            $coordinates = explode(',', $this->value);
-        }
-
-        if (! $coordinates || count($coordinates) < 2) {
-            $this->formattedValue = null;
-
-            return $this;
-        }
-
-        $this->formattedValue = new stdClass;
-        $this->formattedValue->latitude = $coordinates[0];
-        $this->formattedValue->longitude = $coordinates[1];
 
         return $this;
     }

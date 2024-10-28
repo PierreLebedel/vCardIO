@@ -16,21 +16,23 @@ abstract class AbstractField
 
     protected bool $multiple;
 
-    public static function parse(string $rawData): ?AbstractField
+    public static function makeFromRaw(string $rawData): ?AbstractField
     {
         @[$nameAttributes, $value] = explode(':', $rawData, 2);
-        if (empty($value)) {
-            throw VCardFieldException::emptyValue();
-        }
 
-        $value = $value;
         $attributes = explode(';', $nameAttributes);
         $name = mb_strtolower($attributes[0]);
         array_shift($attributes);
 
+        if (empty($value)) {
+            dump('@todo empty value for name:'.$name);
+
+            return null;
+        }
+
         $attributes = self::parseAttributes($attributes);
 
-        $fieldClass = VCardParser::fields()[$name] ?? null;
+        $fieldClass = VCardParser::fieldsMap()[$name] ?? null;
 
         if (! $fieldClass || ! class_exists($fieldClass)) {
             dump('@todo field for name:'.$name);
@@ -49,28 +51,30 @@ abstract class AbstractField
         }
 
         $newAttributes = [];
-        foreach ($attributes as $attribute) {
+        foreach ($attributes as $k => $v) {
 
-            $keyValues = explode('=', $attribute, 2);
+            if(is_numeric($k) && is_string($v)){
+                $keyValues = explode('=', $v, 2);
 
-            if (count($keyValues) === 2) {
-                $key = strtolower($keyValues[0]);
-                $values = explode(',', $keyValues[1]);
-            } elseif (count($keyValues) === 1) {
-                $key = 'type';
-                $values = explode(',', $keyValues[0]);
-            } else {
-                continue;
+                if (count($keyValues) === 2) {
+                    $k = strtolower($keyValues[0]);
+                    $v = explode(',', $keyValues[1]);
+                } elseif (count($keyValues) === 1) {
+                    $k = 'type';
+                    $v = explode(',', $keyValues[0]);
+                } else {
+                    continue;
+                }
             }
 
-            if (! array_key_exists($key, $newAttributes)) {
-                $newAttributes[$key] = null;
+            if (! array_key_exists($k, $newAttributes)) {
+                $newAttributes[$k] = null;
             }
 
-            if (count($values) <= 1 && ! in_array($key, ['type'])) {
-                $newAttributes[$key] = $values[0] ?? null;
+            if(is_array($v) && count($v) <= 1 && ! in_array($k, ['type'])){
+                $newAttributes[$k] = $v[0] ?? null;
             } else {
-                $newAttributes[$key] = $values;
+                $newAttributes[$k] = $v;
             }
         }
 
@@ -112,7 +116,16 @@ abstract class AbstractField
     {
         $attributes = self::parseAttributes($attributes);
 
-        $property = implode(';', array_merge([strtoupper($this->getName())], $attributes));
+        $property = strtoupper($this->getName());
+
+        if(!empty($attributes)){
+            foreach($attributes as $k=>$v){
+                if(empty($v)) continue;
+                $property .= ';'.$k.'=';
+                $property .= is_array($v) ? implode(',', array_values($v)) : $v;
+            }
+        }
+
         $property .= ':'.$value;
 
         return $property;

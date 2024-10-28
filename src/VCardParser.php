@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\NameField;
+use Pleb\VCardIO\Fields\EmailField;
+use Pleb\VCardIO\Fields\VersionField;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Fields\FullNameField;
-use Pleb\VCardIO\Fields\NameField;
-use Pleb\VCardIO\Fields\VersionField;
+use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\GeoField;
+use Pleb\VCardIO\Fields\PhoneField;
 
 class VCardParser
 {
     protected string $rawData;
 
     protected VCardsCollection $vCards;
+
+    protected VCardLogger $logger;
 
     protected ?VCardBuilder $currentVCardBuilder = null;
 
@@ -24,6 +29,7 @@ class VCardParser
     {
         $this->rawData = $rawData;
         $this->vCards = new VCardsCollection;
+        $this->logger = new VCardLogger;
         $this->parse();
     }
 
@@ -67,24 +73,31 @@ class VCardParser
 
         // Groups child line with its parent above
         foreach ($lines as $lineNumber => $lineContents) {
+
             $lineContents = trim($lineContents);
+
             if (empty($lineContents)) {
+                $this->logger->log('Empty line skipped: '.$lineNumber);
+
                 continue;
             }
             if (! str_contains($lineContents, ':')) {
                 $previousLine = null;
                 for ($i = ($lineNumber - 1); $i >= 0; $i--) {
-
                     if (array_key_exists($i, $lines) && is_null($previousLine)) {
                         $previousLine = $i;
                         break;
                     }
                 }
                 $lines[$previousLine] .= $lineContents;
+                unset($lines[$lineNumber]);
             }
         }
 
         foreach ($lines as $lineNumber => $lineContents) {
+            $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
+            $lineContents = preg_replace('/^\w+\./', '', $lineContents);
+
             $this->parseLine($lineNumber, $lineContents);
         }
     }
@@ -98,21 +111,11 @@ class VCardParser
         return $this->currentVCardBuilder;
     }
 
-    protected function fileElements(): array
-    {
-        return [
-            'photo',
-            'logo',
-            'sound',
-        ];
-    }
-
     protected function parseLine(int $lineNumber, string $lineContents): void
     {
-        $lineContents = preg_replace("/\n(?:[ \t])/", '', $lineContents);
-        $lineContents = preg_replace('/^\w+\./', '', $lineContents);
-
         if (! $lineContents) {
+            $this->logger->log('Empty line skipped: '.$lineNumber);
+
             return;
         }
 
@@ -154,10 +157,13 @@ class VCardParser
             throw VCardParserException::unexpectedLine($lineNumber, $lineContents);
         }
 
-        $field = AbstractField::parse($lineContents);
+        $field = AbstractField::makeFromRaw($lineContents);
 
         if (! $field) {
+            $this->logger->log('No field found for raw: '.$lineContents);
+
             return;
+
             throw VCardParserException::unreadableDataLine($lineNumber);
         }
 
@@ -194,7 +200,6 @@ class VCardParser
         // ]),
         // 'fburl'  => $field->uri()->addAttribute('type'),
         // 'gender' => $field->string(),
-        // 'geo'    => $field->coordinates()->addAttribute('type'),
         // 'impp'   => $field->object()->addAttribute('type', ['personal', 'business', 'home', 'work', 'mobile', 'pref']),
         // 'key'    => $field->uri()->addAttribute('type'),
         // 'kind'   => $field->string()->in(['invividual', 'group', 'org', 'location']),
@@ -211,13 +216,6 @@ class VCardParser
         // 'logo'   => $field->uri()->addAttribute('type'),
         // 'mailer' => $field->string(),
         // 'member' => $field->uri(),
-        // 'n'      => $field->assoc([
-        //     'lastName',
-        //     'firstName',
-        //     'middleName',
-        //     'namePrefix',
-        //     'nameSuffix',
-        // ]),
         // 'nickname' => $field->array()->addAttribute('type'),
         // 'note'     => $field->string()->addAttribute('type'),
         // 'org'      => $field->assoc([
@@ -234,7 +232,6 @@ class VCardParser
         // 'sort-string' => $field->string(),
         // 'sound'       => $field->uri()->addAttribute('type'),
         // 'source'      => $field->uri(),
-        // 'tel'         => $field->object()->addAttribute('type', ['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']),
         // 'title'       => $field->string()->addAttribute('type'),
         // 'tz'          => $field->timezone()->addAttribute('type'),
         // 'uid'         => $field->string()->ltrim(['urn:uuid:']),
@@ -244,7 +241,7 @@ class VCardParser
         // };
     }
 
-    public static function fields(): array
+    public static function fieldsMap(): array
     {
         return [
             'adr'          => 'addresses',
@@ -256,11 +253,11 @@ class VCardParser
             'categories'   => 'categories',
             'class'        => 'class',
             'clientpidmap' => 'clientpidmap',
-            'email'        => 'emails',
+            'email'        => EmailField::class,
             'fburl'        => 'fburl',
             'fn'           => FullNameField::class,
             'gender'       => 'gender',
-            'geo'          => 'geo',
+            'geo'          => GeoField::class,
             'impp'         => 'impp',
             'key'          => 'key',
             'kind'         => 'kind',
@@ -285,7 +282,7 @@ class VCardParser
             'sort-string'  => 'sort-string',
             'sound'        => 'sound',
             'source'       => 'source',
-            'tel'          => 'phones',
+            'tel'          => PhoneField::class,
             'title'        => 'title',
             'tz'           => 'timezone',
             'uid'          => 'uid',

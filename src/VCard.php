@@ -52,9 +52,6 @@ class VCard
     public static function getSingularFields(): array
     {
         return [
-            'version',
-            'fn',
-            'n',
             'bday',
             'logo',
             'photo',

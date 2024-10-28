@@ -6,15 +6,17 @@ namespace Pleb\VCardIO\Fields;
 
 use stdClass;
 
-class EmailField extends AbstractField
+class PhoneField extends AbstractField
 {
-    protected string $name = 'email';
+    protected string $name = 'tel';
 
-    protected ?string $alias = 'emails';
+    protected ?string $alias = 'phones';
 
     protected bool $multiple = true;
 
-    public function __construct(public string $email, public array $types = []) {}
+    // ['home', 'msg', 'work', 'pref', 'voice', 'fax', 'cell', 'video', 'pager', 'bbs', 'modem', 'car', 'isdn', 'pcs']
+
+    public function __construct(public string $number, public array $types = []) {}
 
     public static function make(string $value, array $attributes = []): self
     {
@@ -24,7 +26,7 @@ class EmailField extends AbstractField
     public function render(): mixed
     {
         $object = new stdClass;
-        $object->value = $this->email;
+        $object->value = $this->number;
         $object->types = $this->types;
 
         return $object;
@@ -32,6 +34,6 @@ class EmailField extends AbstractField
 
     public function __toString(): string
     {
-        return $this->toString($this->email, ['type' => $this->types]);
+        return $this->toString($this->number, ['type' => $this->types]);
     }
 }

@@ -16,7 +16,8 @@ class NameField extends AbstractField
 
     public static function make(string $value, array $attributes = []): self
     {
-        return new self(explode(';', $value, 5));
+        $names = explode(',', $value)[0] ?? ';;;;';
+        return new self(explode(';', $names, 5));
     }
 
     public static function getDefaultValue(): mixed
