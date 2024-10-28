@@ -10,6 +10,8 @@ use Pleb\VCardIO\Fields\VersionField;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Fields\FullNameField;
 use Pleb\VCardIO\Exceptions\VCardParserException;
+use Pleb\VCardIO\Fields\AnniversaryField;
+use Pleb\VCardIO\Fields\BirthdayField;
 use Pleb\VCardIO\Fields\GeoField;
 use Pleb\VCardIO\Fields\PhoneField;
 
@@ -189,7 +191,6 @@ class VCardParser
         // ])->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref'])->addAttribute('label'),
         // 'agent'        => $field->string(),
         // 'anniversary'  => $field->datetime(),
-        // 'bday'         => $field->datetime(),
         // 'caladruri'    => $field->uri(),
         // 'caluri'       => $field->uri()->addAttribute('type'),
         // 'categories'   => $field->array()->addAttribute('type'),
@@ -246,8 +247,8 @@ class VCardParser
         return [
             'adr'          => 'addresses',
             'agent'        => 'agent',
-            'anniversary'  => 'anniversary',
-            'bday'         => 'birthday',
+            'anniversary'  => AnniversaryField::class,
+            'bday'         => BirthdayField::class,
             'caladruri'    => 'caladruri',
             'caluri'       => 'caluri',
             'categories'   => 'categories',

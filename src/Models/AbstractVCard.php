@@ -12,7 +12,7 @@ abstract class AbstractVCard
 
     public $adr = null;
 
-    public $bday = null;
+    public $birthday = null;
 
     public array $emails = [];
 
