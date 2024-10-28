@@ -15,7 +15,7 @@ abstract class AbstractField
 
     protected ?string $alias = null;
 
-    protected bool $multiple;
+    protected bool $multiple = true;
 
     public static function makeFromRaw(string $rawData): ?AbstractField
     {
@@ -103,9 +103,17 @@ abstract class AbstractField
         return null;
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [];
+    }
+
     public function apply(AbstractVCard $vCard): AbstractVCard
     {
         if ($this->multiple) {
+            if(!is_array($vCard->{$this->getAlias()})){
+                $vCard->{$this->getAlias()} = [];
+            }
             $vCard->{$this->getAlias()}[] = $this->render();
         } else {
             $vCard->{$this->getAlias()} = $this->render();

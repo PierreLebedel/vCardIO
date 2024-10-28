@@ -11,7 +11,7 @@ class ProfileField extends AbstractField
 {
     protected string $name = 'profile';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $profile) {}
 

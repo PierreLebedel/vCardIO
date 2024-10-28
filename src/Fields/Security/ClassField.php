@@ -11,7 +11,7 @@ class ClassField extends AbstractField
 {
     protected string $name = 'class';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $class) {}
 

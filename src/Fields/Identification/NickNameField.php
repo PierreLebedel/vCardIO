@@ -12,20 +12,31 @@ class NickNameField extends AbstractField
 
     protected ?string $alias = 'nickNames';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
-    public function __construct(public array $nickNames) {}
+    public function __construct(public array $nickNames, public array $attributes = []) {}
 
     public static function make(string $value, array $attributes = []): self
     {
         $nickNames = explode(',', $value);
 
-        return new self($nickNames);
+        return new self($nickNames, $attributes);
     }
 
     public static function getDefaultValue(): mixed
     {
         return [];
+    }
+
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'type',
+            'language',
+            'altid',
+            'pid',
+            'pref',
+        ];
     }
 
     public function render(): mixed
@@ -36,6 +47,6 @@ class NickNameField extends AbstractField
     public function __toString(): string
     {
 
-        return $this->toString(implode(',', $this->nickNames));
+        return $this->toString(implode(',', $this->nickNames), $this->attributes);
     }
 }

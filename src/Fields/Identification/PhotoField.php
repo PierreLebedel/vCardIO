@@ -10,13 +10,24 @@ class PhotoField extends AbstractField
 {
     protected string $name = 'photo';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $photo, public array $attributes = []) {}
 
     public static function make(string $value, array $attributes = []): self
     {
         return new self($value, $attributes);
+    }
+
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'altid',
+            'type',
+            'mediatype',
+            'pref',
+            'pid',
+        ];
     }
 
     public function render(): mixed

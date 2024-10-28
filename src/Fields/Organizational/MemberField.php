@@ -19,6 +19,16 @@ class MemberField extends AbstractField
         return new self($value, $attributes);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'pid',
+            'pref',
+            'mediatype',
+            'altid',
+        ];
+    }
+
     public function render(): mixed
     {
         return $this->member;

@@ -10,7 +10,7 @@ class SortStringField extends AbstractField
 {
     protected string $name = 'sort-string';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $sortString) {}
 

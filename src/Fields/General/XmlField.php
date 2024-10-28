@@ -10,7 +10,7 @@ class XmlField extends AbstractField
 {
     protected string $name = 'xml';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $xml) {}
 

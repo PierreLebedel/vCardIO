@@ -26,6 +26,14 @@ class GenderField extends AbstractField
         return new self($value);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'altid',
+            'calscale',
+        ];
+    }
+
     public function render(): mixed
     {
         return $this->gender;

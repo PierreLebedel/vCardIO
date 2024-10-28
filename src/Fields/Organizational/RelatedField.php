@@ -10,7 +10,7 @@ class RelatedField extends AbstractField
 {
     protected string $name = 'related';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $related, public array $attributes = []) {}
 

@@ -50,6 +50,14 @@ class BirthdayField extends AbstractField
         return new self($dateTime, $exactYear);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'altid',
+            'calscale',
+        ];
+    }
+
     public function render(): mixed
     {
         return $this->dateTime;

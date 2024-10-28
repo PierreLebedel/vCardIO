@@ -24,6 +24,17 @@ class ImppField extends AbstractField
         return new self($value, $attributes['type'] ?? []);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'pid',
+            'pref',
+            'type',
+            'mediatype',
+            'altid',
+        ];
+    }
+
     public function render(): mixed
     {
         $object = new stdClass;

@@ -7,21 +7,22 @@ namespace Pleb\VCardIO\Models;
 use DateTimeInterface;
 use DateTimeZone;
 use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Fields\Identification\FullNameField;
 use stdClass;
 
 abstract class AbstractVCard
 {
     public string $version;
 
-    public array $addresses = [];
+    public $addresses = null;
 
-    public ?DateTimeInterface $birthday = null;
+    public $birthday = null;
 
-    public array $emails = [];
+    public $emails = null;
 
-    public ?string $fullName = null;
+    public $fullName = null;
 
-    public array $geoLocations = [];
+    public $geoLocations = null;
 
     public $key = null;
 
@@ -31,21 +32,21 @@ abstract class AbstractVCard
 
     public $note = null;
 
-    public array $organizations = [];
+    public $organizations = null;
 
     public $photo = null;
 
-    public ?DateTimeInterface $revision = null;
+    public $revision = null;
 
     public $role = null;
 
     public $sound = null;
 
-    public array $phones = [];
+    public $phones = null;
 
     public $title = null;
 
-    public ?DateTimeZone $timeZone = null;
+    public $timeZone = null;
 
     public $uid = null;
 

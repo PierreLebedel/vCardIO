@@ -12,7 +12,7 @@ class SourceNameField extends AbstractField
 
     protected ?string $alias = 'sourceName';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $sourceName) {}
 

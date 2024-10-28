@@ -37,6 +37,17 @@ class GeoField extends AbstractField
         return new self(floatval($coordinates[0]), floatval($coordinates[1]), $attributes);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'pid',
+            'pref',
+            'mediatype',
+            'type',
+            'altid',
+        ];
+    }
+
     public function render(): mixed
     {
         $object = new stdClass;

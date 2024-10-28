@@ -30,6 +30,20 @@ class AddressField extends AbstractField
         return [null, null, null, null, null, null, null];
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'label',
+            'language',
+            'geo',
+            'tz',
+            'altid',
+            'pid',
+            'pref',
+            'type',
+        ];
+    }
+
     public function render(): mixed
     {
         return (object) [

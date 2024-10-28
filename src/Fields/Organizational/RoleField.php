@@ -19,6 +19,17 @@ class RoleField extends AbstractField
         return new self($value, $attributes);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'language',
+            'pid',
+            'pref',
+            'type',
+            'altid',
+        ];
+    }
+
     public function render(): mixed
     {
         return $this->role;

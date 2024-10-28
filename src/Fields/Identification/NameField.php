@@ -28,6 +28,15 @@ class NameField extends AbstractField
         return [null, null, null, null, null];
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'sort-as',
+            'language',
+            'altid',
+        ];
+    }
+
     public function render(): mixed
     {
         return (object) [

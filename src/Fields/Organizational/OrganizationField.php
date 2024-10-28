@@ -23,6 +23,18 @@ class OrganizationField extends AbstractField
         return new self(explode(';', $parts, 3));
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'sort-as',
+            'language',
+            'pid',
+            'pref',
+            'type',
+            'altid',
+        ];
+    }
+
     public static function getDefaultValue(): mixed
     {
         return [null, null, null];

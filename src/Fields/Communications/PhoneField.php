@@ -24,6 +24,16 @@ class PhoneField extends AbstractField
         return new self($value, $attributes['type'] ?? []);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'type',
+            'pid',
+            'pref',
+            'altid',
+        ];
+    }
+
     public function render(): mixed
     {
         $object = new stdClass;

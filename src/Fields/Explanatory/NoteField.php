@@ -10,7 +10,7 @@ class NoteField extends AbstractField
 {
     protected string $name = 'note';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $note, public array $attributes = []) {}
 

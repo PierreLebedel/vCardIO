@@ -14,7 +14,7 @@ class TimeZoneField extends AbstractField
 
     protected ?string $alias = 'timeZone';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public DateTimeZone $timeZone) {}
 
@@ -27,6 +27,16 @@ class TimeZoneField extends AbstractField
         }
 
         return new self($timeZone);
+    }
+
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'pid',
+            'pref',
+            'mediatype',
+            'type',
+        ];
     }
 
     public function render(): mixed

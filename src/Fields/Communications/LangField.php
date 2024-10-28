@@ -22,6 +22,16 @@ class LangField extends AbstractField
         return new self($value, $attributes['type'] ?? []);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'pid',
+            'pref',
+            'altid',
+            'type',
+        ];
+    }
+
     public function render(): mixed
     {
         $object = new stdClass;

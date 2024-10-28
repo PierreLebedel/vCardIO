@@ -10,13 +10,25 @@ class LogoField extends AbstractField
 {
     protected string $name = 'logo';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $logo, public array $attributes = []) {}
 
     public static function make(string $value, array $attributes = []): self
     {
         return new self($value, $attributes);
+    }
+
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'language',
+            'pid',
+            'pref',
+            'type',
+            'mediatype',
+            'altid',
+        ];
     }
 
     public function render(): mixed

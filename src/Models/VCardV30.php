@@ -8,7 +8,7 @@ class VCardV30 extends AbstractVCard
 {
     public string $version = '3.0';
 
-    public $agent = 'test';
+    public $agent = null;
 
     public $categories = null;
 
@@ -22,7 +22,7 @@ class VCardV30 extends AbstractVCard
 
     public $sourceName = null;
 
-    public array $nickNames = [];
+    public $nickNames = null;
 
     public $prodid = null;
 

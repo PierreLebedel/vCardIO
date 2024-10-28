@@ -12,7 +12,7 @@ class MailerField extends AbstractField
 
     protected ?string $alias = null;
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $mailer) {}
 

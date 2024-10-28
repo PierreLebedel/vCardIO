@@ -41,6 +41,14 @@ class AnniversaryField extends \Pleb\VCardIO\Fields\AbstractField
         return new self($dateTime);
     }
 
+    public static function getPossibleAttributes(): array
+    {
+        return [
+            'altid',
+            'calscale',
+        ];
+    }
+
     public function render(): mixed
     {
         return $this->dateTime;

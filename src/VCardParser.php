@@ -179,28 +179,6 @@ class VCardParser
         }
 
         $this->getVCardBuilder()->addField($field);
-
-        // match ($field->name) {
-        // 'caladruri'    => $field->uri(),
-        // 'caluri'       => $field->uri()->addAttribute('type'),
-        // 'class'        => $field->string(),
-        // 'fburl'  => $field->uri()->addAttribute('type'),
-        // 'key'    => $field->uri()->addAttribute('type'),
-        // 'label'  => $field->assoc([
-        //     'postOfficeAddress',
-        //     'extendedAddress',
-        //     'street',
-        //     'locality',
-        //     'region',
-        //     'postalCode',
-        //     'country',
-        // ])->addAttribute('type', ['dom', 'intl', 'postal', 'parcel', 'home', 'work', 'pref']),
-        // 'mailer' => $field->string(),
-        // 'prodid'      => $field->string(),
-        // 'profile'     => $field->string(),
-        // 'sort-string' => $field->string(),
-        // default       => $field->unprocecced(),
-        // };
     }
 
     public static function fieldsMap(): array

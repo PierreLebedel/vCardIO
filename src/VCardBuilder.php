@@ -25,6 +25,7 @@ use Pleb\VCardIO\Fields\Explanatory\RevField;
 use Pleb\VCardIO\Fields\Explanatory\SoundField;
 use Pleb\VCardIO\Fields\Explanatory\UidField;
 use Pleb\VCardIO\Fields\Explanatory\UrlField;
+use Pleb\VCardIO\Fields\Extended\XField;
 use Pleb\VCardIO\Fields\General\KindField;
 use Pleb\VCardIO\Fields\General\SourceField;
 use Pleb\VCardIO\Fields\General\XmlField;
@@ -283,7 +284,7 @@ class VCardBuilder
         return $this;
     }
 
-    public function category(string $category): self
+    /*public function category(string $category): self
     {
         if (! $fieldClass = VCardParser::fieldsMap()['categories']) {
             return $this;
@@ -292,6 +293,8 @@ class VCardBuilder
             ? array_values((array) $this->fields['categories'][0]->render())
             : $fieldClass::getDefaultValue();
 
+            dump($currentCategoriesField, $category);
+
         if (! in_array($category, $currentCategoriesField)) {
             $currentCategoriesField[] = $category;
         }
@@ -299,7 +302,7 @@ class VCardBuilder
         $this->addField(new CategoriesField($currentCategoriesField));
 
         return $this;
-    }
+    }*/
 
     public function nickNames(array $nicknames): self
     {
@@ -338,6 +341,11 @@ class VCardBuilder
         $this->addField(UidField::make($uid));
 
         return $this;
+    }
+
+    public function uuid(string $uuid): self
+    {
+        return $this->uid($uuid);
     }
 
     public function calendarAddressUri(string $uri): self
@@ -441,6 +449,13 @@ class VCardBuilder
     public function xml(string $xml): self
     {
         $this->addField(new XmlField($xml));
+
+        return $this;
+    }
+
+    public function x(string $name, string $value): self
+    {
+        $this->addField(new XField($name, $value));
 
         return $this;
     }

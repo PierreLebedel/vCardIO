@@ -10,6 +10,8 @@ class CalAdrUriField extends AbstractField
 {
     protected string $name = 'caladruri';
 
+    protected ?string $alias = 'calendarUserUri';
+
     protected bool $multiple = true;
 
     public function __construct(public string $uri, public array $attributes = []) {}

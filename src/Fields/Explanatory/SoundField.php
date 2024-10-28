@@ -10,7 +10,7 @@ class SoundField extends AbstractField
 {
     protected string $name = 'sound';
 
-    protected bool $multiple = false;
+    protected bool $multiple = true;
 
     public function __construct(public string $sound, public array $attributes = []) {}
 
