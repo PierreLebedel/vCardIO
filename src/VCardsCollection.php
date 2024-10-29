@@ -52,6 +52,15 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this->vCards[0] ?? null;
     }
 
+    public function __toString() :string
+    {
+        $collectionString = '';
+        foreach($this->vCards as $vCard){
+            $collectionString .= (string) $vCard;
+        }
+        return $collectionString;
+    }
+
     /**
      * Countable interface implementation
      */

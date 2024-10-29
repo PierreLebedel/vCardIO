@@ -213,7 +213,7 @@ class VCardBuilder
         return $this;
     }
 
-    public function birthday(DateTimeInterface $bday): self
+    public function bday(DateTimeInterface $bday): self
     {
         $property = $this->getProperty('bday');
         if ($property) {
@@ -221,6 +221,11 @@ class VCardBuilder
         }
 
         return $this;
+    }
+
+    public function birthday(DateTimeInterface $bday): self
+    {
+        return $this->bday($bday);
     }
 
     public function anniversary(DateTimeInterface $anniversary): self
