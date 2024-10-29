@@ -65,7 +65,7 @@ class VCardParser
         $vCardEndCount = preg_match_all('{END\:VCARD}miS', $this->rawData, $beginEndMatches);
 
         if (($vCardBeginCount != $vCardEndCount)) {
-            throw VCardParserException::invalidObjects('BEGIN:VCARD count differs of END:VCARD count');
+            throw VCardParserException::invalidFormat('BEGIN:VCARD count differs of END:VCARD count');
         }
 
         $lines = explode("\n", $this->rawData);

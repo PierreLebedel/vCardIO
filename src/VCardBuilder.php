@@ -12,6 +12,7 @@ use Pleb\VCardIO\Fields\TextField;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Models\AbstractVCard;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Exceptions\VCardBuilderException;
 use Pleb\VCardIO\Fields\Extended\XField;
 use Pleb\VCardIO\Fields\General\XmlField;
 use Pleb\VCardIO\Fields\General\KindField;
@@ -137,11 +138,11 @@ class VCardBuilder
         return $this;
     }
 
-    public function fullName(?string $fullName): self
+    public function fullname(?string $fullname): self
     {
         $property = $this->getProperty('fn');
         if ($property) {
-            $property->makeField($fullName);
+            $property->makeField($fullname);
         }
 
         return $this;
@@ -283,6 +284,10 @@ class VCardBuilder
 
     public function gender(string $gender): self
     {
+        if(!in_array(strtoupper($gender), ['M', 'F', 'O', 'N', 'U'])) {
+            throw VCardBuilderException::wrongValue('gender', $gender);
+        }
+
         $property = $this->getProperty('gender');
         if ($property) {
             $property->makeField($gender);
@@ -389,6 +394,8 @@ class VCardBuilder
             $property->fields = [];
             $property->makeField(implode(',', $categoriesArray));
         }
+
+        return $this;
     }
 
     public function nicknames(array $nicknames): self
@@ -629,7 +636,7 @@ class VCardBuilder
         if (property_exists($vCard, 'prodid') && ! $vCard->prodid) {
             $property = $this->getProperty('prodid');
             if ($property) {
-                $property->makeField('-//Pleb//Pleb vCardIO '.VCardLibrary::VERSION.' //EN');
+                $property->makeField('-//Pleb//Pleb vCardIO '.VCardPackage::VERSION.' //EN');
                 $vCard->applyProperty($property);
             }
         }

@@ -4,25 +4,10 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Exceptions;
 
-class VCardBuilderException extends VCardIOException
+class VCardBuilderException extends AbstractVCardException
 {
-    public static function notSingularField(string $field)
+    public static function wrongValue(string $propertyName, mixed $value)
     {
-        return new self(sprintf("Field %s isn't singular", $field));
-    }
-
-    public static function notMultipleField(string $field)
-    {
-        return new self(sprintf("Field %s isn't multiple", $field));
-    }
-
-    public static function wrongStringValue(string $field, string $value)
-    {
-        return new self(sprintf('Wrong value %s for field %s', $value, $field));
-    }
-
-    public static function cantMakeXField()
-    {
-        return new self('Can\'t make the x-field by this way');
+        return new self(sprintf("Wrong value for field %s", $propertyName));
     }
 }
