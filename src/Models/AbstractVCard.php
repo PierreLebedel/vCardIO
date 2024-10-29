@@ -53,7 +53,7 @@ abstract class AbstractVCard
 
     public $url = null;
 
-    public ?stdClass $x = null;
+    public $x = null;
 
     protected $properties = [];
 

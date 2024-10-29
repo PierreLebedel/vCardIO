@@ -10,6 +10,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Fields\AgentField as FieldsAgentField;
 use Pleb\VCardIO\Fields\Calendar\CalAdrUriField;
 use Pleb\VCardIO\Fields\Calendar\CalUriField;
 use Pleb\VCardIO\Fields\Calendar\FbUrlField;
@@ -47,6 +48,7 @@ use Pleb\VCardIO\Fields\Organizational\RelatedField;
 use Pleb\VCardIO\Fields\Organizational\RoleField;
 use Pleb\VCardIO\Fields\Organizational\TitleField;
 use Pleb\VCardIO\Fields\Security\KeyField;
+use Pleb\VCardIO\Fields\UriField;
 use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardBuilder
@@ -66,6 +68,10 @@ class VCardBuilder
 
     public function getProperty(string $name) :?VCardProperty
     {
+        if( substr(strtolower($name), 0, 2) == 'x-' ){
+            $name = 'x';
+        }
+
         if( !array_key_exists($name, $this->properties) ){
             $property = VCardProperty::find($name);
 
@@ -116,24 +122,18 @@ class VCardBuilder
         return $versionEnum;
     }
 
-    public function addField(AbstractField $field): self
-    {
-        if (! array_key_exists($field->getName(), $this->fields)) {
-            $this->fields[$field->getName()] = [];
-        }
-
-        if (! $field->isMultiple()) {
-            $this->fields[$field->getName()][0] = $field;
-        } else {
-            $this->fields[$field->getName()][] = $field;
-        }
-
-        return $this;
-    }
-
     public function setAgent(string|AbstractVCard $agent): self
     {
-        $this->addField(new AgentField($agent));
+        $agentProperty = $this->getProperty('agent');
+
+        if($agentProperty){
+            if($agent instanceof AbstractVCard){
+                $field = FieldsAgentField::makeFromVCard($agent);
+            }else{
+                $field = UriField::make($agent);
+            }
+            $agentProperty->addField($field);
+        }
 
         return $this;
     }

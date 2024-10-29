@@ -5,6 +5,7 @@ namespace Pleb\VCardIO\Fields;
 abstract class AbstractField
 {
 
+    public bool $hasAttributes = false;
     public array $possibleAttributes = [];
     public array $defaultAttributes = [];
 
@@ -12,7 +13,12 @@ abstract class AbstractField
     {
     }
 
-    public function cleanAttributes()
+    public function cleanValue() :string
+    {
+        return $this->value;
+    }
+
+    public function cleanAttributes() :array
     {
         if(!empty($this->attributes)){
             foreach($this->attributes as $k => $v){
@@ -45,11 +51,19 @@ abstract class AbstractField
             }
         }
 
+        return $this->attributes;
+    }
+
+    public function setHasAttributes(bool $hasAttributes = true) :self
+    {
+        $this->hasAttributes = $hasAttributes;
+        return $this;
     }
 
     public function setPossibleAttributes(array $possibleAttributes = []) :self
     {
         $this->possibleAttributes = $possibleAttributes;
+        $this->setHasAttributes(true);
         $this->cleanAttributes();
         return $this;
     }
@@ -57,6 +71,7 @@ abstract class AbstractField
     public function setDefaultAttributes(array $defaultAttributes = []) :self
     {
         $this->defaultAttributes = $defaultAttributes;
+        $this->setHasAttributes(true);
         $this->cleanAttributes();
         return $this;
     }
@@ -67,9 +82,7 @@ abstract class AbstractField
     {
         $fieldString = '';
 
-        $this->cleanAttributes();
-
-        if (! empty($this->attributes)) {
+        if (! empty($this->cleanAttributes())) {
             foreach ($this->attributes as $k => $v) {
                 if (empty($v)) {
                     continue;
@@ -79,7 +92,7 @@ abstract class AbstractField
             }
         }
 
-        $fieldString .= ':'.$this->value;
+        $fieldString .= ':'.$this->cleanValue();
 
         return $fieldString;
     }

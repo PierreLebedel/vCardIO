@@ -5,6 +5,7 @@ namespace Pleb\VCardIO;
 use Pleb\VCardIO\Enums\VCardPropertyCardinality;
 use Pleb\VCardIO\Enums\VCardPropertyType;
 use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Fields\XField;
 use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardProperty
@@ -12,9 +13,15 @@ class VCardProperty
 
     public ?string $alias = null;
 
+    public bool $hasAttributes = false;
+
     public array $possibleAttributes = [];
 
     public array $defaultAttributes = [];
+
+    public array $structure = [];
+
+    public string $format = '';
 
     public array $fields = [];
 
@@ -48,8 +55,16 @@ class VCardProperty
         return $this->alias ?? $this->name;
     }
 
-    public function addParam(string $paramName, string $paramValues = '', ?string $default = null) :self
+    public function withAttr() :self
     {
+        $this->hasAttributes = true;
+        return $this;
+    }
+
+    public function addAttr(string $paramName, string $paramValues = '', ?string $default = null) :self
+    {
+        $this->withAttr();
+
         $this->possibleAttributes[$paramName] = explode(',', $paramValues);
 
         if(!empty($default)){
@@ -59,24 +74,25 @@ class VCardProperty
         return $this;
     }
 
-    public function addParams(string $names) :self
+    public function addAttrs(string $names) :self
     {
         $params = explode(',', $names);
         foreach($params as $name){
-            $this->addParam($name);
+            $this->addAttr($name);
         }
         return $this;
     }
 
-    public function setRestriction(array $options) :self
-    {
-
-        return $this;
-    }
 
     public function setStructure(array $structure) :self
     {
+        $this->structure = $structure;
+        return $this;
+    }
 
+    public function setFormat(string $format) :self
+    {
+        $this->format = $format;
         return $this;
     }
 
@@ -84,54 +100,56 @@ class VCardProperty
     {
         return match (strtolower($name)) {
             // General Properties
-            'source'       => self::make($name, 'uri', '*')->addParams('pid,pref,altid,mediatype'),
-            'kind'         => self::make($name, 'option', '*1')->setRestriction(['individual', 'group', 'org', 'location']),
+            'source'       => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid,mediatype'),
+            'kind'         => self::make($name, 'option', '*1')->withAttr()->setStructure(['individual', 'group', 'org', 'location'])->setFormat('individual'),
             'xml'          => self::make($name, 'text', '*'),
             // Identification Properties
-            'fn'           => self::make($name, 'text', '1*')->addParams('type,language,altid,pid,pref'),
-            'n'            => self::make($name, 'list-component', '*1')->addParams('sort-as,language,altid')->setStructure(['lastName','firstName','middleName','namePrefix','nameSuffix']),
-            'nickname'     => self::make($name, 'text-list', '*')->addParams('type,language,altid,pid,pref'),
-            'photo'        => self::make($name, 'uri', '*')->addParams('type,mediatype,altid,pid,pref'),
-            'bday'         => self::make($name, 'datetime', '*1')->addParams('altid,calscale'),
-            'anniversary'  => self::make($name, 'datetime', '*1')->addParams('altid,calscale'),
-            'gender'       => self::make($name, 'sex', '*1'),
+            'fn'           => self::make($name, 'text', '1*')->addAttrs('type,language,altid,pid,pref'),
+            'n'            => self::make($name, 'list-component', '*1')->addAttrs('sort-as,language,altid')->setStructure(['lastName','firstName','middleName','namePrefix','nameSuffix']),
+            'nickname'     => self::make($name, 'text-list', '*')->addAttrs('type,language,altid,pid,pref'),
+            'photo'        => self::make($name, 'uri', '*')->addAttrs('type,mediatype,altid,pid,pref'),
+            'bday'         => self::make($name, 'datetime', '*1')->addAttrs('altid,calscale')->setFormat('Ymd'),
+            'anniversary'  => self::make($name, 'datetime', '*1')->addAttrs('altid,calscale'),
+            'gender'       => self::make($name, 'sex', '*1')->withAttr(),
             // Delivery Addressing Properties
-            'adr'          => self::make($name, 'list-component', '*')->addParams('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress','extendedAddress','street','locality','region','postalCode','country']),
+            'adr'          => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress','extendedAddress','street','locality','region','postalCode','country']),
             // Communications Properties
-            'tel'          => self::make($name, 'text', '*')->addParams('pid,pref,altid')->addParam('type', 'text,voice,fax,cell,video,pager,textphone', 'voice'),
-            'email'        => self::make($name, 'text', '*')->addParams('pid,pref,type,altid'),
-            'impp'         => self::make($name, 'uri', '*')->addParams('pid,pref,type,mediatype,altid'),
-            'lang'         => self::make($name, 'language-tag', '*')->addParams('pid,pref,type,altid'),
+            'tel'          => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid')->addAttr('type', 'text,voice,fax,cell,video,pager,textphone', 'voice')->setFormat('tel'),
+            'email'        => self::make($name, 'text', '*')->addAttrs('pid,pref,type,altid'),
+            'impp'         => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
+            'lang'         => self::make($name, 'language-tag', '*')->addAttrs('pid,pref,type,altid'),
             // Geographical Properties
-            'tz'           => self::make($name, 'text', '*')->addParams('pid,pref,type,altid,mediatype'),
-            'geo'          => self::make($name, 'uri', '*')->addParams('pid,pref,type,altid,mediatype'),
+            'tz'           => self::make($name, 'timezone', '*')->addAttrs('pid,pref,type,altid,mediatype'),
+            'geo'          => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,altid,mediatype')->setFormat('geo'),
             // Organizational Properties
-            'title'        => self::make($name, 'text', '*')->addParams('language,pid,pref,type,altid'),
-            'role'         => self::make($name, 'text', '*')->addParams('language,pid,pref,type,altid'),
-            'logo'         => self::make($name, 'uri', '*')->addParams('language,pid,pref,type,mediatype,altid'),
-            'org'          => self::make($name, 'list-component', '*')->addParams('sort-as,language,pid,pref,type,altid')->setStructure(['organizationName','unit1','unit2']),
-            'member'       => self::make($name, 'uri', '*')->addParams('pid,pref,mediatype,altid'),
-            'related'      => self::make($name, 'uri', '*')->addParams('pid,pref,altid')->addParam('type', 'contact,acquaintance,friend,met,co-worker,colleague,co-resident,neighbor,child,parent,sibling,spouse,kin,muse,crush,date,sweetheart,me,agent,emergency'),
+            'title'        => self::make($name, 'text', '*')->addAttrs('language,pid,pref,type,altid'),
+            'role'         => self::make($name, 'text', '*')->addAttrs('language,pid,pref,type,altid'),
+            'logo'         => self::make($name, 'uri', '*')->addAttrs('language,pid,pref,type,mediatype,altid'),
+            'org'          => self::make($name, 'list-component', '*')->addAttrs('sort-as,language,pid,pref,type,altid')->setStructure(['organizationName','unit1','unit2']),
+            'member'       => self::make($name, 'uri', '*')->addAttrs('pid,pref,mediatype,altid'),
+            'related'      => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid')->addAttr('type', 'contact,acquaintance,friend,met,co-worker,colleague,co-resident,neighbor,child,parent,sibling,spouse,kin,muse,crush,date,sweetheart,me,agent,emergency'),
+            'agent'        => self::make($name, 'uri', '*1'),
             // Explanatory Properties
-            'categories'   => self::make($name, 'text-list', '*')->addParams('pid,pref,type,altid'),
-            'note'         => self::make($name, 'text', '*')->addParams('language,pid,pref,type,altid'),
-            'prodid'       => self::make($name, 'text', '*1'),
-            'rev'          => self::make($name, 'timestamp', '*1'),
-            'sound'        => self::make($name, 'uri', '*')->addParams('language,pid,pref,type,mediatype,altid'),
-            'uid'          => self::make($name, 'uri', '*1'),
-            'clientpidmap' => self::make($name, 'list-component', '*')->setStructure(['pid','uri']),
-            'url'          => self::make($name, 'uri', '*')->addParams('pid,pref,type,mediatype,altid'),
+            'categories'   => self::make($name, 'text-list', '*')->addAttrs('pid,pref,type,altid'),
+            'note'         => self::make($name, 'text', '*')->addAttrs('language,pid,pref,type,altid'),
+            'prodid'       => self::make($name, 'text', '*1')->withAttr(),
+            'rev'          => self::make($name, 'datetime', '*1')->withAttr()->setFormat('Ymd\THis\Z'),
+            'sound'        => self::make($name, 'uri', '*')->addAttrs('language,pid,pref,type,mediatype,altid'),
+            'uid'          => self::make($name, 'uri', '*1')->withAttr(),
+            'clientpidmap' => self::make($name, 'pid-uri', '*')->withAttr(),
+            'url'          => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid')->setFormat('url'),
             'version'      => self::make($name, 'text', '1'),
             // Security Properties
-            'key'          => self::make($name, 'uri', '*')->addParams('pid,pref,type,altid'),
+            'key'          => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,altid'),
+            'class'        => self::make($name, 'text', '*1'),
             // Calendar Properties
-            'fburl'        => self::make($name, 'uri', '*')->addParams('pid,pref,type,mediatype,altid'),
-            'caladruri'    => self::make($name, 'uri', '*')->addParams('pid,pref,type,mediatype,altid'),
-            'caluri'       => self::make($name, 'uri', '*')->addParams('pid,pref,type,mediatype,altid'),
+            'fburl'        => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
+            'caladruri'    => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
+            'caluri'       => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
             // Extended Properties
+            'x'            => self::make($name, 'x', '*')->withAttr(),
 
-            'agent'        => self::make($name, 'text', '*'),
-            'class'        => self::make($name, 'text', '*'),
+
             'label'        => self::make($name, 'text', '*'),
             'mailer'       => self::make($name, 'text', '*'),
             'name'         => self::make($name, 'text', '*')->setAlias('sourceName'),
@@ -146,6 +164,27 @@ class VCardProperty
         if( !$this->cardinality->isMultiple() ){
             $this->fields = [];
         }
+
+        $field->setHasAttributes($this->hasAttributes);
+
+        if(!empty($this->possibleAttributes)){
+            $field->setPossibleAttributes($this->possibleAttributes);
+            $field->setDefaultAttributes($this->defaultAttributes);
+        }
+
+        if(!empty($this->structure)){
+            if(method_exists($field, 'setStructure')){
+                $field->setStructure($this->structure);
+            }
+        }
+
+        if(!empty($this->format)){
+            if(method_exists($field, 'setFormat')){
+                $field->setFormat($this->format);
+            }
+        }
+
+        //dump($this->getName(),$field);
 
         $this->fields[] = $field;
 
@@ -163,10 +202,13 @@ class VCardProperty
 
         $field = new $fieldClass($value, $attributes);
 
-        if(!empty($this->possibleAttributes)){
-            $field->setPossibleAttributes($this->possibleAttributes);
-            $field->setDefaultAttributes($this->defaultAttributes);
-        }
+        return $this->addField($field);
+    }
+
+    public function makeXField(string $name, string $value, array $attributes = []) :self
+    {
+        $field = new XField($value, $attributes);
+        $field->setFormat($name);
 
         return $this->addField($field);
     }
@@ -208,10 +250,14 @@ class VCardProperty
         $propertyString = '';
 
         foreach($this->fields as $field){
-            $propertyString .= strtoupper($this->getName()).(string)$field;
+            if($field instanceof XField){
+                $propertyString .= strtoupper($this->getName().'-'.$field->name).(string)$field.PHP_EOL;
+            }else{
+                $propertyString .= strtoupper($this->getName()).(string)$field.PHP_EOL;
+            }
         }
 
-        return $propertyString;
+        return trim($propertyString);
     }
 
 }

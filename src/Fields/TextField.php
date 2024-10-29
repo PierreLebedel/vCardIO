@@ -10,8 +10,7 @@ class TextField extends AbstractField
 
     public function render() :mixed
     {
-
-        if( empty($this->possibleAttributes) ){
+        if( !$this->hasAttributes ){
             return $this->value;
         }
 

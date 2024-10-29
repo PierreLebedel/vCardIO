@@ -139,7 +139,7 @@ class VCardParser
             }
 
             if ($this->currentVCardAgentBuilder) {
-                //$this->currentVCardBuilder->setAgent($this->currentVCardAgentBuilder->get());
+                $this->currentVCardBuilder->setAgent($this->currentVCardAgentBuilder->get());
                 $this->currentVCardAgentBuilder = null;
 
                 return;
@@ -166,6 +166,11 @@ class VCardParser
 
         if(!$property){
             dump('VCardParser property not found name:'.$name);
+            return;
+        }
+
+        if( $property->getName() == 'x' ){
+            $property->makeXField($name, $value, $attributes);
             return;
         }
 
@@ -252,14 +257,12 @@ class VCardParser
 
         foreach($attributes as $k => $v){
             if($k=='type'){
-
                 if(is_array($v) && in_array('pref', $v)){
                     $attributes['pref'] = 1;
                     $attributes['type'] = array_values(array_filter($v, function($value){
                         return !in_array($value, ['pref']);
                     }));
                 }
-
             }
         }
 
