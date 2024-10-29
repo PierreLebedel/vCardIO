@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -54,12 +55,37 @@ class VCardBuilder
 
     public array $fields = [];
 
+    public array $properties = [];
+
     public function __construct() {}
 
     public static function make(): self
     {
         return new static;
     }
+
+    public function getProperty(string $name) :?VCardProperty
+    {
+        if( !array_key_exists($name, $this->properties) ){
+            $property = VCardProperty::find($name);
+
+            if(!$property){
+                return null;
+            }
+
+            $this->properties[$name] = $property;
+        }
+
+        return $this->properties[$name];
+    }
+
+    // public function addProperty(VCardProperty $property): self
+    // {
+    //     $this->properties[$property->getName()] = $property;
+
+    //     return $this;
+    // }
+
 
     public function setVersion(VCardVersionEnum $version): self
     {
@@ -70,7 +96,24 @@ class VCardBuilder
 
     public function getVersion(): ?VCardVersionEnum
     {
-        return $this->version;
+        //$this->setVersion(VCardVersionEnum::V40);
+
+        $versionEnum = null;
+
+        $versionProperty = $this->getProperty('version');
+
+        if($versionProperty){
+            if(!empty($versionProperty->fields)){
+                $versionValue = reset($versionProperty->fields)->value;
+                $versionEnum = VCardVersionEnum::tryFrom($versionValue);
+            }
+        }
+
+        if(!$versionEnum){
+            $versionEnum = VCardVersionEnum::V40;
+        }
+
+        return $versionEnum;
     }
 
     public function addField(AbstractField $field): self
@@ -88,7 +131,7 @@ class VCardBuilder
         return $this;
     }
 
-    public function agent(string|AbstractVCard $agent): self
+    public function setAgent(string|AbstractVCard $agent): self
     {
         $this->addField(new AgentField($agent));
 
@@ -462,26 +505,26 @@ class VCardBuilder
 
     public function get(): AbstractVCard
     {
-        if (! $this->version) {
-            $this->setVersion(VCardVersionEnum::V40);
+        $vCardClass = $this->getVersion()->getVCardClass();
+
+        $vCard = new $vCardClass();
+
+        foreach($this->properties as $property){
+            $vCard->applyProperty($property);
         }
 
-        $vCardClass = $this->version->getVCardClass();
-
-        $vCard = new $vCardClass;
-
-        foreach ($this->fields as $name => $fields) {
-            foreach ($fields as $field) {
-                $vCard->applyField($field);
+        if (property_exists($vCard, 'rev') && ! $vCard->rev) {
+            $property = $this->getProperty('rev');
+            if($property){
+                $property->makeField((new DateTime('now'))->format('Ymd'));
             }
         }
 
-        if (property_exists($vCard, 'revision') && ! $vCard->revision) {
-            $vCard->applyField(new RevField(new DateTimeImmutable('now')));
-        }
-
         if (property_exists($vCard, 'prodid') && ! $vCard->prodid) {
-            $vCard->applyField(new ProdidField('-//Pleb//Pleb vCardIO '.VCardLibrary::VERSION.' //EN'));
+            $property = $this->getProperty('prodid');
+            if($property){
+                $property->makeField('-//Pleb//Pleb vCardIO '.VCardLibrary::VERSION.' //EN');
+            }
         }
 
         return $vCard;

@@ -10,9 +10,9 @@ class VCardV40 extends AbstractVCard
 
     public $anniversary = null;
 
-    public $calendarUserUri = null;
+    public $caladruri = null;
 
-    public $calendarUri = null;
+    public $caluri = null;
 
     public $categories = null;
 
@@ -26,15 +26,15 @@ class VCardV40 extends AbstractVCard
 
     public $kind = null;
 
-    public $langs = null;
+    public $lang = null;
 
     public $member = null;
 
-    public $nickNames = null;
+    public $nickname = null;
 
     public $prodid = null;
 
-    public $related = null;
+    public $rel = null;
 
     public $source = null;
 

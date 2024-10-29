@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use Pleb\VCardIO\Exceptions\VCardParserException;
-use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Fields\Calendar;
-use Pleb\VCardIO\Fields\Communications;
-use Pleb\VCardIO\Fields\DeliveryAddressing;
-use Pleb\VCardIO\Fields\Explanatory;
+use PhpParser\Builder\Property;
+use Pleb\VCardIO\VCardProperty;
 use Pleb\VCardIO\Fields\General;
+use Pleb\VCardIO\Fields\Calendar;
+use Pleb\VCardIO\Fields\Security;
+use Pleb\VCardIO\Fields\Explanatory;
 use Pleb\VCardIO\Fields\Geographical;
+use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\Fields\Communications;
 use Pleb\VCardIO\Fields\Identification;
 use Pleb\VCardIO\Fields\Organizational;
-use Pleb\VCardIO\Fields\Security;
+use Pleb\VCardIO\Fields\DeliveryAddressing;
+use Pleb\VCardIO\Exceptions\VCardParserException;
 
 class VCardParser
 {
     protected string $rawData;
 
     protected VCardsCollection $vCards;
-
-    protected VCardLogger $logger;
 
     protected ?VCardBuilder $currentVCardBuilder = null;
 
@@ -32,7 +32,6 @@ class VCardParser
     {
         $this->rawData = $rawData;
         $this->vCards = new VCardsCollection;
-        $this->logger = new VCardLogger;
         $this->parse();
     }
 
@@ -80,8 +79,6 @@ class VCardParser
             $lineContents = trim($lineContents);
 
             if (empty($lineContents)) {
-                $this->logger->log('Empty line skipped: '.$lineNumber);
-
                 continue;
             }
             if (! str_contains($lineContents, ':')) {
@@ -117,8 +114,6 @@ class VCardParser
     protected function parseLine(int $lineNumber, string $lineContents): void
     {
         if (! $lineContents) {
-            $this->logger->log('Empty line skipped: '.$lineNumber);
-
             return;
         }
 
@@ -144,7 +139,7 @@ class VCardParser
             }
 
             if ($this->currentVCardAgentBuilder) {
-                $this->currentVCardBuilder->agent($this->currentVCardAgentBuilder->get());
+                //$this->currentVCardBuilder->setAgent($this->currentVCardAgentBuilder->get());
                 $this->currentVCardAgentBuilder = null;
 
                 return;
@@ -160,73 +155,166 @@ class VCardParser
             throw VCardParserException::unexpectedLine($lineNumber, $lineContents);
         }
 
-        $field = AbstractField::makeFromRaw($lineContents);
+        [$name, $value, $attributes] = $this->extractData($lineContents);
 
-        if (! $field) {
-            $this->logger->log('No field found for raw: '.$lineContents);
-
+        if(!$value){
+            dump('VCardParser empty value name:'.$name);
             return;
-
-            throw VCardParserException::unreadableDataLine($lineNumber);
         }
 
-        if (! $this->currentVCardBuilder->getVersion()) {
-            if (! $field instanceof Explanatory\VersionField) {
-                throw VCardParserException::noVersionOnVCardStart($lineNumber);
+        $property = $this->getVCardBuilder()->getProperty($name);
+
+        if(!$property){
+            dump('VCardParser property not found name:'.$name);
+            return;
+        }
+
+        $property->makeField($value, $attributes);
+    }
+
+    protected function extractData($raw) :array
+    {
+        @[$nameAttributes, $value] = explode(':', $raw, 2);
+
+        $attributes = explode(';', $nameAttributes);
+        $name = mb_strtolower($attributes[0]);
+        array_shift($attributes);
+
+        return [$name, $value, self::cleanAttributes($attributes)];
+    }
+
+    protected static function cleanAttributes(array $attributes) :array
+    {
+        $attributes = array_filter($attributes);
+
+        if(empty($attributes)){
+            return [];
+        }
+
+        //dump($attributes);
+
+        foreach($attributes as $k => $v){
+
+            if( is_numeric($k) ){
+
+                $attrK = null;
+
+                if( strpos( $v, '=' ) != false ){
+                    $attribute = explode('=', $v, 2);
+                    if(count($attribute)==2){
+                        $attrK = strtolower($attribute[0]);
+                        $v = $attribute[1];
+                    }elseif(count($attribute)==1){
+                        $attrK = 'type';
+                        $v = $attribute[0];
+                    }
+                }
+
+                if( !$attrK ){
+                    //dd('key not found in : '.$v);
+                    $attrK = 'type';
+                }
+
+                //dump($attrK.':'.$v);
+
+                unset($attributes[$k]);
+
+                $values = explode(',', $v);
+
+                foreach($values as $value){
+
+                    if( strpos( $value, '=' ) != false ){
+                        $attribute = explode('=', $value, 2);
+                        if(count($attribute)==2){
+                            $value = $attribute[1];
+                        }
+                    }
+
+                    if(array_key_exists(strtolower($attrK), $attributes)){
+                        if( is_array($attributes[strtolower($attrK)]) ){
+                            $previousValues = $attributes[strtolower($attrK)];
+                        }else{
+                            $previousValues = explode(',', $attributes[strtolower($attrK)]);
+                        }
+
+                        if(!in_array($value, $previousValues)){
+                            $previousValues[] = strtolower($value);
+                        }
+
+                        $attributes[ strtolower($attrK) ] = $previousValues;
+                    }else{
+                        $attributes[ strtolower($attrK) ] = strtolower($value);
+                    }
+
+                }
             }
-
-            $this->getVCardBuilder()->setVersion($field->versionEnum);
         }
 
-        $this->getVCardBuilder()->addField($field);
+        foreach($attributes as $k => $v){
+            if($k=='type'){
+
+                if(is_array($v) && in_array('pref', $v)){
+                    $attributes['pref'] = 1;
+                    $attributes['type'] = array_values(array_filter($v, function($value){
+                        return !in_array($value, ['pref']);
+                    }));
+                }
+
+            }
+        }
+
+        //dump($attributes);
+        //echo '<hr />';
+
+        return $attributes;
     }
 
     public static function fieldsMap(): array
     {
         return [
-            'adr'          => DeliveryAddressing\AddressField::class,
-            'agent'        => Organizational\AgentField::class,
-            'anniversary'  => Identification\AnniversaryField::class,
-            'bday'         => Identification\BirthdayField::class,
-            'caladruri'    => Calendar\CalUriField::class,
-            'caluri'       => Calendar\CalAdrUriField::class,
-            'categories'   => Explanatory\CategoriesField::class,
-            'class'        => Security\ClassField::class,
-            'clientpidmap' => Explanatory\ClientPidMapField::class,
-            'email'        => Communications\EmailField::class,
-            'fburl'        => Calendar\FbUrlField::class,
-            'fn'           => Identification\FullNameField::class,
-            'gender'       => Identification\GenderField::class,
-            'geo'          => Geographical\GeoField::class,
-            'impp'         => Communications\ImppField::class,
-            'key'          => Security\KeyField::class,
-            'kind'         => General\KindField::class,
-            'label'        => DeliveryAddressing\LabelField::class,
-            'lang'         => Communications\LangField::class,
-            'logo'         => Organizational\LogoField::class,
-            'mailer'       => Communications\MailerField::class,
-            'member'       => Organizational\MemberField::class,
-            'n'            => Identification\NameField::class,
-            'name'         => General\SourceNameField::class,
-            'nickname'     => Identification\NickNameField::class,
-            'note'         => Explanatory\NoteField::class,
-            'org'          => Organizational\OrganizationField::class,
-            'photo'        => Identification\PhotoField::class,
-            'prodid'       => Explanatory\ProdidField::class,
-            'profile'      => General\ProfileField::class,
-            'related'      => Organizational\RelatedField::class,
-            'rev'          => Explanatory\RevField::class,
-            'role'         => Organizational\RoleField::class,
-            'sort-string'  => Explanatory\SortStringField::class,
-            'sound'        => Explanatory\SoundField::class,
-            'source'       => General\SourceField::class,
-            'tel'          => Communications\PhoneField::class,
-            'title'        => Organizational\TitleField::class,
-            'tz'           => Geographical\TimeZoneField::class,
-            'uid'          => Explanatory\UidField::class,
-            'url'          => Explanatory\UrlField::class,
-            'version'      => Explanatory\VersionField::class,
-            'xml'          => General\XmlField::class,
+            // 'adr'          => DeliveryAddressing\AddressField::class,
+            // 'agent'        => Organizational\AgentField::class,
+            // 'anniversary'  => Identification\AnniversaryField::class,
+            // 'bday'         => Identification\BirthdayField::class,
+            // 'caladruri'    => Calendar\CalUriField::class,
+            // 'caluri'       => Calendar\CalAdrUriField::class,
+            // 'categories'   => Explanatory\CategoriesField::class,
+            // 'class'        => Security\ClassField::class,
+            // 'clientpidmap' => Explanatory\ClientPidMapField::class,
+            // 'email'        => Communications\EmailField::class,
+            // 'fburl'        => Calendar\FbUrlField::class,
+            // 'fn'           => Identification\FullNameField::class,
+            // 'gender'       => Identification\GenderField::class,
+            // 'geo'          => Geographical\GeoField::class,
+            // 'impp'         => Communications\ImppField::class,
+            // 'key'          => Security\KeyField::class,
+            // 'kind'         => General\KindField::class,
+            // 'label'        => DeliveryAddressing\LabelField::class,
+            // 'lang'         => Communications\LangField::class,
+            // 'logo'         => Organizational\LogoField::class,
+            // 'mailer'       => Communications\MailerField::class,
+            // 'member'       => Organizational\MemberField::class,
+            // 'n'            => Identification\NameField::class,
+            // 'name'         => General\SourceNameField::class,
+            // 'nickname'     => Identification\NickNameField::class,
+            // 'note'         => Explanatory\NoteField::class,
+            // 'org'          => Organizational\OrganizationField::class,
+            // 'photo'        => Identification\PhotoField::class,
+            // 'prodid'       => Explanatory\ProdidField::class,
+            // 'profile'      => General\ProfileField::class,
+            // 'related'      => Organizational\RelatedField::class,
+            // 'rev'          => Explanatory\RevField::class,
+            // 'role'         => Organizational\RoleField::class,
+            // 'sort-string'  => Explanatory\SortStringField::class,
+            // 'sound'        => Explanatory\SoundField::class,
+            // 'source'       => General\SourceField::class,
+            // 'tel'          => Communications\PhoneField::class,
+            // 'title'        => Organizational\TitleField::class,
+            // 'tz'           => Geographical\TimeZoneField::class,
+            // 'uid'          => Explanatory\UidField::class,
+            // 'url'          => Explanatory\UrlField::class,
+            // 'version'      => Explanatory\VersionField::class,
+            // 'xml'          => General\XmlField::class,
         ];
     }
 }

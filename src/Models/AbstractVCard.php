@@ -8,45 +8,46 @@ use DateTimeInterface;
 use DateTimeZone;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Fields\Identification\FullNameField;
+use Pleb\VCardIO\VCardProperty;
 use stdClass;
 
 abstract class AbstractVCard
 {
     public string $version;
 
-    public $addresses = null;
+    public $adr = null;
 
-    public $birthday = null;
+    public $bday = null;
 
-    public $emails = null;
+    public $email = null;
 
-    public $fullName = null;
+    public $fn = null;
 
-    public $geoLocations = null;
+    public $geo = null;
 
     public $key = null;
 
     public $logo = null;
 
-    public $name = null;
+    public $n = null;
 
     public $note = null;
 
-    public $organizations = null;
+    public $org = null;
 
     public $photo = null;
 
-    public $revision = null;
+    public $rev = null;
 
     public $role = null;
 
     public $sound = null;
 
-    public $phones = null;
+    public $tel = null;
 
     public $title = null;
 
-    public $timeZone = null;
+    public $tz = null;
 
     public $uid = null;
 
@@ -54,27 +55,13 @@ abstract class AbstractVCard
 
     public ?stdClass $x = null;
 
-    protected $fields = [];
+    protected $properties = [];
 
-    public function applyField(AbstractField $field): self
+    public function applyProperty(VCardProperty $property)
     {
-        if (! property_exists($this, $field->getAlias())) {
-            dump('property not exists alias:'.$field->getAlias().' in '.get_class($this));
+        $this->properties[$property->getName()] = $property;
 
-            return $this;
-        }
-
-        if (! array_key_exists($field->getName(), $this->fields)) {
-            $this->fields[$field->getName()] = [];
-        }
-
-        if (! $field->isMultiple()) {
-            $this->fields[$field->getName()][0] = $field;
-        } else {
-            $this->fields[$field->getName()][] = $field;
-        }
-
-        return $field->apply($this);
+        return $property->apply($this);
     }
 
     public function toString(): string
@@ -82,13 +69,11 @@ abstract class AbstractVCard
         $vCardString = 'BEGIN:VCARD'.PHP_EOL;
         $vCardString .= 'VERSION:'.$this->version.PHP_EOL;
 
-        foreach ($this->fields as $name => $fields) {
+        foreach ($this->properties as $name => $property) {
             if ($name == 'version') {
                 continue;
             }
-            foreach ($fields as $field) {
-                $vCardString .= (string) $field.PHP_EOL;
-            }
+            $vCardString .= (string) $property.PHP_EOL;
         }
 
         $vCardString .= 'END:VCARD';

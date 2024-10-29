@@ -22,7 +22,7 @@ class VCardV30 extends AbstractVCard
 
     public $sourceName = null;
 
-    public $nickNames = null;
+    public $nickname = null;
 
     public $prodid = null;
 
