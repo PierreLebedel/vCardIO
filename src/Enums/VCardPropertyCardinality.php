@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Enums;
 
 enum VCardPropertyCardinality: string
@@ -11,9 +14,9 @@ enum VCardPropertyCardinality: string
     public function isRequired(): bool
     {
         return match ($this) {
-            self::ONE_MUST => true,
+            self::ONE_MUST      => true,
             self::ONE_MANY_MUST => true,
-            default => false,
+            default             => false,
         };
     }
 
@@ -21,9 +24,8 @@ enum VCardPropertyCardinality: string
     {
         return match ($this) {
             self::ONE_MANY_MUST => true,
-            self::ONE_MANY_MAY => true,
-            default => false,
+            self::ONE_MANY_MAY  => true,
+            default             => false,
         };
     }
-
 }

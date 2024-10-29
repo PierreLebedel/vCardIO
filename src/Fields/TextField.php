@@ -1,25 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Fields;
 
-use Pleb\VCardIO\Fields\AbstractField;
 use stdClass;
 
 class TextField extends AbstractField
 {
-
-    public function render() :mixed
+    public function render(): mixed
     {
-        if( !$this->hasAttributes ){
+        if (! $this->hasAttributes) {
             return $this->value;
         }
 
-        $response = new stdClass();
+        $response = new stdClass;
 
         $response->value = $this->value;
         $response->attributes = $this->attributes;
 
         return $response;
     }
-
 }

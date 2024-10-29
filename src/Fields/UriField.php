@@ -1,36 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Fields;
 
-use Pleb\VCardIO\Fields\AbstractField;
 use stdClass;
 
 class UriField extends AbstractField
 {
-
     public string $format = 'uri';
 
-    public function setFormat(string $format) :void
+    public function setFormat(string $format): void
     {
         $this->format = $format;
     }
 
-    public function render() :mixed
+    public function render(): mixed
     {
-        if( !$this->hasAttributes ){
+        if (! $this->hasAttributes) {
             return $this->value;
         }
 
-        $response = new stdClass();
+        $response = new stdClass;
 
         $response->value = $this->value;
 
         $formattedResponse = null;
 
-        if($this->format=='geo'){
+        if ($this->format == 'geo') {
             $formattedResponse = $this->formatGeo($this->value);
-        }elseif($this->format=='tel'){
+        } elseif ($this->format == 'tel') {
             $formattedResponse = $this->formatTel($this->value);
+        } elseif ($this->format == 'uuid') {
+            $formattedResponse = $this->formatUuid($this->value);
         }
 
         $response->format = $this->format;
@@ -43,14 +45,14 @@ class UriField extends AbstractField
 
     public function cleanValue(): string
     {
-        if($this->format=='tel'){
+        if ($this->format == 'tel') {
             return $this->formatTel($this->value);
         }
 
         return $this->value;
     }
 
-    public function formatGeo($input) :?stdClass
+    public function formatGeo($input): ?stdClass
     {
         $formattedResponse = null;
 
@@ -65,7 +67,7 @@ class UriField extends AbstractField
         $coordinates = explode(',', $input, 2);
 
         if (count($coordinates) == 2) {
-            $formattedResponse = new stdClass();
+            $formattedResponse = new stdClass;
             $formattedResponse->latitude = (float) $coordinates[0];
             $formattedResponse->longitude = (float) $coordinates[1];
         }
@@ -73,7 +75,7 @@ class UriField extends AbstractField
         return $formattedResponse;
     }
 
-    public function formatTel($input) :string
+    public function formatTel($input): string
     {
         if (strpos($input, 'tel:') === 0) {
             return $input;
@@ -82,4 +84,16 @@ class UriField extends AbstractField
         return 'tel:'.$input;
     }
 
+    public function formatUuid($input): ?string
+    {
+        if (strpos($input, 'urn:uuid:') === 0) {
+            return $input;
+        }
+
+        if(strlen($input)==36){
+            return 'urn:uuid:'.$input;
+        }
+
+        return null;
+    }
 }

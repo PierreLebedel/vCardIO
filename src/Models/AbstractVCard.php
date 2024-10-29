@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Models;
 
-use DateTimeInterface;
-use DateTimeZone;
-use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Fields\Identification\FullNameField;
 use Pleb\VCardIO\VCardProperty;
-use stdClass;
 
 abstract class AbstractVCard
 {

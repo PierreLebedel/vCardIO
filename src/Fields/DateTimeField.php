@@ -1,33 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Fields;
 
 use DateTime;
 use stdClass;
-use DateTimeInterface;
-use Pleb\VCardIO\Fields\AbstractField;
 
 class DateTimeField extends AbstractField
 {
-
     public ?DateTime $dateTime = null;
 
     public bool $exactYear = true;
 
     public ?string $format = null;
 
-    public function setFormat(string $format) :void
+    public function setFormat(string $format): void
     {
         $this->format = $format;
     }
 
-    public function render() :mixed
+    public function render(): mixed
     {
         $this->parse($this->value);
 
-        $response = new stdClass();
+        $response = new stdClass;
 
-        if( $this->dateTime && in_array($this->format, ['ymd','Ymd']) ){
+        if ($this->dateTime && in_array($this->format, ['ymd', 'Ymd'])) {
             $this->dateTime->setTime(0, 0, 0, 0);
         }
 
@@ -36,17 +35,17 @@ class DateTimeField extends AbstractField
         $response->formatted = null;
         $response->extactYear = $this->exactYear;
 
-        if($response->dateTime && $this->format){
+        if ($response->dateTime && $this->format) {
 
-            if( in_array($this->format, ['ymd','Ymd']) && !$this->exactYear){
+            if (in_array($this->format, ['ymd', 'Ymd']) && ! $this->exactYear) {
                 $response->formatted = $this->dateTime->format('--md');
 
-            }else{
+            } else {
                 $response->formatted = $this->dateTime->format($this->format);
             }
         }
 
-        if( $this->hasAttributes ){
+        if ($this->hasAttributes) {
             $response->attributes = $this->attributes;
         }
 
@@ -79,5 +78,4 @@ class DateTimeField extends AbstractField
 
         $this->exactYear = $exactYear;
     }
-
 }

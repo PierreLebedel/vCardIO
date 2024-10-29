@@ -5,51 +5,51 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
-use Pleb\VCardIO\Enums\VCardVersionEnum;
+use DateTimeInterface;
+use Pleb\VCardIO\Fields\UriField;
+use Pleb\VCardIO\Fields\TextField;
 use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Fields\AgentField as FieldsAgentField;
-use Pleb\VCardIO\Fields\Calendar\CalAdrUriField;
-use Pleb\VCardIO\Fields\Calendar\CalUriField;
+use Pleb\VCardIO\Models\AbstractVCard;
+use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Fields\Extended\XField;
+use Pleb\VCardIO\Fields\General\XmlField;
+use Pleb\VCardIO\Fields\General\KindField;
+use Pleb\VCardIO\Fields\Security\KeyField;
+use Pleb\VCardIO\Fields\ListComponentField;
 use Pleb\VCardIO\Fields\Calendar\FbUrlField;
-use Pleb\VCardIO\Fields\Communications\EmailField;
-use Pleb\VCardIO\Fields\Communications\ImppField;
-use Pleb\VCardIO\Fields\Communications\LangField;
-use Pleb\VCardIO\Fields\Communications\PhoneField;
-use Pleb\VCardIO\Fields\DeliveryAddressing\AddressField;
-use Pleb\VCardIO\Fields\Explanatory\CategoriesField;
-use Pleb\VCardIO\Fields\Explanatory\ClientPidMapField;
-use Pleb\VCardIO\Fields\Explanatory\NoteField;
-use Pleb\VCardIO\Fields\Explanatory\ProdidField;
+use Pleb\VCardIO\Fields\General\SourceField;
+use Pleb\VCardIO\Fields\Calendar\CalUriField;
 use Pleb\VCardIO\Fields\Explanatory\RevField;
-use Pleb\VCardIO\Fields\Explanatory\SoundField;
 use Pleb\VCardIO\Fields\Explanatory\UidField;
 use Pleb\VCardIO\Fields\Explanatory\UrlField;
-use Pleb\VCardIO\Fields\Extended\XField;
-use Pleb\VCardIO\Fields\General\KindField;
-use Pleb\VCardIO\Fields\General\SourceField;
-use Pleb\VCardIO\Fields\General\XmlField;
+use Pleb\VCardIO\Fields\Explanatory\NoteField;
 use Pleb\VCardIO\Fields\Geographical\GeoField;
+use Pleb\VCardIO\Fields\Explanatory\SoundField;
+use Pleb\VCardIO\Fields\Calendar\CalAdrUriField;
+use Pleb\VCardIO\Fields\Explanatory\ProdidField;
+use Pleb\VCardIO\Fields\Communications\ImppField;
+use Pleb\VCardIO\Fields\Communications\LangField;
+use Pleb\VCardIO\Fields\Identification\NameField;
+use Pleb\VCardIO\Fields\Organizational\LogoField;
+use Pleb\VCardIO\Fields\Organizational\RoleField;
+use Pleb\VCardIO\Fields\Communications\EmailField;
+use Pleb\VCardIO\Fields\Communications\PhoneField;
+use Pleb\VCardIO\Fields\Identification\PhotoField;
+use Pleb\VCardIO\Fields\Organizational\TitleField;
 use Pleb\VCardIO\Fields\Geographical\TimeZoneField;
-use Pleb\VCardIO\Fields\Identification\AnniversaryField;
+use Pleb\VCardIO\Fields\Identification\GenderField;
+use Pleb\VCardIO\Fields\Organizational\MemberField;
+use Pleb\VCardIO\Fields\Explanatory\CategoriesField;
+use Pleb\VCardIO\Fields\Organizational\RelatedField;
 use Pleb\VCardIO\Fields\Identification\BirthdayField;
 use Pleb\VCardIO\Fields\Identification\FullNameField;
-use Pleb\VCardIO\Fields\Identification\GenderField;
-use Pleb\VCardIO\Fields\Identification\NameField;
 use Pleb\VCardIO\Fields\Identification\NickNameField;
-use Pleb\VCardIO\Fields\Identification\PhotoField;
-use Pleb\VCardIO\Fields\Organizational\AgentField;
-use Pleb\VCardIO\Fields\Organizational\LogoField;
-use Pleb\VCardIO\Fields\Organizational\MemberField;
+use Pleb\VCardIO\Fields\Explanatory\ClientPidMapField;
+use Pleb\VCardIO\Fields\AgentField as FieldsAgentField;
+use Pleb\VCardIO\Fields\DeliveryAddressing\AddressField;
+use Pleb\VCardIO\Fields\Identification\AnniversaryField;
 use Pleb\VCardIO\Fields\Organizational\OrganizationField;
-use Pleb\VCardIO\Fields\Organizational\RelatedField;
-use Pleb\VCardIO\Fields\Organizational\RoleField;
-use Pleb\VCardIO\Fields\Organizational\TitleField;
-use Pleb\VCardIO\Fields\Security\KeyField;
-use Pleb\VCardIO\Fields\UriField;
-use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardBuilder
 {
@@ -66,16 +66,16 @@ class VCardBuilder
         return new static;
     }
 
-    public function getProperty(string $name) :?VCardProperty
+    public function getProperty(string $name): ?VCardProperty
     {
-        if( substr(strtolower($name), 0, 2) == 'x-' ){
+        if (substr(strtolower($name), 0, 2) == 'x-') {
             $name = 'x';
         }
 
-        if( !array_key_exists($name, $this->properties) ){
+        if (! array_key_exists($name, $this->properties)) {
             $property = VCardProperty::find($name);
 
-            if(!$property){
+            if (! $property) {
                 return null;
             }
 
@@ -92,7 +92,6 @@ class VCardBuilder
     //     return $this;
     // }
 
-
     public function setVersion(VCardVersionEnum $version): self
     {
         $this->version = $version;
@@ -108,14 +107,14 @@ class VCardBuilder
 
         $versionProperty = $this->getProperty('version');
 
-        if($versionProperty){
-            if(!empty($versionProperty->fields)){
+        if ($versionProperty) {
+            if (! empty($versionProperty->fields)) {
                 $versionValue = reset($versionProperty->fields)->value;
                 $versionEnum = VCardVersionEnum::tryFrom($versionValue);
             }
         }
 
-        if(!$versionEnum){
+        if (! $versionEnum) {
             $versionEnum = VCardVersionEnum::V40;
         }
 
@@ -124,15 +123,15 @@ class VCardBuilder
 
     public function setAgent(string|AbstractVCard $agent): self
     {
-        $agentProperty = $this->getProperty('agent');
+        $property = $this->getProperty('agent');
 
-        if($agentProperty){
-            if($agent instanceof AbstractVCard){
+        if ($property) {
+            if ($agent instanceof AbstractVCard) {
                 $field = FieldsAgentField::makeFromVCard($agent);
-            }else{
+            } else {
                 $field = UriField::make($agent);
             }
-            $agentProperty->addField($field);
+            $property->addField($field);
         }
 
         return $this;
@@ -140,7 +139,10 @@ class VCardBuilder
 
     public function fullName(?string $fullName): self
     {
-        $this->addField(new FullNameField($fullName));
+        $property = $this->getProperty('fn');
+        if ($property) {
+            $property->makeField($fullName);
+        }
 
         return $this;
     }
@@ -161,22 +163,25 @@ class VCardBuilder
             $nameSuffix,
         ];
 
-        $this->addField(new NameField($nameParts));
+        $property = $this->getProperty('n');
+        if ($property) {
+            $property->makeField(implode(';', $nameParts));
+        }
 
         return $this;
     }
 
     protected function namePart(int $index, string $namePart): self
     {
-        if (! $fieldClass = VCardParser::fieldsMap()['n']) {
-            return $this;
+        $property = $this->getProperty('n');
+        if ($property) {
+            $field = (!empty($property->fields)) ? reset($property->fields) : $property->makeField('');
+            $nameObject = $field->render();
+            unset($nameObject->attributes);
+            $nameParts = array_values((array) $nameObject);
+            $nameParts[$index] = $namePart;
+            $property->makeField(implode(';',$nameParts));
         }
-        $currentNameField = (array_key_exists('n', $this->fields) && count($this->fields['n']) == 1)
-            ? array_values((array) $this->fields['n'][0]->render())
-            : $fieldClass::getDefaultValue();
-        $currentNameField[$index] = $namePart;
-
-        $this->addField(new NameField($currentNameField));
 
         return $this;
     }
@@ -208,84 +213,120 @@ class VCardBuilder
 
     public function email(string $email, array $types = []): self
     {
-        $this->addField(new EmailField($email, $types));
+        $property = $this->getProperty('email');
+        if ($property) {
+            $property->makeField($email, ['type'=>$types]);
+        }
 
         return $this;
     }
 
-    public function phone(string $number, array $types = []): self
+    public function phone(string $number, array $types = ['voice']): self
     {
-        $this->addField(new PhoneField($number, $types));
+        $property = $this->getProperty('tel');
+        if ($property) {
+            $property->makeField($number, ['type'=>$types]);
+        }
 
         return $this;
     }
 
     public function url(string $url): self
     {
-        $this->addField(new UrlField($url));
+        $property = $this->getProperty('url');
+        if ($property) {
+            $property->makeField($url);
+        }
 
         return $this;
     }
 
     public function photo(string $photo): self
     {
-        $this->addField(new PhotoField($photo));
+        $property = $this->getProperty('photo');
+        if ($property) {
+            $property->makeField($photo);
+        }
 
         return $this;
     }
 
     public function birthday(DateTimeInterface $bday): self
     {
-        $this->addField(new BirthdayField($bday));
+        $property = $this->getProperty('bday');
+        if ($property) {
+            $property->makeField($bday->format('Ymd'));
+        }
 
         return $this;
     }
 
     public function anniversary(DateTimeInterface $anniversary): self
     {
-        $this->addField(new AnniversaryField($anniversary));
+        $property = $this->getProperty('anniversary');
+        if ($property) {
+            $property->makeField($anniversary->format('Ymd'));
+        }
 
         return $this;
     }
 
     public function kind(string $kind): self
     {
-        $this->addField(KindField::make($kind));
+        $property = $this->getProperty('kind');
+        if ($property) {
+            $property->makeField($kind);
+        }
 
         return $this;
     }
 
     public function gender(string $gender): self
     {
-        $this->addField(GenderField::make($gender));
+        $property = $this->getProperty('gender');
+        if ($property) {
+            $property->makeField($gender);
+        }
 
         return $this;
     }
 
     public function organization(?string $company = null, ?string $unit1 = null, ?string $unit2 = null): self
     {
-        $this->addField(new OrganizationField([$company, $unit1, $unit2]));
+        $property = $this->getProperty('org');
+        if ($property) {
+            $property->makeField(implode(';', [$company, $unit1, $unit2]));
+        }
 
         return $this;
     }
 
     public function title(string $title): self
     {
-        $this->addField(new TitleField($title));
+        $property = $this->getProperty('title');
+        if ($property) {
+            $property->makeField($title);
+        }
 
         return $this;
     }
 
     public function role(string $role): self
     {
-        $this->addField(new RoleField($role));
+        $property = $this->getProperty('role');
+        if ($property) {
+            $property->makeField($role);
+        }
 
         return $this;
     }
 
     public function member(string $uid): self
     {
-        $this->addField(new MemberField($uid));
+        $property = $this->getProperty('member');
+        if ($property) {
+            $property->makeField($uid);
+        }
 
         return $this;
     }
@@ -300,88 +341,98 @@ class VCardBuilder
         ?string $country = null,
         array $types = []
     ): self {
-        $this->addField(new AddressField([
-            'postOfficeAddress' => $postOfficeAddress,
-            'extendedAddress'   => $extendedAddress,
-            'street'            => $street,
-            'locality'          => $locality,
-            'region'            => $region,
-            'postalCode'        => $postalCode,
-            'country'           => $country,
-        ], $types));
+        $property = $this->getProperty('org');
+        if ($property) {
+            $property->makeField(implode(';', [
+                $postOfficeAddress,
+                $extendedAddress,
+                $street,
+                $locality,
+                $region,
+                $postalCode,
+                $country,
+            ]), ['type'=>$types]);
+        }
 
         return $this;
     }
 
-    public function geoLocation(float $latitude, float $longitude): self
+    public function geo(float $latitude, float $longitude): self
     {
-        $this->addField(new GeoField($latitude, $longitude));
+        $property = $this->getProperty('geo');
+        if ($property) {
+            $property->makeField(implode(',', [$latitude, $longitude]));
+        }
 
         return $this;
     }
 
     public function categories(array $categories): self
     {
-        $this->addField(new CategoriesField($categories));
+        $property = $this->getProperty('categories');
+        if ($property) {
+            $property->makeField(implode(',', $categories));
+        }
 
         return $this;
     }
 
-    /*public function category(string $category): self
+    public function category(string $category): self
     {
-        if (! $fieldClass = VCardParser::fieldsMap()['categories']) {
-            return $this;
+        $property = $this->getProperty('categories');
+        if ($property) {
+            $field = (!empty($property->fields)) ? reset($property->fields) : $property->makeField('');
+            $categoriesArray = $field->render()->value;
+            if(!in_array($category, $categoriesArray)){
+                $categoriesArray[] = $category;
+            }
+            $property->fields = [];
+            $property->makeField(implode(',', $categoriesArray));
         }
-        $currentCategoriesField = (array_key_exists('categories', $this->fields) && count($this->fields['categories']) == 1)
-            ? array_values((array) $this->fields['categories'][0]->render())
-            : $fieldClass::getDefaultValue();
+    }
 
-            dump($currentCategoriesField, $category);
-
-        if (! in_array($category, $currentCategoriesField)) {
-            $currentCategoriesField[] = $category;
-        }
-
-        $this->addField(new CategoriesField($currentCategoriesField));
-
-        return $this;
-    }*/
-
-    public function nickNames(array $nicknames): self
+    public function nicknames(array $nicknames): self
     {
-        $this->addField(new NickNameField($nicknames));
+        $property = $this->getProperty('nickname');
+        if ($property) {
+            $property->makeField(implode(',', $nicknames));
+        }
 
         return $this;
     }
 
-    public function nickName(string $nickName): self
+    public function nickname(string $nickname): self
     {
-        if (! $fieldClass = VCardParser::fieldsMap()['nickname']) {
-            return $this;
+        $property = $this->getProperty('nickname');
+        if ($property) {
+            $field = (!empty($property->fields)) ? reset($property->fields) : $property->makeField('');
+            $nicknamesArray = $field->render()->value;
+            if(!in_array($nickname, $nicknamesArray)){
+                $nicknamesArray[] = $nickname;
+            }
+            $property->fields = [];
+            $property->makeField(implode(',', $nicknamesArray));
         }
-        $currentNickNamesField = (array_key_exists('nickname', $this->fields) && count($this->fields['nickname']) == 1)
-            ? array_values((array) $this->fields['nickname'][0]->render())
-            : $fieldClass::getDefaultValue();
-
-        if (! in_array($nickName, $currentNickNamesField)) {
-            $currentNickNamesField[] = $nickName;
-        }
-
-        $this->addField(new NickNameField($currentNickNamesField));
 
         return $this;
     }
 
     public function timeZone(DateTimeZone $timeZone): self
     {
-        $this->addField(new TimeZoneField($timeZone));
+        $property = $this->getProperty('tz');
+        if ($property) {
+            $property->makeField($timeZone->getName());
+        }
 
         return $this;
     }
 
     public function uid(string $uid): self
     {
-        $this->addField(UidField::make($uid));
+        $property = $this->getProperty('uid');
+        if ($property) {
+            $property->makeField($uid);
+        }
 
         return $this;
     }
@@ -393,112 +444,166 @@ class VCardBuilder
 
     public function calendarAddressUri(string $uri): self
     {
-        $this->addField(new CalAdrUriField($uri));
+        $property = $this->getProperty('caladruri');
+        if ($property) {
+            $property->makeField($uri);
+        }
 
         return $this;
     }
 
     public function calendarUri(string $uri): self
     {
-        $this->addField(new CalUriField($uri));
+        $property = $this->getProperty('caluri');
+        if ($property) {
+            $property->makeField($uri);
+        }
 
         return $this;
     }
 
     public function clientPidMap(int $pid, string $uri): self
     {
-        $this->addField(new ClientPidMapField($pid, $uri));
+        $property = $this->getProperty('clientpidmap');
+        if ($property) {
+            $property->makeField(implode(',', [$pid, $uri]));
+        }
 
         return $this;
     }
 
-    public function fbUrl(string $uri): self
+    public function fbUrl(string $url): self
     {
-        $this->addField(new FbUrlField($uri));
+        $property = $this->getProperty('fburl');
+        if ($property) {
+            $property->makeField($url);
+        }
 
         return $this;
     }
 
     public function impp(string $number, array $types = []): self
     {
-        $this->addField(new ImppField($number, $types));
+        $property = $this->getProperty('impp');
+        if ($property) {
+            $property->makeField($number, ['type'=>$types]);
+        }
 
         return $this;
     }
 
     public function key(string $key): self
     {
-        $this->addField(new KeyField($key));
+        $property = $this->getProperty('key');
+        if ($property) {
+            $property->makeField($key);
+        }
 
         return $this;
     }
 
     public function lang(string $lang): self
     {
-        $this->addField(LangField::make($lang));
+        $property = $this->getProperty('lang');
+        if ($property) {
+            $property->makeField($lang);
+        }
 
         return $this;
     }
 
     public function logo(string $logo): self
     {
-        $this->addField(new LogoField($logo));
+        $property = $this->getProperty('logo');
+        if ($property) {
+            $property->makeField($logo);
+        }
 
         return $this;
     }
 
     public function note(string $note): self
     {
-        $this->addField(new NoteField($note));
+        $property = $this->getProperty('note');
+        if ($property) {
+            $property->makeField($note);
+        }
 
         return $this;
     }
 
     public function prodid(string $prodid): self
     {
-        $this->addField(new ProdidField($prodid));
+        $property = $this->getProperty('prodid');
+        if ($property) {
+            $property->makeField($prodid);
+        }
 
         return $this;
     }
 
     public function related(string $related): self
     {
-        $this->addField(new RelatedField($related));
+        $property = $this->getProperty('related');
+        if ($property) {
+            $property->makeField($related);
+        }
+
+        return $this;
+    }
+
+    public function rev(DateTimeInterface $dateTime): self
+    {
+        $property = $this->getProperty('rev');
+        if ($property) {
+            $property->makeField($dateTime->format('Ymd\THis\Z'));
+        }
 
         return $this;
     }
 
     public function revision(DateTimeInterface $dateTime): self
     {
-        $this->addField(new RevField($dateTime));
 
-        return $this;
+        return $this->rev($dateTime);
     }
 
     public function sound(string $sound): self
     {
-        $this->addField(new SoundField($sound));
+        $property = $this->getProperty('sound');
+        if ($property) {
+            $property->makeField($sound);
+        }
 
         return $this;
     }
 
     public function source(string $source): self
     {
-        $this->addField(new SourceField($source));
+        $property = $this->getProperty('source');
+        if ($property) {
+            $property->makeField($source);
+        }
 
         return $this;
     }
 
     public function xml(string $xml): self
     {
-        $this->addField(new XmlField($xml));
+        $property = $this->getProperty('xml');
+        if ($property) {
+            $property->makeField($xml);
+        }
 
         return $this;
     }
 
     public function x(string $name, string $value): self
     {
-        $this->addField(new XField($name, $value));
+        $property = $this->getProperty('x');
+        if ($property) {
+            $property->makeXField($name, $value);
+        }
 
         return $this;
     }
@@ -507,23 +612,25 @@ class VCardBuilder
     {
         $vCardClass = $this->getVersion()->getVCardClass();
 
-        $vCard = new $vCardClass();
+        $vCard = new $vCardClass;
 
-        foreach($this->properties as $property){
+        foreach ($this->properties as $property) {
             $vCard->applyProperty($property);
         }
 
         if (property_exists($vCard, 'rev') && ! $vCard->rev) {
             $property = $this->getProperty('rev');
-            if($property){
+            if ($property) {
                 $property->makeField((new DateTime('now'))->format('Ymd'));
+                $vCard->applyProperty($property);
             }
         }
 
         if (property_exists($vCard, 'prodid') && ! $vCard->prodid) {
             $property = $this->getProperty('prodid');
-            if($property){
+            if ($property) {
                 $property->makeField('-//Pleb//Pleb vCardIO '.VCardLibrary::VERSION.' //EN');
+                $vCard->applyProperty($property);
             }
         }
 

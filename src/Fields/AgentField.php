@@ -1,14 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pleb\VCardIO\Fields;
 
-use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Models\AbstractVCard;
-use stdClass;
 
 class AgentField extends AbstractField
 {
-
     public ?AbstractVCard $agentVCard = null;
 
     public static function makeFromVCard(AbstractVCard $vCard)
@@ -20,9 +19,9 @@ class AgentField extends AbstractField
         return $instance;
     }
 
-    public function render() :mixed
+    public function render(): mixed
     {
-        if(!$this->agentVCard){
+        if (! $this->agentVCard) {
             return null;
         }
 
@@ -31,7 +30,7 @@ class AgentField extends AbstractField
 
     public function __toString(): string
     {
-        if(!$this->agentVCard){
+        if (! $this->agentVCard) {
             return null;
         }
 
@@ -47,5 +46,4 @@ class AgentField extends AbstractField
 
         return trim($agentVCardString);
     }
-
 }
