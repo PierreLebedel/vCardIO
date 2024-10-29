@@ -38,7 +38,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
-    public function getVCard(int $index): VCard
+    public function getVCard(int $index): AbstractVCard
     {
         if (! array_key_exists($index, $this->vCards)) {
             throw new \OutOfBoundsException('Invalid index');
@@ -47,7 +47,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this->vCards[$index];
     }
 
-    public function first(): ?VCard
+    public function first(): ?AbstractVCard
     {
         return $this->vCards[0] ?? null;
     }

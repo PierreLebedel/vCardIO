@@ -4,16 +4,8 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardParserException;
-use Pleb\VCardIO\Fields\Calendar;
-use Pleb\VCardIO\Fields\Communications;
-use Pleb\VCardIO\Fields\DeliveryAddressing;
-use Pleb\VCardIO\Fields\Explanatory;
-use Pleb\VCardIO\Fields\General;
-use Pleb\VCardIO\Fields\Geographical;
-use Pleb\VCardIO\Fields\Identification;
-use Pleb\VCardIO\Fields\Organizational;
-use Pleb\VCardIO\Fields\Security;
 
 class VCardParser
 {
@@ -154,8 +146,22 @@ class VCardParser
 
         [$name, $value, $attributes] = $this->extractData($lineContents);
 
+        if (! $this->getVCardBuilder()->version) {
+
+            if ($name != 'version') {
+                throw VCardParserException::noVersionOnVCardStart($lineNumber);
+            }
+
+            $versionEnum = VCardVersionEnum::tryFrom($value);
+            if (! $versionEnum) {
+                throw VCardParserException::invalidVersion($value, $lineNumber);
+            }
+
+            $this->getVCardBuilder()->setVersion($versionEnum);
+        }
+
         if (! $value) {
-            dump('VCardParser empty value name:'.$name);
+            //dump('VCardParser empty value name:'.$name);
 
             return;
         }
@@ -163,7 +169,7 @@ class VCardParser
         $property = $this->getVCardBuilder()->getProperty($name);
 
         if (! $property) {
-            dump('VCardParser property not found name:'.$name);
+            //dump('VCardParser property not found name:'.$name);
 
             return;
         }
@@ -271,5 +277,4 @@ class VCardParser
 
         return $attributes;
     }
-
 }

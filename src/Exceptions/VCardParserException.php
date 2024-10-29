@@ -31,4 +31,8 @@ class VCardParserException extends AbstractVCardException
         return new self('No version on vCard start on line '.$lineNumber);
     }
 
+    public static function invalidVersion(string $version, int $lineNumber)
+    {
+        return new self(sprintf('Invalid version %s on line %d', $version, $lineNumber));
+    }
 }

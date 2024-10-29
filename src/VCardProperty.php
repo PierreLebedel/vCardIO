@@ -102,11 +102,11 @@ class VCardProperty
     {
         return match (strtolower($name)) {
             // General Properties
-            'source' => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid,mediatype'),
-            'kind'   => self::make($name, 'option', '*1')->withAttr()->setStructure(['individual', 'group', 'org', 'location'])->setFormat('individual'),
-            'xml'    => self::make($name, 'text', '*'),
-            'name'        => self::make($name, 'text', '*')->setAlias('sourceName'),
-            'profile'     => self::make($name, 'text', '*1'),
+            'source'  => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid,mediatype'),
+            'kind'    => self::make($name, 'option', '*1')->withAttr()->setStructure(['individual', 'group', 'org', 'location'])->setFormat('individual'),
+            'xml'     => self::make($name, 'text', '*'),
+            'name'    => self::make($name, 'text', '*')->setAlias('sourceName'),
+            'profile' => self::make($name, 'text', '*1'),
             // Identification Properties
             'fn'          => self::make($name, 'text', '1*')->addAttrs('type,language,altid,pid,pref'),
             'n'           => self::make($name, 'list-component', '*1')->addAttrs('sort-as,language,altid')->setStructure(['lastName', 'firstName', 'middleName', 'namePrefix', 'nameSuffix']),
@@ -116,10 +116,10 @@ class VCardProperty
             'anniversary' => self::make($name, 'datetime', '*1')->addAttrs('altid,calscale'),
             'gender'      => self::make($name, 'sex', '*1')->withAttr(),
             // Delivery Addressing Properties
-            'adr'         => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress', 'extendedAddress', 'street', 'locality', 'region', 'postalCode', 'country']),
-            'label'       => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress', 'extendedAddress', 'street', 'locality', 'region', 'postalCode', 'country']),
+            'adr'   => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress', 'extendedAddress', 'street', 'locality', 'region', 'postalCode', 'country']),
+            'label' => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress', 'extendedAddress', 'street', 'locality', 'region', 'postalCode', 'country']),
             // Communications Properties
-            'tel'   => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid')->addAttr('type', 'text,voice,fax,cell,video,pager,textphone', 'voice')->setFormat('tel'),
+            'tel'    => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid')->addAttr('type', 'text,voice,fax,cell,video,pager,textphone', 'voice')->setFormat('tel'),
             'email'  => self::make($name, 'text', '*')->addAttrs('pid,pref,type,altid'),
             'impp'   => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
             'lang'   => self::make($name, 'language-tag', '*')->addAttrs('pid,pref,type,altid'),
@@ -145,7 +145,7 @@ class VCardProperty
             'clientpidmap' => self::make($name, 'pid-uri', '*')->withAttr(),
             'url'          => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid')->setFormat('url'),
             'version'      => self::make($name, 'text', '1'),
-            'sort-string' => self::make($name, 'text', '*1')->setAlias('sortString'),
+            'sort-string'  => self::make($name, 'text', '*1')->setAlias('sortString'),
             // Security Properties
             'key'   => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,altid'),
             'class' => self::make($name, 'text', '*1'),
@@ -154,8 +154,8 @@ class VCardProperty
             'caladruri' => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
             'caluri'    => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
             // Extended Properties
-            'x' => self::make($name, 'x', '*')->withAttr(),
-            default       => null,
+            'x'     => self::make($name, 'x', '*')->withAttr(),
+            default => null,
         };
     }
 
@@ -196,7 +196,7 @@ class VCardProperty
         $fieldClass = $this->type->getFieldClass();
 
         if (! $fieldClass) {
-            dump('VCardProperty->addField() : fieldClass not found type:'.$this->type->value);
+            //dump('VCardProperty->addField() : fieldClass not found type:'.$this->type->value);
 
             return $this;
         }
@@ -236,7 +236,7 @@ class VCardProperty
         }
 
         if (! property_exists($vCard, $this->getAlias())) {
-            dump('VCardProperty->apply() : property:'.$this->getAlias().' not found in class '.basename(get_class($vCard)));
+            //dump('VCardProperty->apply() : property:'.$this->getAlias().' not found in class '.basename(get_class($vCard)));
 
             return $vCard;
         }

@@ -8,6 +8,6 @@ class VCardBuilderException extends AbstractVCardException
 {
     public static function wrongValue(string $propertyName, mixed $value)
     {
-        return new self(sprintf("Wrong value for field %s", $propertyName));
+        return new self(sprintf('Wrong value for field %s', $propertyName));
     }
 }

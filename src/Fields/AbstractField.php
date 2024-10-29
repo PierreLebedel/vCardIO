@@ -92,7 +92,7 @@ abstract class AbstractField
                     continue;
                 }
                 $fieldString .= ';'.strtoupper($k).'=';
-                $fieldString .= is_array($v) ? strtoupper(implode(',', array_values($v))) : strtoupper((string)$v);
+                $fieldString .= is_array($v) ? strtoupper(implode(',', array_values($v))) : strtoupper((string) $v);
             }
         }
 

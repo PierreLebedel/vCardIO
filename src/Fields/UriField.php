@@ -90,7 +90,7 @@ class UriField extends AbstractField
             return $input;
         }
 
-        if(strlen($input)==36){
+        if (strlen($input) == 36) {
             return 'urn:uuid:'.$input;
         }
 

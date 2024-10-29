@@ -5,52 +5,13 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use DateTime;
-use DateTimeZone;
 use DateTimeInterface;
-use Pleb\VCardIO\Fields\UriField;
-use Pleb\VCardIO\Fields\TextField;
-use Pleb\VCardIO\Fields\AbstractField;
-use Pleb\VCardIO\Models\AbstractVCard;
+use DateTimeZone;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardBuilderException;
-use Pleb\VCardIO\Fields\Extended\XField;
-use Pleb\VCardIO\Fields\General\XmlField;
-use Pleb\VCardIO\Fields\General\KindField;
-use Pleb\VCardIO\Fields\Security\KeyField;
-use Pleb\VCardIO\Fields\ListComponentField;
-use Pleb\VCardIO\Fields\Calendar\FbUrlField;
-use Pleb\VCardIO\Fields\General\SourceField;
-use Pleb\VCardIO\Fields\Calendar\CalUriField;
-use Pleb\VCardIO\Fields\Explanatory\RevField;
-use Pleb\VCardIO\Fields\Explanatory\UidField;
-use Pleb\VCardIO\Fields\Explanatory\UrlField;
-use Pleb\VCardIO\Fields\Explanatory\NoteField;
-use Pleb\VCardIO\Fields\Geographical\GeoField;
-use Pleb\VCardIO\Fields\Explanatory\SoundField;
-use Pleb\VCardIO\Fields\Calendar\CalAdrUriField;
-use Pleb\VCardIO\Fields\Explanatory\ProdidField;
-use Pleb\VCardIO\Fields\Communications\ImppField;
-use Pleb\VCardIO\Fields\Communications\LangField;
-use Pleb\VCardIO\Fields\Identification\NameField;
-use Pleb\VCardIO\Fields\Organizational\LogoField;
-use Pleb\VCardIO\Fields\Organizational\RoleField;
-use Pleb\VCardIO\Fields\Communications\EmailField;
-use Pleb\VCardIO\Fields\Communications\PhoneField;
-use Pleb\VCardIO\Fields\Identification\PhotoField;
-use Pleb\VCardIO\Fields\Organizational\TitleField;
-use Pleb\VCardIO\Fields\Geographical\TimeZoneField;
-use Pleb\VCardIO\Fields\Identification\GenderField;
-use Pleb\VCardIO\Fields\Organizational\MemberField;
-use Pleb\VCardIO\Fields\Explanatory\CategoriesField;
-use Pleb\VCardIO\Fields\Organizational\RelatedField;
-use Pleb\VCardIO\Fields\Identification\BirthdayField;
-use Pleb\VCardIO\Fields\Identification\FullNameField;
-use Pleb\VCardIO\Fields\Identification\NickNameField;
-use Pleb\VCardIO\Fields\Explanatory\ClientPidMapField;
-use Pleb\VCardIO\Fields\AgentField as FieldsAgentField;
-use Pleb\VCardIO\Fields\DeliveryAddressing\AddressField;
-use Pleb\VCardIO\Fields\Identification\AnniversaryField;
-use Pleb\VCardIO\Fields\Organizational\OrganizationField;
+use Pleb\VCardIO\Fields\AgentField;
+use Pleb\VCardIO\Fields\UriField;
+use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardBuilder
 {
@@ -128,7 +89,7 @@ class VCardBuilder
 
         if ($property) {
             if ($agent instanceof AbstractVCard) {
-                $field = FieldsAgentField::makeFromVCard($agent);
+                $field = AgentField::makeFromVCard($agent);
             } else {
                 $field = UriField::make($agent);
             }
@@ -176,12 +137,12 @@ class VCardBuilder
     {
         $property = $this->getProperty('n');
         if ($property) {
-            $field = (!empty($property->fields)) ? reset($property->fields) : $property->makeField('');
+            $field = (! empty($property->fields)) ? reset($property->fields) : $property->makeField('');
             $nameObject = $field->render();
             unset($nameObject->attributes);
             $nameParts = array_values((array) $nameObject);
             $nameParts[$index] = $namePart;
-            $property->makeField(implode(';',$nameParts));
+            $property->makeField(implode(';', $nameParts));
         }
 
         return $this;
@@ -216,7 +177,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('email');
         if ($property) {
-            $property->makeField($email, ['type'=>$types]);
+            $property->makeField($email, ['type' => $types]);
         }
 
         return $this;
@@ -226,7 +187,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('tel');
         if ($property) {
-            $property->makeField($number, ['type'=>$types]);
+            $property->makeField($number, ['type' => $types]);
         }
 
         return $this;
@@ -284,7 +245,7 @@ class VCardBuilder
 
     public function gender(string $gender): self
     {
-        if(!in_array(strtoupper($gender), ['M', 'F', 'O', 'N', 'U'])) {
+        if (! in_array(strtoupper($gender), ['M', 'F', 'O', 'N', 'U'])) {
             throw VCardBuilderException::wrongValue('gender', $gender);
         }
 
@@ -356,7 +317,7 @@ class VCardBuilder
                 $region,
                 $postalCode,
                 $country,
-            ]), ['type'=>$types]);
+            ]), ['type' => $types]);
         }
 
         return $this;
@@ -386,9 +347,9 @@ class VCardBuilder
     {
         $property = $this->getProperty('categories');
         if ($property) {
-            $field = (!empty($property->fields)) ? reset($property->fields) : $property->makeField('');
+            $field = (! empty($property->fields)) ? reset($property->fields) : $property->makeField('');
             $categoriesArray = $field->render()->value;
-            if(!in_array($category, $categoriesArray)){
+            if (! in_array($category, $categoriesArray)) {
                 $categoriesArray[] = $category;
             }
             $property->fields = [];
@@ -412,9 +373,9 @@ class VCardBuilder
     {
         $property = $this->getProperty('nickname');
         if ($property) {
-            $field = (!empty($property->fields)) ? reset($property->fields) : $property->makeField('');
+            $field = (! empty($property->fields)) ? reset($property->fields) : $property->makeField('');
             $nicknamesArray = $field->render()->value;
-            if(!in_array($nickname, $nicknamesArray)){
+            if (! in_array($nickname, $nicknamesArray)) {
                 $nicknamesArray[] = $nickname;
             }
             $property->fields = [];
@@ -493,7 +454,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('impp');
         if ($property) {
-            $property->makeField($number, ['type'=>$types]);
+            $property->makeField($number, ['type' => $types]);
         }
 
         return $this;
