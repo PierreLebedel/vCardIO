@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use Pleb\VCardIO\Enums\VCardVersionEnum;
+use Pleb\VCardIO\Exceptions\VCardException;
 use Pleb\VCardIO\Exceptions\VCardParserException;
 use Pleb\VCardIO\Models\AbstractVCard;
 use Pleb\VCardIO\Models\VCardV21;
 use Pleb\VCardIO\Models\VCardV30;
 use Pleb\VCardIO\Models\VCardV40;
+use Pleb\VCardIO\VCard;
 use Pleb\VCardIO\VCardParser;
 use Pleb\VCardIO\VCardsCollection;
 
@@ -101,7 +104,7 @@ END:VCARD');
 
 })->throws(VCardParserException::class);
 
-it('instanciates correct vCard model according version', function () {
+it("instanciates correct vCard model according version", function () {
 
     $collection = VCardParser::parseRaw('BEGIN:VCARD
 VERSION:2.1
