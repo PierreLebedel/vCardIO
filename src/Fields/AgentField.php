@@ -28,6 +28,11 @@ class AgentField extends AbstractField
         return $this->agentVCard;
     }
 
+    public function getRelevantValue(): mixed
+    {
+        return $this->render();
+    }
+
     public function __toString(): string
     {
         if (! $this->agentVCard) {

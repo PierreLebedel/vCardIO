@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use DateTime;
-use DateTimeInterface;
 use DateTimeZone;
+use DateTimeImmutable;
+use DateTimeInterface;
+use Pleb\VCardIO\Fields\UriField;
+use Pleb\VCardIO\Fields\AgentField;
+use Pleb\VCardIO\Models\AbstractVCard;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardBuilderException;
-use Pleb\VCardIO\Fields\AgentField;
-use Pleb\VCardIO\Fields\UriField;
-use Pleb\VCardIO\Models\AbstractVCard;
 
 class VCardBuilder
 {
@@ -99,11 +100,11 @@ class VCardBuilder
         return $this;
     }
 
-    public function fullname(?string $fullname): self
+    public function fullName(?string $fullName): self
     {
         $property = $this->getProperty('fn');
         if ($property) {
-            $property->makeField($fullname);
+            $property->makeField($fullName);
         }
 
         return $this;
@@ -594,7 +595,7 @@ class VCardBuilder
         if (property_exists($vCard, 'rev') && ! $vCard->rev) {
             $property = $this->getProperty('rev');
             if ($property) {
-                $property->makeField((new DateTime('now'))->format('Ymd'));
+                $property->makeField((new DateTimeImmutable('now'))->format('Ymd'));
                 $vCard->applyProperty($property);
             }
         }

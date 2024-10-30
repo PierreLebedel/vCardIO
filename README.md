@@ -29,6 +29,7 @@ FN:John Doe
 BDAY:19020202
 X-CUSTOM-VALUE;TYPE=MD:ReadMe
 END:VCARD';
+
 $vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
 
 // RESULT:
@@ -44,7 +45,7 @@ Pleb\VCardIO\VCardsCollection {
                 }
             ],
             bday: {
-                dateTime: DateTime @-2143152000,
+                dateTime: DateTimeImmutable @-2143152000,
                 format: "Ymd",
                 formatted: "190200202",
                 extactYear: true
@@ -104,7 +105,7 @@ A large set of methods is implemented on the vCard builder to set all the proper
 
 ```php
 $vCard = Pleb\VCardIO\VCardBuilder::make()
-    ->fullname('John Doe')
+    ->fullName('John Doe')
     ->birthday(new DateTime('1902-02-02'))
     ->x('custom-value', 'ReadMe')
     ->x('other', 'VCF')
@@ -147,12 +148,14 @@ END:VCARD
 ...
 ```
 
-## Code formatting
+## Contribute
+
+### Code formatting
 ```bash
 composer format
 ```
 
-## Testing
+### Testing
 
 ```bash
 composer test

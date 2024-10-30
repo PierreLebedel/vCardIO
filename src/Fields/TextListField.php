@@ -22,4 +22,10 @@ class TextListField extends AbstractField
 
         return $array;
     }
+
+    public function getRelevantValue(): mixed
+    {
+        $response = $this->render();
+        return ($response instanceof stdClass) ? $response->value : $response;
+    }
 }

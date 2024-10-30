@@ -216,6 +216,11 @@ class VCardProperty
         return $this->addField($field);
     }
 
+    public function getFields() :array
+    {
+        return $this->fields;
+    }
+
     public function apply(AbstractVCard $vCard): AbstractVCard
     {
         if (empty($this->fields)) {

@@ -43,6 +43,12 @@ class UriField extends AbstractField
         return $response;
     }
 
+    public function getRelevantValue(): mixed
+    {
+        $response = $this->render();
+        return ($response instanceof stdClass) ? $response->value : $response;
+    }
+
     public function cleanValue(): string
     {
         if ($this->format == 'tel') {

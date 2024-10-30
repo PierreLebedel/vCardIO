@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO\Fields;
 
-use DateTime;
+use DateTimeImmutable;
 use stdClass;
 
 class DateTimeField extends AbstractField
 {
-    public ?DateTime $dateTime = null;
+    public ?DateTimeImmutable $dateTime = null;
 
     public bool $exactYear = true;
 
@@ -52,6 +52,11 @@ class DateTimeField extends AbstractField
         return $response;
     }
 
+    public function getRelevantValue(): mixed
+    {
+        return $this->render()->dateTime;
+    }
+
     public function parse(string $input): void
     {
         $dateTime = null;
@@ -63,15 +68,15 @@ class DateTimeField extends AbstractField
         }
 
         if (strlen($input) == 18 && (str_contains($input, '-') || str_contains($input, '+'))) {
-            $dateTime = DateTime::createFromFormat('Ymd\THiO', $input);
+            $dateTime = DateTimeImmutable::createFromFormat('Ymd\THiO', $input);
         } elseif (strlen($input) == 16) {
-            $dateTime = DateTime::createFromFormat('Ymd\THis\Z', $input);
+            $dateTime = DateTimeImmutable::createFromFormat('Ymd\THis\Z', $input);
         } elseif (strlen($input) == 10) {
-            $dateTime = DateTime::createFromFormat('Y-m-d', $input);
+            $dateTime = DateTimeImmutable::createFromFormat('Y-m-d', $input);
         } elseif (strlen($input) == 8) {
-            $dateTime = DateTime::createFromFormat('Ymd', $input);
+            $dateTime = DateTimeImmutable::createFromFormat('Ymd', $input);
         } elseif (strlen($input) == 6) {
-            $dateTime = DateTime::createFromFormat('ymd', $input);
+            $dateTime = DateTimeImmutable::createFromFormat('ymd', $input);
         }
 
         $this->dateTime = $dateTime;

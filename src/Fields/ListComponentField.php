@@ -33,4 +33,15 @@ class ListComponentField extends AbstractField
 
         return $response;
     }
+
+    public function getRelevantValue(): mixed
+    {
+        $response = $this->render();
+
+        if(property_exists($response, 'attributes')){
+            unset($response->attributes);
+        }
+
+        return $response;
+    }
 }

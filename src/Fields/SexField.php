@@ -30,4 +30,9 @@ class SexField extends AbstractField
 
         return $response;
     }
+
+    public function getRelevantValue(): mixed
+    {
+        return $this->render()->letter;
+    }
 }

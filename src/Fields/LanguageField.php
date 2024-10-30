@@ -22,4 +22,9 @@ class LanguageField extends AbstractField
 
         return $response;
     }
+
+    public function getRelevantValue(): mixed
+    {
+        return $this->render()->value;
+    }
 }
