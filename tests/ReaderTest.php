@@ -43,7 +43,7 @@ END:VCARD');
         'test 2.2',
     ]);
 
-})->only();
+});
 
 it('can read vcard fullname from name parts', function () {
 
