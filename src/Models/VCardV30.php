@@ -20,7 +20,7 @@ class VCardV30 extends AbstractVCard
 
     public $mailer = null;
 
-    public $sourceName = null;
+    public $sourceName = null; // alias of name
 
     public $nickname = null;
 
@@ -28,7 +28,7 @@ class VCardV30 extends AbstractVCard
 
     public $profile = null;
 
-    public $sortString = null;
+    public $sortString = null; // alias of sort-string
 
     public $source = null;
 }

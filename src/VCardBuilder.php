@@ -363,27 +363,27 @@ class VCardBuilder
         return $this;
     }
 
-    public function nicknames(array $nicknames): self
+    public function nickNames(array $nickNames): self
     {
         $property = $this->getProperty('nickname');
         if ($property) {
-            $property->makeField(implode(',', $nicknames));
+            $property->makeField(implode(',', $nickNames));
         }
 
         return $this;
     }
 
-    public function nickname(string $nickname): self
+    public function nickName(string $nickName): self
     {
         $property = $this->getProperty('nickname');
         if ($property) {
             $field = (! empty($property->fields)) ? reset($property->fields) : $property->makeField('');
-            $nicknamesArray = $field->render()->value;
-            if (! in_array($nickname, $nicknamesArray)) {
-                $nicknamesArray[] = $nickname;
+            $nickNamesArray = $field->render()->value;
+            if (! in_array($nickName, $nickNamesArray)) {
+                $nickNamesArray[] = $nickName;
             }
             $property->fields = [];
-            $property->makeField(implode(',', $nicknamesArray));
+            $property->makeField(implode(',', $nickNamesArray));
         }
 
         return $this;

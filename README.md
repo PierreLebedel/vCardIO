@@ -133,9 +133,8 @@ $vCard->getX('main-hobby'); // :string|array
 ```
 
 > [!NOTE]
-> **"Pseudo-singular" properties**
-> In the [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350), most of properties can be present multiple times in a vCard. For example the `FN` (fullName) property can be present 1 or multiple times, and accompagnied by attributes to distinct them.
-> In this package, we assume that some of properties (like fullName) got a unique main value. This *`getProperty()`* methods will return this main value, as well as the sub-object `$vCard->relevantData`.
+> **"Pseudo-singular" properties:** [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) allows most of properties to be present multiple times in a vCard. For example the `FN` (fullName) property can be present 1 or multiple times, and accompagnied by attributes to distinct them.
+> In this package, we assume that some of properties (like fullName) got a **unique main value**. The vCard's *`getProperty()`* methods will return this main value, as well as the sub-object `$vCard->relevantData`.
 > The complete set of value is stil available in the root of `$vCard` object.
 
 ### Build vCard
