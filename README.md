@@ -1,10 +1,11 @@
-# vCardIO - Read & write vCard (vcf) files
+# vCardIO - Parse, read, manipulate & write vCard (.vcf files)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/pleb/vcardio.svg?style=flat-square)](https://packagist.org/packages/pleb/vcardio)
 [![Tests](https://img.shields.io/github/actions/workflow/status/PierreLebedel/vCardIO/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/PierreLebedel/vCardIO/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/pleb/vcardio.svg?style=flat-square)](https://packagist.org/packages/pleb/vcardio)
 
-This package can read vCard from files (.vcf) or from raw data, and it can write a formatted vCard file from vCard objects.
+This package based on [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) is intended to simplify the parsing and the manipulation of vCard objects, coming from .vcf files or from raw data.
+It allows you to build vCard objects & export them to text or .vcf files.
 
 ## Installation
 
@@ -18,6 +19,8 @@ composer require pleb/vcardio
 
 ### Parse vCards
 
+You can parse vCards objects from .vcf file or from raw data, and obtain an iterable collection of vCards.
+
 ```php
 $vCardsCollection = Pleb\VCardIO\VCardParser::parseFile('./contacts.vcf');
 
@@ -27,7 +30,7 @@ $vCardsRawData = 'BEGIN:VCARD
 VERSION:4.0
 FN:Jeffrey Lebowski
 BDAY:19421204
-X-HOBBY:Bowling
+X-MAIN-HOBBY:Bowling
 END:VCARD';
 
 $vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
@@ -37,18 +40,18 @@ $vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
 Pleb\VCardIO\VCardsCollection {
     vCards: [
         Pleb\VCardIO\Models\VCardV40 {
-            version: '4.0',
+            version: "4.0",
             relevantData: {
-                version: '4.0',
-                fn: 'Jeffrey Lebowski',
+                version: "4.0",
+                fn: "Jeffrey Lebowski",
                 bday: DateTimeImmutable @-854466859,
                 x: {
-                    'hobby': 'Bowling'
+                    mainHobby: "Bowling"
                 }
             },
             fn: [
                 {
-                    value: 'Jeffrey Lebowski',
+                    value: "Jeffrey Lebowski",
                     attributes: []
                 }
             ],
@@ -56,18 +59,33 @@ Pleb\VCardIO\VCardsCollection {
                 dateTime: DateTimeImmutable @-854466859,
                 format: "Ymd",
                 formatted: "19421204",
-                extactYear: true
+                extactYear: true,
+                attributes: []
             },
             x: [
                 {
-                    name: "hobby",
-                    value: "Bowling"
+                    name: "main-hobby",
+                    formattedName: "mainHobby",
+                    value: "Bowling",
+                    attributes: []
                 }
             ],
             ...
         },
     ],
 }
+```
+
+You can retreive single vCard objects by iterating on VCardsCollection, or by getting them by index:
+
+```php
+foreach($vCardsCollection as $vCard){
+    // ...
+}
+// OR
+$vCard = $vCardsCollection->first();
+// OR
+$vCard = $vCardsCollection->getVCard(0); // 1,2,...
 ```
 
 #### Support of old school Agent property
@@ -85,39 +103,73 @@ AGENT:BEGIN:VCARD
 END:VCARD
 ```
 
-This package will parse it as a `VCards`'s `agent` property:
+This package will parse it as a VCard's `agent` property:
 
 ```php
-Pleb\VCardIO\VCardsCollection {
-    vCards: [
-        Pleb\VCardIO\Models\VCardV30 {
-            version: '3.0'
-            fn: [...],
-            agent: Pleb\VCardIO\Models\VCardV30 {
-                version: "3.0"
-                fn: [...],
-                ...
-            },
-            ...
-        },
-    ],
+Pleb\VCardIO\Models\VCardV30 {
+    version: '3.0'
+    fn: [...],
+    agent: Pleb\VCardIO\Models\VCardV30 {
+        version: "3.0"
+        fn: [...],
+        ...
+    },
+    ...
 }
 ```
 
-### Build vCards
+### Read vCard object
 
-A large set of methods is implemented on the vCard builder to set all the properties fluently.
+A huge set of methods is implemented to read the vCard properties.
+
+```php
+$vCard->getFullName();      // :string
+$vCard->getLastName();      // :string
+$vCard->getFirstName();     // :string
+$vCard->getEmails();        // :array<string>
+$vCard->getPhones();        // :array<string>
+$vCard->getX('main-hobby'); // :string|array
+// ...
+```
+
+> [!NOTE]
+> **"Pseudo-singular" properties**
+> In the [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350), most of properties can be present multiple times in a vCard. For example the `FN` (fullName) property can be present 1 or multiple times, and accompagnied by attributes to distinct them.
+> In this package, we assume that some of properties (like fullName) got a unique main value. This *`getProperty()`* methods will return this main value, as well as the sub-object `$vCard->relevantData`.
+> The complete set of value is stil available in the root of `$vCard` object.
+
+### Build vCard
+
+You can create your vCard objects from scratch fluently by using the large set of methods implemented on the vCard builder.
 
 ```php
 $vCard = Pleb\VCardIO\VCardBuilder::make()
     ->fullName('Jeffrey Lebowski')
+    ->nickname('The Dude')
     ->birthday(new DateTime('1942-12-04'))
-    ->x('hobby', 'Bowling')
+    ->x('main-hobby', 'Bowling')
     ->get();
 ```
-### Print vCards
 
-You can use `(string) $vCard` to display vCard contents :
+Each method returns the builder instance, so you can chain them.
+
+Use the `get()` method to get your vCard.
+
+#### Build vCards collection
+
+```php
+$vCardsCollection = (new VCardsCollection())
+    ->addVCard($vCard1)
+    ->addVCard($vCard2);
+
+// OR
+
+$vCardsCollection = new VCardsCollection([$vCard1, $vCard2]);
+```
+
+### Print vCard
+
+You can use `(string) $vCard` to display vCard contents:
 
 ```php
 echo nl2br((string) $vCard);
@@ -126,6 +178,7 @@ echo nl2br((string) $vCard);
 BEGIN:VCARD
 VERSION:4.0
 FN:Jeffrey Lebowski
+NICKNAME:The Dude
 BDAY:19421204
 X-HOBBY:Bowling
 REV:20241029
@@ -133,10 +186,11 @@ PRODID:-//Pleb//Pleb vCardIO 1.1.0 //EN
 END:VCARD
 ```
 
-The same is true for vCards collections :
+#### Print vCards collection
+
+The same is true for vCards collections, what will display the vCards serially:
 
 ```php
-$vCardsCollection = VCardParser::parseFile('./contacts.vcf');
 echo nl2br((string) $vCardsCollection);
 ```
 ```txt

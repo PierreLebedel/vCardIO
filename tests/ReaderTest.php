@@ -37,12 +37,11 @@ END:VCARD');
         'His Dudeness',
     ]);
 
-    assertEquals('test 1', $vCard->getX('test1', multiple:false));
-    assertEqualsCanonicalizing($vCard->getX('test2', multiple:true), [
+    assertEquals('test 1', $vCard->getX('test1', multiple: false));
+    assertEqualsCanonicalizing($vCard->getX('test2', multiple: true), [
         'test 2.1',
         'test 2.2',
     ]);
-
 
 })->only();
 

@@ -250,22 +250,22 @@ class VCardProperty
                 $values = $field->render();
             }
 
-            if($this->getName() == 'x') {
-                if(!$releventValues instanceof stdClass){
-                    $releventValues = new stdClass();
+            if ($this->getName() == 'x') {
+                if (! $releventValues instanceof stdClass) {
+                    $releventValues = new stdClass;
                 }
                 $xName = $field->formattedName();
-                if(!property_exists($releventValues, $xName)){
+                if (! property_exists($releventValues, $xName)) {
                     $releventValues->{$xName} = $field->relevantRender();
-                }else{
-                    if(!is_array($releventValues->{$xName})){
+                } else {
+                    if (! is_array($releventValues->{$xName})) {
                         $previousValue = $releventValues->{$xName};
                         $releventValues->{$xName} = [$previousValue];
                     }
                     $releventValues->{$xName}[] = $field->relevantRender();
                 }
 
-            }elseif ($this->relevantCardinality->isMultiple()) {
+            } elseif ($this->relevantCardinality->isMultiple()) {
                 if (! is_array($values)) {
                     $releventValues = [];
                 }

@@ -37,10 +37,11 @@ class XField extends AbstractField
         return $this->render()->value;
     }
 
-    public function formattedName() :string
+    public function formattedName(): string
     {
         $string = str_replace(' ', '', ucwords(str_replace('-', ' ', $this->name)));
         $string[0] = strtolower($string[0]);
+
         return $string;
     }
 }
