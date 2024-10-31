@@ -124,7 +124,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         if (! is_int($offset)) {
             throw VCardCollectionException::invalidIndex('Invalid integer index');
         }
-        if (! $value instanceof VCard) {
+        if (! $value instanceof AbstractVCard) {
             throw VCardCollectionException::invalidValue('Invalid VCard value');
         }
 

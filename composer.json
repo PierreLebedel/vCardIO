@@ -1,16 +1,17 @@
 {
     "name": "pleb/vcardio",
-    "description": "Parse & write vCard (vcf) files",
+    "description": "Parse vCards from files (.vcf) or raw data. Build vCards from scratch. Export vCards as string or file.",
     "keywords": [
         "vcard",
         "vcf"
     ],
-    "homepage": "https://github.com/pleb/vcardio",
+    "homepage": "https://github.com/PierreLebedel/vCardIO",
     "license": "MIT",
     "authors": [
         {
             "name": "Pierre Lebedel",
             "email": "pierrelebedel@gmail.com",
+            "homepage": "https://www.pierrelebedel.fr",
             "role": "Developer"
         }
     ],
@@ -45,6 +46,6 @@
             "phpstan/extension-installer": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }

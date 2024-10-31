@@ -98,7 +98,7 @@ class VCardBuilder
         return $this;
     }
 
-    public function fullName(?string $fullName): self
+    public function fullName(string $fullName): self
     {
         $property = $this->getProperty('fn');
         if ($property) {
@@ -147,27 +147,27 @@ class VCardBuilder
         return $this;
     }
 
-    public function lastName(?string $lastName): self
+    public function lastName(string $lastName): self
     {
         return $this->namePart(0, $lastName);
     }
 
-    public function firstName(?string $firstName): self
+    public function firstName(string $firstName): self
     {
         return $this->namePart(1, $firstName);
     }
 
-    public function middleName(?string $middleName): self
+    public function middleName(string $middleName): self
     {
         return $this->namePart(2, $middleName);
     }
 
-    public function namePrefix(?string $namePrefix): self
+    public function namePrefix(string $namePrefix): self
     {
         return $this->namePart(3, $namePrefix);
     }
 
-    public function nameSuffix(?string $nameSuffix): self
+    public function nameSuffix(string $nameSuffix): self
     {
         return $this->namePart(4, $nameSuffix);
     }
@@ -261,7 +261,7 @@ class VCardBuilder
         return $this;
     }
 
-    public function organization(?string $company = null, ?string $unit1 = null, ?string $unit2 = null): self
+    public function organization(string $company, ?string $unit1 = null, ?string $unit2 = null): self
     {
         $property = $this->getProperty('org');
         if ($property) {

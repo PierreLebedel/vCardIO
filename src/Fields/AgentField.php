@@ -30,7 +30,7 @@ class AgentField extends AbstractField
 
     public function relevantRender(): mixed
     {
-        return $this->render();
+        return $this->render()->relevantData;
     }
 
     public function __toString(): string

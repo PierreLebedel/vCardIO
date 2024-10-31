@@ -9,15 +9,22 @@ It allows you to build vCard objects & export them to text or .vcf files.
 
 ## Installation
 
-You can install the package via composer:
+Via composer:
 
 ```bash
 composer require pleb/vcardio
 ```
 
+## Documentation
+
+- [Parsing data](docs/parsing.md)
+- [vCards collection](docs/collection.md)
+- [vCard builder](docs/builder.md)
+- [vCard object](docs/vcard.md)
+
 ## Usage
 
-### Parse vCards
+### Parsing data
 
 You can parse vCards objects from .vcf file or from raw data, and obtain an iterable collection of vCards.
 
@@ -34,9 +41,13 @@ X-MAIN-HOBBY:Bowling
 END:VCARD';
 
 $vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
+```
 
-// RESULT:
+### The vCards collection
 
+The result of parsing is a collection of vCards:
+
+```php
 Pleb\VCardIO\VCardsCollection {
     vCards: [
         Pleb\VCardIO\Models\VCardV40 {
@@ -76,7 +87,21 @@ Pleb\VCardIO\VCardsCollection {
 }
 ```
 
-You can retreive single vCard objects by iterating on VCardsCollection, or by getting them by index:
+#### Manually build a vCards collection
+
+```php
+$vCardsCollection = (new Pleb\VCardIO\VCardsCollection())
+    ->addVCard($vCard1)
+    ->addVCard($vCard2);
+
+// OR
+
+$vCardsCollection = new Pleb\VCardIO\VCardsCollection([$vCard1, $vCard2]);
+```
+
+#### Manipulate collection
+
+The `VCardsCollection` object implements `ArrayAccess`, `Iterator` and `Countable` interfaces, so you can loop on it.
 
 ```php
 foreach($vCardsCollection as $vCard){
@@ -88,9 +113,32 @@ $vCard = $vCardsCollection->first();
 $vCard = $vCardsCollection->getVCard(0); // 1,2,...
 ```
 
-#### Support of old school Agent property
+### The vCard object
 
-The `AGENT` property is not longer supported by the vCard specification, but if you parse old data, you can see something like this, with imbricated vCards:
+A huge set of methods is implemented to read the vCard properties. You can see all available getters methods [on the vCard object documentation](docs/vcard.md).
+
+```php
+$vCard->getFullName();                      // :?string
+$vCard->getLastName();                      // :?string
+$vCard->getFirstName();                     // :?string
+$vCard->getEmails();                        // :array<string>
+$vCard->getPhones();                        // :array<string>
+$vCard->getX('main-hobby', multiple:false); // :?string|array
+$vCard->getX('main-hobby', multiple:true);  // :array
+// ...
+```
+
+#### Note on "Pseudo-singular" properties 
+
+[RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) allows most of properties to be present multiple times in a vCard. For example the `FN` (fullName) property can be present 1 or multiple times, and accompagnied by attributes to distinct them.
+
+In this package, we assume that some of properties (like fullName) got a **unique main value**. The vCard's *`getProperty()`* methods will return this main value, as well as the sub-object `$vCard->relevantData`.
+
+The complete set of value is stil available in the root of `$vCard` object.
+
+#### Note on the old school `AGENT` property
+
+The `AGENT` property is not longer supported by the vCard specification, but if you parse old data, you can see something like this, with nested vCards:
 
 ```txt
 BEGIN:VCARD
@@ -108,43 +156,23 @@ This package will parse it as a VCard's `agent` property:
 ```php
 Pleb\VCardIO\Models\VCardV30 {
     version: '3.0'
-    fn: [...],
+    // ...,
     agent: Pleb\VCardIO\Models\VCardV30 {
         version: "3.0"
-        fn: [...],
-        ...
+        // ...
     },
-    ...
+    // ...
 }
 ```
 
-### Read vCard object
+### The vCard builder
 
-A huge set of methods is implemented to read the vCard properties.
-
-```php
-$vCard->getFullName();      // :string
-$vCard->getLastName();      // :string
-$vCard->getFirstName();     // :string
-$vCard->getEmails();        // :array<string>
-$vCard->getPhones();        // :array<string>
-$vCard->getX('main-hobby'); // :string|array
-// ...
-```
-
-> [!NOTE]
-> **"Pseudo-singular" properties:** [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) allows most of properties to be present multiple times in a vCard. For example the `FN` (fullName) property can be present 1 or multiple times, and accompagnied by attributes to distinct them.
-> In this package, we assume that some of properties (like fullName) got a **unique main value**. The vCard's *`getProperty()`* methods will return this main value, as well as the sub-object `$vCard->relevantData`.
-> The complete set of value is stil available in the root of `$vCard` object.
-
-### Build vCard
-
-You can create your vCard objects from scratch fluently by using the large set of methods implemented on the vCard builder.
+You can create your vCard objects from scratch fluently by using the large set of methods implemented on the vCard builder. You can see all available setters methods [on the vCard builder documentation](docs/builder.md).
 
 ```php
 $vCard = Pleb\VCardIO\VCardBuilder::make()
     ->fullName('Jeffrey Lebowski')
-    ->nickname('The Dude')
+    ->nickName('The Dude')
     ->birthday(new DateTime('1942-12-04'))
     ->x('main-hobby', 'Bowling')
     ->get();
@@ -154,19 +182,9 @@ Each method returns the builder instance, so you can chain them.
 
 Use the `get()` method to get your vCard.
 
-#### Build vCards collection
+### Print vCards
 
-```php
-$vCardsCollection = (new VCardsCollection())
-    ->addVCard($vCard1)
-    ->addVCard($vCard2);
-
-// OR
-
-$vCardsCollection = new VCardsCollection([$vCard1, $vCard2]);
-```
-
-### Print vCard
+#### Print a single vCard
 
 You can use `(string) $vCard` to display vCard contents:
 
