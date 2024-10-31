@@ -70,17 +70,9 @@ abstract class AbstractVCard
         return $property->apply($this);
     }
 
-    public function getPropertyFields(string $name) :array
+    public function getPrefferedPropertyField(VCardProperty $property) :?AbstractField
     {
-        $property = $this->properties[$name] ?? null;
-        if(!$property) return [];
-
-        return $property->getFields();
-    }
-
-    public function getPrefferedPropertyField(string $name) :?AbstractField
-    {
-        $fields = $this->getPropertyFields($name);
+        $fields = $property->getFields();
         if( empty($fields) ){
             return null;
         }
@@ -92,7 +84,7 @@ abstract class AbstractVCard
 
         foreach($fields as $field){
             // return the pref
-            if($field->getAttribute('pref')=='1'){
+            if((string)$field->getAttribute('pref')=='1'){
                 return $field;
             }
         }
@@ -105,26 +97,44 @@ abstract class AbstractVCard
         return null;
     }
 
-    public function getPropertyRelevantValue(string $name) :mixed
+    public function getRelevantValue(string $name) :mixed
     {
-        return $this->getPrefferedPropertyField($name)?->relevantRender() ?? null;
-    }
+        $property = $this->properties[$name] ?? null;
 
-    public function getPropertyRelevantValues(string $name) :?array
-    {
-        $fields = $this->getPropertyFields($name);
-        $response = [];
-        if(!empty($fields)){
-            foreach($fields as $field){
-                $response[] = $field->relevantRender();
+        if(!$property){
+            $property = VCardProperty::find($name);
+
+            if (! $property) {
+                return null;
             }
+
+            if($property->relevantCardinality->isMultiple()){
+                return [];
+            }
+
+            return null;
         }
-        return array_filter( $response );
+
+        if($property->relevantCardinality->isMultiple()){
+
+            $fields = $property->getFields();
+
+            $response = [];
+            if(!empty($fields)){
+                foreach($fields as $field){
+                    $response[] = $field->relevantRender();
+                }
+            }
+
+            return array_filter( $response );
+        }
+
+        return $this->getPrefferedPropertyField($property)?->relevantRender() ?? null;
     }
 
     public function getFullName() :?string
     {
-        $fullname = $this->getPropertyRelevantValue('fn');
+        $fullname = $this->getRelevantValue('fn');
 
         if(!$fullname){
             if($name = $this->getName()){
@@ -143,7 +153,7 @@ abstract class AbstractVCard
 
     public function getName() :?stdClass
     {
-        return $this->getPropertyRelevantValue('n');
+        return $this->getRelevantValue('n');
     }
 
     public function getLastName() :?string
@@ -173,47 +183,47 @@ abstract class AbstractVCard
 
     public function getEmails(): array
     {
-        return $this->getPropertyRelevantValues('email');
+        return $this->getRelevantValue('email');
     }
 
     public function getPhones(): array
     {
-        return $this->getPropertyRelevantValues('tel');
+        return $this->getRelevantValue('tel');
     }
 
     public function getUrls(): array
     {
-        return $this->getPropertyRelevantValues('url');
+        return $this->getRelevantValue('url');
     }
 
     public function getPhoto(): ?string
     {
-        return $this->getPropertyRelevantValue('photo');
+        return $this->getRelevantValue('photo');
     }
 
     public function getBirthday(): ?DateTimeImmutable
     {
-        return $this->getPropertyRelevantValue('bday');
+        return $this->getRelevantValue('bday');
     }
 
     public function getAnniversary(): ?DateTimeImmutable
     {
-        return $this->getPropertyRelevantValue('anniversary');
+        return $this->getRelevantValue('anniversary');
     }
 
     public function getKind(): ?string
     {
-        return $this->getPropertyRelevantValue('kind');
+        return $this->getRelevantValue('kind');
     }
 
     public function getGender(): ?string
     {
-        return $this->getPropertyRelevantValue('gender');
+        return $this->getRelevantValue('gender');
     }
 
     public function getOrganization(): ?stdClass
     {
-        return $this->getPropertyRelevantValue('org');
+        return $this->getRelevantValue('org');
     }
 
     public function getOrganizationName(): ?string
@@ -223,47 +233,47 @@ abstract class AbstractVCard
 
     public function getTitle(): ?string
     {
-        return $this->getPropertyRelevantValue('title');
+        return $this->getRelevantValue('title');
     }
 
     public function getRole(): ?string
     {
-        return $this->getPropertyRelevantValue('role');
+        return $this->getRelevantValue('role');
     }
 
     public function getMember(): ?string
     {
-        return $this->getPropertyRelevantValue('member');
+        return $this->getRelevantValue('member');
     }
 
     public function getAddresses(): array
     {
-        return $this->getPropertyRelevantValues('adr');
+        return $this->getRelevantValue('adr');
     }
 
     public function getGeo(): ?stdClass
     {
-        return $this->getPropertyRelevantValue('geo');
+        return $this->getRelevantValue('geo');
     }
 
     public function getCategories(): array
     {
-        return $this->getPropertyRelevantValue('categories') ?? [];
+        return $this->getRelevantValue('categories') ?? [];
     }
 
     public function getNicknames(): array
     {
-        return $this->getPropertyRelevantValue('nickname') ?? [];
+        return $this->getRelevantValue('nickname') ?? [];
     }
 
     public function getTimeZone(): ?DateTimeZone
     {
-        return $this->getPropertyRelevantValue('tz');
+        return $this->getRelevantValue('tz');
     }
 
     public function getUid(): ?string
     {
-        return $this->getPropertyRelevantValue('uid');
+        return $this->getRelevantValue('uid');
     }
 
     public function getUuid(): ?string
@@ -273,18 +283,18 @@ abstract class AbstractVCard
 
     public function getCalendarAddressUri(): ?string
     {
-        return $this->getPropertyRelevantValue('caladruri');
+        return $this->getRelevantValue('caladruri');
     }
 
     public function getCalendarUri(): ?string
     {
-        return $this->getPropertyRelevantValue('caluri');
+        return $this->getRelevantValue('caluri');
     }
 
     public function getClientPidMap() :array
     {
         $response = [];
-        $clientpidmap = $this->getPropertyRelevantValues('clientpidmap');
+        $clientpidmap = $this->getRelevantValue('clientpidmap');
         if(!empty($clientpidmap)){
             foreach($clientpidmap as $fieldk => $fieldv){
                 foreach($fieldv as $pid => $uri){
@@ -297,52 +307,52 @@ abstract class AbstractVCard
 
     public function getFbUrl(): ?string
     {
-        return $this->getPropertyRelevantValue('fburl');
+        return $this->getRelevantValue('fburl');
     }
 
     public function getImpps(): array
     {
-        return $this->getPropertyRelevantValues('impp');
+        return $this->getRelevantValue('impp');
     }
 
     public function getKey(): ?string
     {
-        return $this->getPropertyRelevantValue('key');
+        return $this->getRelevantValue('key');
     }
 
     public function getLangs(): array
     {
-        return $this->getPropertyRelevantValues('lang');
+        return $this->getRelevantValue('lang');
     }
 
     public function getLang(): ?string
     {
-        return $this->getPropertyRelevantValue('lang');
+        return $this->getRelevantValue('lang');
     }
 
     public function getLogo(): ?string
     {
-        return $this->getPropertyRelevantValue('logo');
+        return $this->getRelevantValue('logo');
     }
 
     public function getNote(): ?string
     {
-        return $this->getPropertyRelevantValue('note');
+        return $this->getRelevantValue('note');
     }
 
     public function getProdid(): ?string
     {
-        return $this->getPropertyRelevantValue('prodid');
+        return $this->getRelevantValue('prodid');
     }
 
     public function getRelated(): ?string
     {
-        return $this->getPropertyRelevantValue('related');
+        return $this->getRelevantValue('related');
     }
 
     public function getRev(): ?DateTimeImmutable
     {
-        return $this->getPropertyRelevantValue('rev');
+        return $this->getRelevantValue('rev');
     }
 
     public function getRevision(): ?DateTimeImmutable
@@ -352,30 +362,30 @@ abstract class AbstractVCard
 
     public function getSound(): ?string
     {
-        return $this->getPropertyRelevantValue('sound');
+        return $this->getRelevantValue('sound');
     }
 
     public function getSource(): ?string
     {
-        return $this->getPropertyRelevantValue('source');
+        return $this->getRelevantValue('source');
     }
 
     public function getXml(): ?string
     {
-        return $this->getPropertyRelevantValue('xml');
+        return $this->getRelevantValue('xml');
     }
 
     public function getX(string $name, bool $multiple = false): mixed
     {
         $name = strtolower($name);
 
-        $allXFields = $this->getPropertyFields('x');
-        if(empty($allXFields)){
+        $property = $this->properties['x'] ?? null;
+        if(!$property){
             return ($multiple) ? [] : null;
         }
 
         $fields = [];
-        foreach($allXFields as $field){
+        foreach($property->getFields() as $field){
             if( $field->name != $name ) continue;
             $fields[] = $field;
         }

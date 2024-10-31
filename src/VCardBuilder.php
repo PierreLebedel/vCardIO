@@ -477,11 +477,11 @@ class VCardBuilder
         return $this;
     }
 
-    public function lang(string $lang): self
+    public function lang(string $lang, int $pref = 1): self
     {
         $property = $this->getProperty('lang');
         if ($property) {
-            $property->makeField($lang);
+            $property->makeField($lang, ['pref' => $pref]);
         }
 
         return $this;
@@ -489,11 +489,8 @@ class VCardBuilder
 
     public function langs(array $langs): self
     {
-        $property = $this->getProperty('lang');
-        if ($property) {
-            foreach($langs as $k => $lang){
-                $property->makeField($lang, ['pref' => ($k+1)]);
-            }
+        foreach($langs as $k => $lang){
+            $this->lang($lang, ($k+1));
         }
 
         return $this;
