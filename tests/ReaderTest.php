@@ -16,6 +16,9 @@ VERSION:4.0
 FN:Jeffrey Lebowski
 N:Lebowski;Jeffrey;The Dude;;
 NICKNAME:The Dude,His Dudeness,El Duderino
+X-TEST1:test 1
+X-TEST2:test 2.1
+X-TEST2:test 2.2
 END:VCARD');
 
     $vCard = $collection->first();
@@ -34,7 +37,14 @@ END:VCARD');
         'His Dudeness',
     ]);
 
-});
+    assertEquals('test 1', $vCard->getX('test1', multiple:false));
+    assertEqualsCanonicalizing($vCard->getX('test2', multiple:true), [
+        'test 2.1',
+        'test 2.2',
+    ]);
+
+
+})->only();
 
 it('can read vcard fullname from name parts', function () {
 

@@ -72,7 +72,11 @@ abstract class AbstractVCard
 
     public function getPrefferedPropertyField(VCardProperty $property): ?AbstractField
     {
-        $fields = $property->getFields();
+        return $this->getPrefferedField($property->getFields());
+    }
+
+    public function getPrefferedField(array $fields): ?AbstractField
+    {
         if (empty($fields)) {
             return null;
         }
@@ -406,24 +410,8 @@ abstract class AbstractVCard
             return array_filter($response);
         }
 
-        // return the only one
-        if (count($fields) == 1) {
-            return reset($fields)->relevantRender();
-        }
-
-        foreach ($fields as $field) {
-            // return the pref
-            if ($field->getAttribute('pref') == '1') {
-                return $field->relevantRender();
-            }
-        }
-
-        // return the first
-        foreach ($fields as $field) {
-            return $field->relevantRender();
-        }
-
-        return null;
+        // singular field
+        return $this->getPrefferedField($fields);
     }
 
     public function toString(): string

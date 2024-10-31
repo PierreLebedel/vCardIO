@@ -9,6 +9,7 @@ use Pleb\VCardIO\Enums\VCardPropertyType;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Fields\XField;
 use Pleb\VCardIO\Models\AbstractVCard;
+use stdClass;
 
 class VCardProperty
 {
@@ -249,7 +250,21 @@ class VCardProperty
                 $values = $field->render();
             }
 
-            if ($this->relevantCardinality->isMultiple()) {
+            if($this->getName() == 'x') {
+                if(!$releventValues instanceof stdClass){
+                    $releventValues = new stdClass();
+                }
+                if(!property_exists($releventValues, $field->name)){
+                    $releventValues->{$field->name} = $field->relevantRender();
+                }else{
+                    if(!is_array($releventValues->{$field->name})){
+                        $previousValue = $releventValues->{$field->name};
+                        $releventValues->{$field->name} = [$previousValue];
+                    }
+                    $releventValues->{$field->name}[] = $field->relevantRender();
+                }
+
+            }elseif ($this->relevantCardinality->isMultiple()) {
                 if (! is_array($values)) {
                     $releventValues = [];
                 }

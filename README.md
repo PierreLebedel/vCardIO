@@ -37,7 +37,12 @@ $vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
 Pleb\VCardIO\VCardsCollection {
     vCards: [
         Pleb\VCardIO\Models\VCardV40 {
-            version: '4.0'
+            version: '4.0',
+            relevantData: {#874 ▼
+                version: '4.0',
+                fn: 'Jeffrey Lebowski',
+                bday: DateTimeImmutable @-854466859,
+            },
             fn: [
                 {
                     value: 'Jeffrey Lebowski',
