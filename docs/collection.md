@@ -76,6 +76,10 @@ $vCard = $vCardsCollection->first();
 $vCard = $vCardsCollection->getVCard(0); // 1,2,...
 ```
 
+```php
+echo $vCardsCollection->count(); // int
+```
+
 View the [vCard object documentation](vcard.md) for more information.
 
 ## Render a collection
