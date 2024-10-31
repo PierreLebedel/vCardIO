@@ -254,14 +254,15 @@ class VCardProperty
                 if(!$releventValues instanceof stdClass){
                     $releventValues = new stdClass();
                 }
-                if(!property_exists($releventValues, $field->name)){
-                    $releventValues->{$field->name} = $field->relevantRender();
+                $xName = $field->formattedName();
+                if(!property_exists($releventValues, $xName)){
+                    $releventValues->{$xName} = $field->relevantRender();
                 }else{
-                    if(!is_array($releventValues->{$field->name})){
-                        $previousValue = $releventValues->{$field->name};
-                        $releventValues->{$field->name} = [$previousValue];
+                    if(!is_array($releventValues->{$xName})){
+                        $previousValue = $releventValues->{$xName};
+                        $releventValues->{$xName} = [$previousValue];
                     }
-                    $releventValues->{$field->name}[] = $field->relevantRender();
+                    $releventValues->{$xName}[] = $field->relevantRender();
                 }
 
             }elseif ($this->relevantCardinality->isMultiple()) {

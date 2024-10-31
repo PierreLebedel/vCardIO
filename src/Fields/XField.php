@@ -25,6 +25,7 @@ class XField extends AbstractField
         $response = new stdClass;
 
         $response->name = $this->name;
+        $response->formattedName = $this->formattedName();
         $response->value = $this->value;
         $response->attributes = $this->attributes;
 
@@ -34,5 +35,12 @@ class XField extends AbstractField
     public function relevantRender(): mixed
     {
         return $this->render()->value;
+    }
+
+    public function formattedName() :string
+    {
+        $string = str_replace(' ', '', ucwords(str_replace('-', ' ', $this->name)));
+        $string[0] = strtolower($string[0]);
+        return $string;
     }
 }

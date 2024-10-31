@@ -38,10 +38,13 @@ Pleb\VCardIO\VCardsCollection {
     vCards: [
         Pleb\VCardIO\Models\VCardV40 {
             version: '4.0',
-            relevantData: {#874 ▼
+            relevantData: {
                 version: '4.0',
                 fn: 'Jeffrey Lebowski',
                 bday: DateTimeImmutable @-854466859,
+                x: {
+                    'hobby': 'Bowling'
+                }
             },
             fn: [
                 {
