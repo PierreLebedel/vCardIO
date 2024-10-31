@@ -14,6 +14,8 @@ abstract class AbstractVCard
 {
     public string $version;
 
+    public stdClass $relevantData;
+
     public $adr = null;
 
     public $bday = null;
@@ -55,6 +57,11 @@ abstract class AbstractVCard
     public $x = null;
 
     protected $properties = [];
+
+    public function __construct()
+    {
+        $this->relevantData = new stdClass();
+    }
 
     public function applyProperty(VCardProperty $property)
     {
@@ -100,7 +107,7 @@ abstract class AbstractVCard
 
     public function getPropertyRelevantValue(string $name) :mixed
     {
-        return $this->getPrefferedPropertyField($name)?->getRelevantValue() ?? null;
+        return $this->getPrefferedPropertyField($name)?->relevantRender() ?? null;
     }
 
     public function getPropertyRelevantValues(string $name) :?array
@@ -109,7 +116,7 @@ abstract class AbstractVCard
         $response = [];
         if(!empty($fields)){
             foreach($fields as $field){
-                $response[] = $field->getRelevantValue();
+                $response[] = $field->relevantRender();
             }
         }
         return array_filter( $response );
@@ -380,26 +387,26 @@ abstract class AbstractVCard
         if($multiple){
             $response = [];
             foreach($fields as $field){
-                $response[] = $field->getRelevantValue();
+                $response[] = $field->relevantRender();
             }
             return array_filter($response);
         }
 
         // return the only one
         if(count($fields) == 1){
-            return reset($fields)->getRelevantValue();
+            return reset($fields)->relevantRender();
         }
 
         foreach($fields as $field){
             // return the pref
             if($field->getAttribute('pref')=='1'){
-                return $field->getRelevantValue();
+                return $field->relevantRender();
             }
         }
 
         // return the first
         foreach($fields as $field){
-            return $field->getRelevantValue();
+            return $field->relevantRender();
         }
 
         return null;

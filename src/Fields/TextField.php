@@ -22,7 +22,7 @@ class TextField extends AbstractField
         return $response;
     }
 
-    public function getRelevantValue(): mixed
+    public function relevantRender(): mixed
     {
         return $this->value;
     }

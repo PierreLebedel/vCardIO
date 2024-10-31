@@ -97,7 +97,7 @@ abstract class AbstractField
 
     abstract public function render(): mixed;
 
-    abstract public function getRelevantValue(): mixed;
+    abstract public function relevantRender(): mixed;
 
     public function __toString(): string
     {

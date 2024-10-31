@@ -487,6 +487,18 @@ class VCardBuilder
         return $this;
     }
 
+    public function langs(array $langs): self
+    {
+        $property = $this->getProperty('lang');
+        if ($property) {
+            foreach($langs as $k => $lang){
+                $property->makeField($lang, ['pref' => ($k+1)]);
+            }
+        }
+
+        return $this;
+    }
+
     public function logo(string $logo): self
     {
         $property = $this->getProperty('logo');
