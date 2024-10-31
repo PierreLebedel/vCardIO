@@ -6,6 +6,7 @@ namespace Pleb\VCardIO;
 
 use DateTime;
 use DateTimeZone;
+use Ramsey\Uuid\Uuid;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Pleb\VCardIO\Fields\UriField;
@@ -592,18 +593,27 @@ class VCardBuilder
             $vCard->applyProperty($property);
         }
 
-        if (property_exists($vCard, 'rev') && ! $vCard->rev) {
+        if(!$vCard->getRev()){
             $property = $this->getProperty('rev');
             if ($property) {
-                $property->makeField((new DateTimeImmutable('now'))->format('Ymd'));
+                $property->makeField((new DateTimeImmutable('now'))->format('Ymd\THis\Z'));
                 $vCard->applyProperty($property);
             }
         }
 
-        if (property_exists($vCard, 'prodid') && ! $vCard->prodid) {
+        if(!$vCard->getProdid()){
             $property = $this->getProperty('prodid');
             if ($property) {
                 $property->makeField('-//Pleb//Pleb vCardIO '.VCardPackage::VERSION.' //EN');
+                $vCard->applyProperty($property);
+            }
+        }
+
+        if(!$vCard->getUid()){
+            $property = $this->getProperty('uid');
+            if ($property) {
+                $uuid4 = Uuid::uuid4();
+                $property->makeField('urn:uuid:'.$uuid4->toString());
                 $vCard->applyProperty($property);
             }
         }

@@ -83,12 +83,10 @@ abstract class AbstractVCard
             return reset($fields);
         }
 
-        if( $property->hasAttributes && array_key_exists('pref', $property->possibleAttributes) ){
-            foreach($fields as $field){
-                // return the pref
-                if($field->getAttribute('pref')=='1'){
-                    return $field;
-                }
+        foreach($fields as $field){
+            // return the pref
+            if($field->getAttribute('pref')=='1'){
+                return $field;
             }
         }
 
@@ -96,6 +94,8 @@ abstract class AbstractVCard
         foreach($fields as $field){
             return $field;
         }
+
+        return null;
     }
 
     public function getPropertyRelevantValue(string $name) :mixed
@@ -117,7 +117,21 @@ abstract class AbstractVCard
 
     public function getFullName() :?string
     {
-        return $this->getPropertyRelevantValue('fn');
+        $fullname = $this->getPropertyRelevantValue('fn');
+
+        if(!$fullname){
+            if($name = $this->getName()){
+                $fullname = trim(implode(' ', array_filter([
+                    $name->namePrefix,
+                    $name->firstName,
+                    $name->middleName,
+                    $name->lastName,
+                    $name->nameSuffix,
+                ])));
+            }
+        }
+
+        return $fullname;
     }
 
     public function getName() :?stdClass

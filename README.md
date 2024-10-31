@@ -19,15 +19,15 @@ composer require pleb/vcardio
 ### Parse vCards
 
 ```php
-$vCardsCollection = VCardParser::parseFile('./contacts.vcf');
+$vCardsCollection = Pleb\VCardIO\VCardParser::parseFile('./contacts.vcf');
 
 // OR
 
 $vCardsRawData = 'BEGIN:VCARD
 VERSION:4.0
-FN:John Doe
-BDAY:19020202
-X-CUSTOM-VALUE;TYPE=MD:ReadMe
+FN:Jeffrey Lebowski
+BDAY:19421204
+X-HOBBY:Bowling
 END:VCARD';
 
 $vCardsCollection = Pleb\VCardIO\VCardParser::parseRaw($vCardsRawData);
@@ -40,23 +40,20 @@ Pleb\VCardIO\VCardsCollection {
             version: '4.0'
             fn: [
                 {
-                    value: 'John Doe',
+                    value: 'Jeffrey Lebowski',
                     attributes: []
                 }
             ],
             bday: {
-                dateTime: DateTimeImmutable @-2143152000,
+                dateTime: DateTimeImmutable @-854466859,
                 format: "Ymd",
-                formatted: "190200202",
+                formatted: "19421204",
                 extactYear: true
             },
             x: [
                 {
-                    name: "custom-value"
-                    value: "ReadMe"
-                    attributes: [
-                        'type' => ['md']
-                    ]
+                    name: "hobby",
+                    value: "Bowling"
                 }
             ],
             ...
@@ -72,10 +69,10 @@ The `AGENT` property is not longer supported by the vCard specification, but if 
 ```txt
 BEGIN:VCARD
 VERSION:3.0
-FN:John Doe
+FN:Jeffrey Lebowski
 AGENT:BEGIN:VCARD
  VERSION:3.0
- FN:John David
+ FN:Walter Sobchak
  END:VCARD
 END:VCARD
 ```
@@ -105,10 +102,9 @@ A large set of methods is implemented on the vCard builder to set all the proper
 
 ```php
 $vCard = Pleb\VCardIO\VCardBuilder::make()
-    ->fullName('John Doe')
-    ->birthday(new DateTime('1902-02-02'))
-    ->x('custom-value', 'ReadMe')
-    ->x('other', 'VCF')
+    ->fullName('Jeffrey Lebowski')
+    ->birthday(new DateTime('1942-12-04'))
+    ->x('hobby', 'Bowling')
     ->get();
 ```
 ### Print vCards
@@ -121,12 +117,11 @@ echo nl2br((string) $vCard);
 ```txt
 BEGIN:VCARD
 VERSION:4.0
-FN:John Doe
-BDAY:19020202
-X-CUSTOM-VALUE:ReadMe
-X-OTHER:VCF
+FN:Jeffrey Lebowski
+BDAY:19421204
+X-HOBBY:Bowling
 REV:20241029
-PRODID:-//Pleb//Pleb vCardIO 1.0.0 //EN
+PRODID:-//Pleb//Pleb vCardIO 1.1.0 //EN
 END:VCARD
 ```
 
@@ -139,11 +134,11 @@ echo nl2br((string) $vCardsCollection);
 ```txt
 BEGIN:VCARD
 VERSION:4.0
-FN:John Doe
+FN:Jeffrey Lebowski
 END:VCARD
 BEGIN:VCARD
 VERSION:3.0
-FN:John Doed
+FN:Walter Sobchak
 END:VCARD
 ...
 ```

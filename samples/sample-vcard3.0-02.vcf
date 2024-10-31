@@ -1,24 +1,15 @@
 BEGIN:VCARD
 VERSION:3.0
-N:Doe;John;Q.,Public
-FN;CHARSET=UTF-8:John Doe
-TEL;TYPE=WORK,VOICE:(111) 555-1212
-TEL;TYPE=HOME,VOICE:(404) 555-1212
-TEL;TYPE=HOME,TYPE=VOICE:(404) 555-1213
-EMAIL;TYPE=PREF,INTERNET:forrestgump@example.com
-EMAIL;TYPE=INTERNET:example@example.com
-ADR;TYPE=HOME:;;42 Plantation St.;Baytown;LA;30314;United States of America
-URL:https://www.google.com/
-PHOTO;VALUE=URL;TYPE=PNG:http://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Example_svg.svg/200px-Example_svg.svg.png
+N:Jeffrey;Lebowski;The Dude;;
+FN:Jeffrey Lebowski
+NICKNAME:The Dude,His Dudeness,El Duderino
+BDAY:19421204
+GENDER:M
+PHOTO;VALUE=URL;TYPE=JPG:https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Jeff_Bridges_by_Gage_Skidmore_3.jpg/349px-Jeff_Bridges_by_Gage_Skidmore_3.jpg
 AGENT:BEGIN:VCARD
  VERSION:3.0
- N:Doe;John;Q.,Public
- FN:John Doe
- TEL;TYPE=WORK,VOICE:(111) 555-1212
- TEL;TYPE=HOME,VOICE:(404) 555-1212
- TEL;TYPE=HOME,TYPE=VOICE:(404) 555-1213
- EMAIL;TYPE=PREF,INTERNET:forrestgump@example.com
- EMAIL;TYPE=INTERNET:example@example.com
- PHOTO;VALUE=URL;TYPE=PNG:http://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Example_svg.svg/200px-Example_svg.svg.png
+ N:Sobchak;Walter
+ FN:Walter Sobchak
+ PHOTO;VALUE=URL;TYPE=JPG:https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/John_Goodman_by_Gage_Skidmore.jpg/303px-John_Goodman_by_Gage_Skidmore.jpg
  END:VCARD
 END:VCARD
