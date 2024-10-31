@@ -411,7 +411,7 @@ abstract class AbstractVCard
         }
 
         // singular field
-        return $this->getPrefferedField($fields);
+        return $this->getPrefferedField($fields)?->relevantRender() ?? null;
     }
 
     public function toString(): string
