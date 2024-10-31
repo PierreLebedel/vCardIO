@@ -29,6 +29,7 @@ class PidUriField extends AbstractField
     public function relevantRender(): mixed
     {
         $response = $this->render();
+
         return [$response->pid => $response->uri];
     }
 }

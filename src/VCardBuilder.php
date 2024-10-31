@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
-use DateTime;
-use DateTimeZone;
-use Ramsey\Uuid\Uuid;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Pleb\VCardIO\Fields\UriField;
-use Pleb\VCardIO\Fields\AgentField;
-use Pleb\VCardIO\Models\AbstractVCard;
+use DateTimeZone;
 use Pleb\VCardIO\Enums\VCardVersionEnum;
 use Pleb\VCardIO\Exceptions\VCardBuilderException;
+use Pleb\VCardIO\Fields\AgentField;
+use Pleb\VCardIO\Fields\UriField;
+use Pleb\VCardIO\Models\AbstractVCard;
+use Ramsey\Uuid\Uuid;
 
 class VCardBuilder
 {
@@ -49,24 +48,22 @@ class VCardBuilder
         return $this->properties[$name];
     }
 
-    // public function addProperty(VCardProperty $property): self
-    // {
-    //     $this->properties[$property->getName()] = $property;
-
-    //     return $this;
-    // }
-
-    public function setVersion(VCardVersionEnum $version): self
+    public function version(string|VCardVersionEnum $version): self
     {
-        $this->version = $version;
+        if ($version instanceof VCardVersionEnum) {
+            $this->version = $version;
+        } else {
+            $versionEnum = VCardVersionEnum::tryFrom($version);
+            if ($versionEnum) {
+                $this->version = $versionEnum;
+            }
+        }
 
         return $this;
     }
 
     public function getVersion(): ?VCardVersionEnum
     {
-        //$this->setVersion(VCardVersionEnum::V40);
-
         $versionEnum = null;
 
         $versionProperty = $this->getProperty('version');
@@ -85,7 +82,7 @@ class VCardBuilder
         return $versionEnum;
     }
 
-    public function setAgent(string|AbstractVCard $agent): self
+    public function agent(string|AbstractVCard $agent): self
     {
         $property = $this->getProperty('agent');
 
@@ -93,7 +90,7 @@ class VCardBuilder
             if ($agent instanceof AbstractVCard) {
                 $field = AgentField::makeFromVCard($agent);
             } else {
-                $field = UriField::make($agent);
+                $field = new UriField($agent);
             }
             $property->addField($field);
         }
@@ -489,8 +486,8 @@ class VCardBuilder
 
     public function langs(array $langs): self
     {
-        foreach($langs as $k => $lang){
-            $this->lang($lang, ($k+1));
+        foreach ($langs as $k => $lang) {
+            $this->lang($lang, ($k + 1));
         }
 
         return $this;
@@ -602,7 +599,7 @@ class VCardBuilder
             $vCard->applyProperty($property);
         }
 
-        if(!$vCard->getRev()){
+        if (! $vCard->getRev()) {
             $property = $this->getProperty('rev');
             if ($property) {
                 $property->makeField((new DateTimeImmutable('now'))->format('Ymd\THis\Z'));
@@ -610,7 +607,7 @@ class VCardBuilder
             }
         }
 
-        if(!$vCard->getProdid()){
+        if (! $vCard->getProdid()) {
             $property = $this->getProperty('prodid');
             if ($property) {
                 $property->makeField('-//Pleb//Pleb vCardIO '.VCardPackage::VERSION.' //EN');
@@ -618,7 +615,7 @@ class VCardBuilder
             }
         }
 
-        if(!$vCard->getUid()){
+        if (! $vCard->getUid()) {
             $property = $this->getProperty('uid');
             if ($property) {
                 $uuid4 = Uuid::uuid4();

@@ -128,7 +128,7 @@ class VCardParser
             }
 
             if ($this->currentVCardAgentBuilder) {
-                $this->currentVCardBuilder->setAgent($this->currentVCardAgentBuilder->get());
+                $this->currentVCardBuilder->agent($this->currentVCardAgentBuilder->get());
                 $this->currentVCardAgentBuilder = null;
 
                 return;
@@ -157,7 +157,7 @@ class VCardParser
                 throw VCardParserException::invalidVersion($value, $lineNumber);
             }
 
-            $this->getVCardBuilder()->setVersion($versionEnum);
+            $this->getVCardBuilder()->version($versionEnum);
         }
 
         if (! $value) {

@@ -224,7 +224,7 @@ class VCardProperty
         return $this->addField($field);
     }
 
-    public function getFields() :array
+    public function getFields(): array
     {
         return $this->fields;
     }
@@ -249,7 +249,7 @@ class VCardProperty
                 $values = $field->render();
             }
 
-            if($this->relevantCardinality->isMultiple()) {
+            if ($this->relevantCardinality->isMultiple()) {
                 if (! is_array($values)) {
                     $releventValues = [];
                 }

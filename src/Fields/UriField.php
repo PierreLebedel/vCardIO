@@ -46,6 +46,7 @@ class UriField extends AbstractField
     public function relevantRender(): mixed
     {
         $response = $this->render();
+
         return ($response instanceof stdClass) ? $response->value : $response;
     }
 

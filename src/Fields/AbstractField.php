@@ -80,15 +80,15 @@ abstract class AbstractField
         return $this;
     }
 
-    public function getAttribute(string $name) :mixed
+    public function getAttribute(string $name): mixed
     {
         $this->cleanAttributes();
 
-        if(array_key_exists($name, $this->attributes)){
+        if (array_key_exists($name, $this->attributes)) {
             return $this->attributes[$name];
         }
 
-        if(array_key_exists($name, $this->defaultAttributes)){
+        if (array_key_exists($name, $this->defaultAttributes)) {
             return $this->defaultAttributes[$name];
         }
 

@@ -6,8 +6,8 @@ namespace Pleb\VCardIO\Models;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Pleb\VCardIO\VCardProperty;
 use Pleb\VCardIO\Fields\AbstractField;
+use Pleb\VCardIO\VCardProperty;
 use stdClass;
 
 abstract class AbstractVCard
@@ -60,7 +60,7 @@ abstract class AbstractVCard
 
     public function __construct()
     {
-        $this->relevantData = new stdClass();
+        $this->relevantData = new stdClass;
     }
 
     public function applyProperty(VCardProperty $property)
@@ -70,74 +70,74 @@ abstract class AbstractVCard
         return $property->apply($this);
     }
 
-    public function getPrefferedPropertyField(VCardProperty $property) :?AbstractField
+    public function getPrefferedPropertyField(VCardProperty $property): ?AbstractField
     {
         $fields = $property->getFields();
-        if( empty($fields) ){
+        if (empty($fields)) {
             return null;
         }
 
         // return the only one
-        if(count($fields) == 1){
+        if (count($fields) == 1) {
             return reset($fields);
         }
 
-        foreach($fields as $field){
+        foreach ($fields as $field) {
             // return the pref
-            if((string)$field->getAttribute('pref')=='1'){
+            if ((string) $field->getAttribute('pref') == '1') {
                 return $field;
             }
         }
 
         // return the first
-        foreach($fields as $field){
+        foreach ($fields as $field) {
             return $field;
         }
 
         return null;
     }
 
-    public function getRelevantValue(string $name) :mixed
+    public function getRelevantValue(string $name): mixed
     {
         $property = $this->properties[$name] ?? null;
 
-        if(!$property){
+        if (! $property) {
             $property = VCardProperty::find($name);
 
             if (! $property) {
                 return null;
             }
 
-            if($property->relevantCardinality->isMultiple()){
+            if ($property->relevantCardinality->isMultiple()) {
                 return [];
             }
 
             return null;
         }
 
-        if($property->relevantCardinality->isMultiple()){
+        if ($property->relevantCardinality->isMultiple()) {
 
             $fields = $property->getFields();
 
             $response = [];
-            if(!empty($fields)){
-                foreach($fields as $field){
+            if (! empty($fields)) {
+                foreach ($fields as $field) {
                     $response[] = $field->relevantRender();
                 }
             }
 
-            return array_filter( $response );
+            return array_filter($response);
         }
 
         return $this->getPrefferedPropertyField($property)?->relevantRender() ?? null;
     }
 
-    public function getFullName() :?string
+    public function getFullName(): ?string
     {
         $fullname = $this->getRelevantValue('fn');
 
-        if(!$fullname){
-            if($name = $this->getName()){
+        if (! $fullname) {
+            if ($name = $this->getName()) {
                 $fullname = trim(implode(' ', array_filter([
                     $name->namePrefix,
                     $name->firstName,
@@ -151,32 +151,32 @@ abstract class AbstractVCard
         return $fullname;
     }
 
-    public function getName() :?stdClass
+    public function getName(): ?stdClass
     {
         return $this->getRelevantValue('n');
     }
 
-    public function getLastName() :?string
+    public function getLastName(): ?string
     {
         return $this->getName()?->lastName ?? null;
     }
 
-    public function getFirstName() :?string
+    public function getFirstName(): ?string
     {
         return $this->getName()?->firstName ?? null;
     }
 
-    public function getMiddleName() :?string
+    public function getMiddleName(): ?string
     {
         return $this->getName()?->middleName ?? null;
     }
 
-    public function getNamePrefix() :?string
+    public function getNamePrefix(): ?string
     {
         return $this->getName()?->namePrefix ?? null;
     }
 
-    public function getNameSuffix() :?string
+    public function getNameSuffix(): ?string
     {
         return $this->getName()?->nameSuffix ?? null;
     }
@@ -291,17 +291,18 @@ abstract class AbstractVCard
         return $this->getRelevantValue('caluri');
     }
 
-    public function getClientPidMap() :array
+    public function getClientPidMap(): array
     {
         $response = [];
         $clientpidmap = $this->getRelevantValue('clientpidmap');
-        if(!empty($clientpidmap)){
-            foreach($clientpidmap as $fieldk => $fieldv){
-                foreach($fieldv as $pid => $uri){
+        if (! empty($clientpidmap)) {
+            foreach ($clientpidmap as $fieldk => $fieldv) {
+                foreach ($fieldv as $pid => $uri) {
                     $response[$pid] = $uri;
                 }
             }
         }
+
         return $response;
     }
 
@@ -380,42 +381,45 @@ abstract class AbstractVCard
         $name = strtolower($name);
 
         $property = $this->properties['x'] ?? null;
-        if(!$property){
+        if (! $property) {
             return ($multiple) ? [] : null;
         }
 
         $fields = [];
-        foreach($property->getFields() as $field){
-            if( $field->name != $name ) continue;
+        foreach ($property->getFields() as $field) {
+            if ($field->name != $name) {
+                continue;
+            }
             $fields[] = $field;
         }
 
-        if(empty($fields)){
+        if (empty($fields)) {
             return ($multiple) ? [] : null;
         }
 
-        if($multiple){
+        if ($multiple) {
             $response = [];
-            foreach($fields as $field){
+            foreach ($fields as $field) {
                 $response[] = $field->relevantRender();
             }
+
             return array_filter($response);
         }
 
         // return the only one
-        if(count($fields) == 1){
+        if (count($fields) == 1) {
             return reset($fields)->relevantRender();
         }
 
-        foreach($fields as $field){
+        foreach ($fields as $field) {
             // return the pref
-            if($field->getAttribute('pref')=='1'){
+            if ($field->getAttribute('pref') == '1') {
                 return $field->relevantRender();
             }
         }
 
         // return the first
-        foreach($fields as $field){
+        foreach ($fields as $field) {
             return $field->relevantRender();
         }
 

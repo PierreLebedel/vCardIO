@@ -24,7 +24,7 @@ class ListComponentField extends AbstractField
         $response = new stdClass;
 
         foreach ($this->structure as $k => $partName) {
-            $response->{$partName} = $parts[$k] ?? null;
+            $response->{$partName} = (isset($parts[$k]) && ! empty($parts[$k])) ? $parts[$k] : null;
         }
 
         if ($this->hasAttributes) {
@@ -38,7 +38,7 @@ class ListComponentField extends AbstractField
     {
         $response = $this->render();
 
-        if(property_exists($response, 'attributes')){
+        if (property_exists($response, 'attributes')) {
             unset($response->attributes);
         }
 
