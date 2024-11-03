@@ -627,8 +627,18 @@ class VCardBuilder
         return $vCard;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return (string) $this->get();
+    }
+
+    public function __toString() :string
+    {
+        return $this->toString();
+    }
+
+    public function export(string $filePath) :void
+    {
+        $this->get()->export($filePath);
     }
 }

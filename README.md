@@ -222,6 +222,26 @@ END:VCARD
 ...
 ```
 
+### Export vCards
+
+#### Export a single vCard
+
+The existing .vcf file will be overwritten.
+
+```php
+echo $vCard->export('./file/export/destination.vcf');
+```
+
+#### Export vCards collection
+
+The existing .vcf can overwritten or appended.
+
+```php
+echo $vCardCollection->export('./file/export/destination.vcf', append:false); // OVERWRITTEN
+
+echo $vCardCollection->export('./file/export/destination.vcf', append:true); // APPENDED
+```
+
 ## Contribute
 
 ### Code formatting
