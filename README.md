@@ -21,6 +21,7 @@ composer require pleb/vcardio
 - [vCards collection](docs/collection.md)
 - [vCard builder](docs/builder.md)
 - [vCard object](docs/vcard.md)
+- [Exporting files](docs/export.md)
 
 ## Usage
 
@@ -229,17 +230,20 @@ END:VCARD
 The existing .vcf file will be overwritten.
 
 ```php
-echo $vCard->export('./file/export/destination.vcf');
+$vCard->export('./file/export/destination.vcf');
 ```
 
 #### Export vCards collection
 
-The existing .vcf can overwritten or appended.
+The existing .vcf can be overwritten or appended.
 
 ```php
-echo $vCardCollection->export('./file/export/destination.vcf', append:false); // OVERWRITTEN
-
-echo $vCardCollection->export('./file/export/destination.vcf', append:true); // APPENDED
+// OVERWRITTEN
+$vCardCollection->export('./file/export/destination.vcf', append:false); 
+```
+```php
+// APPENDED
+$vCardCollection->export('./file/export/destination.vcf', append:true); 
 ```
 
 ## Contribute
