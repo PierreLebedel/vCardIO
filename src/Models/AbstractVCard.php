@@ -433,18 +433,18 @@ abstract class AbstractVCard
         return $vCardString;
     }
 
-    public function __toString() :string
+    public function __toString(): string
     {
         return $this->toString();
     }
 
-    public function export(string $filePath) :void
+    public function export(string $filePath): void
     {
-        try{
+        try {
             $fp = fopen($filePath, 'w');
             fwrite($fp, $this->toString());
             fclose($fp);
-        } catch(Throwable $e){
+        } catch (Throwable $e) {
             throw VCardExportException::unableToWrite($filePath);
         }
     }
