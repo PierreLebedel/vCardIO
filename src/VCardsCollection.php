@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Pleb\VCardIO;
 
 use Pleb\VCardIO\Exceptions\VCardCollectionException;
+use Pleb\VCardIO\Exceptions\VCardExportException;
 use Pleb\VCardIO\Models\AbstractVCard;
+use Throwable;
 
 class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 {
@@ -52,7 +54,7 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         return $this->vCards[0] ?? null;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         $collectionString = '';
         foreach ($this->vCards as $vCard) {
@@ -60,6 +62,32 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         }
 
         return $collectionString;
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    public function export(string $filePath, bool $append = false): void
+    {
+        try {
+            $mode = ($append) ? 'a' : 'w';
+
+            $fp = fopen($filePath, $mode);
+
+            if ($mode == 'a') {
+                if (filesize($filePath) > 0) {
+                    fwrite($fp, PHP_EOL);
+                }
+            }
+
+            fwrite($fp, $this->toString());
+            fclose($fp);
+
+        } catch (Throwable $e) {
+            throw VCardExportException::unableToWrite($filePath);
+        }
     }
 
     /**

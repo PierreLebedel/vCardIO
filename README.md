@@ -21,6 +21,7 @@ composer require pleb/vcardio
 - [vCards collection](docs/collection.md)
 - [vCard builder](docs/builder.md)
 - [vCard object](docs/vcard.md)
+- [Exporting files](docs/export.md)
 
 ## Usage
 
@@ -220,6 +221,29 @@ VERSION:3.0
 FN:Walter Sobchak
 END:VCARD
 ...
+```
+
+### Export vCards
+
+#### Export a single vCard
+
+The existing .vcf file will be overwritten.
+
+```php
+$vCard->export('./file/export/destination.vcf');
+```
+
+#### Export vCards collection
+
+The existing .vcf can be overwritten or appended.
+
+```php
+// OVERWRITTEN
+$vCardCollection->export('./file/export/destination.vcf', append:false); 
+```
+```php
+// APPENDED
+$vCardCollection->export('./file/export/destination.vcf', append:true); 
 ```
 
 ## Contribute

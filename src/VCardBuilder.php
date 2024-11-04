@@ -627,8 +627,16 @@ class VCardBuilder
         return $vCard;
     }
 
+    /**
+     * Shortcuts to use builder as vCard object
+     */
     public function __toString(): string
     {
         return (string) $this->get();
+    }
+
+    public function export(string $filePath): void
+    {
+        $this->get()->export($filePath);
     }
 }

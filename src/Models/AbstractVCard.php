@@ -6,9 +6,11 @@ namespace Pleb\VCardIO\Models;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Pleb\VCardIO\Exceptions\VCardExportException;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\VCardProperty;
 use stdClass;
+use Throwable;
 
 abstract class AbstractVCard
 {
@@ -431,8 +433,19 @@ abstract class AbstractVCard
         return $vCardString;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toString();
+    }
+
+    public function export(string $filePath): void
+    {
+        try {
+            $fp = fopen($filePath, 'w');
+            fwrite($fp, $this->toString());
+            fclose($fp);
+        } catch (Throwable $e) {
+            throw VCardExportException::unableToWrite($filePath);
+        }
     }
 }
