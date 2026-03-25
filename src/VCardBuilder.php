@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pleb\VCardIO;
 
+use Closure;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -27,6 +28,17 @@ class VCardBuilder
     public static function make(): self
     {
         return new static;
+    }
+
+    public function when(mixed $value = null, ?callable $callback = null, ?callable $default = null): self
+    {
+        $value = $value instanceof Closure ? $value($this) : $value;
+
+        if ($value) {
+            return $callback ? ($callback($this, $value) ?? $this) : $this;
+        }
+
+        return $default ? ($default($this, $value) ?? $this) : $this;
     }
 
     public function getProperty(string $name): ?VCardProperty
