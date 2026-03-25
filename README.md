@@ -175,7 +175,11 @@ $vCard = Pleb\VCardIO\VCardBuilder::make()
     ->fullName('Jeffrey Lebowski')
     ->nickName('The Dude')
     ->birthday(new DateTime('1942-12-04'))
-    ->x('main-hobby', 'Bowling')
+    ->when(true, function($b){
+        $b->x('main-hobby', 'Bowling');
+    }, function($b){
+        $b->x('main-hobby', 'White Russians');
+    })
     ->get();
 ```
 

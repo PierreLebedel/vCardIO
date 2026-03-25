@@ -11,22 +11,19 @@ use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertStringContainsString;
 
 it('can build vcard', function () {
-
     $builder = VCardBuilder::make()
         ->fullName('Jeffrey Lebowski');
 
+    $vCard = $builder->get();
+
     assertInstanceOf(VCardBuilder::class, $builder);
-
-    assertInstanceOf(AbstractVCard::class, $builder->get());
-    assertInstanceOf(VCardV40::class, $builder->get());
-
-    //     $string = 'BEGIN:VCARD
-    // VERSION:4.0
-    // FN:Jeffrey Lebowski
-    // END:VCARD';
-
-    //     assertEquals($string, (string)$builder->get());
-
+    assertInstanceOf(AbstractVCard::class, $vCard);
+    assertInstanceOf(VCardV40::class, $vCard);
+    assertEquals('Jeffrey Lebowski', $vCard->getFullName());
+    assertStringContainsString('BEGIN:VCARD', (string) $vCard);
+    assertStringContainsString('VERSION:4.0', (string) $vCard);
+    assertStringContainsString('FN:Jeffrey Lebowski', (string) $vCard);
+    assertStringContainsString('END:VCARD', (string) $vCard);
 });
 
 it('can conditionally chain setters with when', function () {
