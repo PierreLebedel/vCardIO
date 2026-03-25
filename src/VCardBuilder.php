@@ -138,7 +138,7 @@ class VCardBuilder
 
         $property = $this->getProperty('n');
         if ($property) {
-            $property->makeField(implode(';', $nameParts));
+            $property->makeField(trim(implode(';', $nameParts), ';'));
         }
 
         return $this;
@@ -153,7 +153,7 @@ class VCardBuilder
             unset($nameObject->attributes);
             $nameParts = array_values((array) $nameObject);
             $nameParts[$index] = $namePart;
-            $property->makeField(implode(';', $nameParts));
+            $property->makeField(trim(implode(';', $nameParts), ';'));
         }
 
         return $this;
@@ -277,7 +277,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('org');
         if ($property) {
-            $property->makeField(implode(';', [$company, $unit1, $unit2]));
+            $property->makeField(trim(implode(';', [$company, $unit1, $unit2]),';'));
         }
 
         return $this;
@@ -323,7 +323,7 @@ class VCardBuilder
         ?string $country = null,
         array $types = []
     ): self {
-        $property = $this->getProperty('org');
+        $property = $this->getProperty('adr');
         if ($property) {
             $property->makeField(implode(';', [
                 $postOfficeAddress,
@@ -353,7 +353,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('categories');
         if ($property) {
-            $property->makeField(implode(',', $categories));
+            $property->makeField(implode(',', array_filter($categories)));
         }
 
         return $this;
@@ -369,7 +369,7 @@ class VCardBuilder
                 $categoriesArray[] = $category;
             }
             $property->fields = [];
-            $property->makeField(implode(',', $categoriesArray));
+            $property->makeField(implode(',', array_filter($categoriesArray)));
         }
 
         return $this;
@@ -379,7 +379,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('nickname');
         if ($property) {
-            $property->makeField(implode(',', $nickNames));
+            $property->makeField(implode(',', array_filter($nickNames)));
         }
 
         return $this;
@@ -395,7 +395,7 @@ class VCardBuilder
                 $nickNamesArray[] = $nickName;
             }
             $property->fields = [];
-            $property->makeField(implode(',', $nickNamesArray));
+            $property->makeField(implode(',', array_filter($nickNamesArray)));
         }
 
         return $this;
