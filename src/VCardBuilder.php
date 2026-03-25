@@ -507,7 +507,16 @@ class VCardBuilder
     {
         $property = $this->getProperty('note');
         if ($property) {
-            $property->makeField($note);
+
+            $cleanNote = preg_replace("/\r\n?/", "\n", $note);
+
+            $cleanNote = str_replace(
+                ['\\', ';', ',', "\n"],
+                ['\\\\', '\;', '\,', '\n'],
+                mb_trim((string) $cleanNote),
+            );
+
+            $property->makeField($cleanNote);
         }
 
         return $this;

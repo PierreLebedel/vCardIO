@@ -200,14 +200,14 @@ class VCardProperty
         return $this;
     }
 
-    public function makeField(string $value, array $attributes = []): AbstractField
+    public function makeField(string $value, array $attributes = []): ?AbstractField
     {
         $fieldClass = $this->type->getFieldClass();
 
         if (! $fieldClass) {
             //dump('VCardProperty->addField() : fieldClass not found type:'.$this->type->value);
 
-            return $this;
+            return null;
         }
 
         $field = new $fieldClass($value, $attributes);
