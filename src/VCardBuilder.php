@@ -277,7 +277,7 @@ class VCardBuilder
     {
         $property = $this->getProperty('org');
         if ($property) {
-            $property->makeField(trim(implode(';', [$company, $unit1, $unit2]),';'));
+            $property->makeField(trim(implode(';', [$company, $unit1, $unit2]), ';'));
         }
 
         return $this;
