@@ -9,7 +9,6 @@ use Pleb\VCardIO\Enums\VCardPropertyType;
 use Pleb\VCardIO\Fields\AbstractField;
 use Pleb\VCardIO\Fields\XField;
 use Pleb\VCardIO\Models\AbstractVCard;
-use stdClass;
 
 class VCardProperty
 {
@@ -251,8 +250,8 @@ class VCardProperty
             }
 
             if ($this->getName() == 'x') {
-                if (! $releventValues instanceof stdClass) {
-                    $releventValues = new stdClass;
+                if (! $releventValues instanceof \stdClass) {
+                    $releventValues = new \stdClass;
                 }
                 $xName = $field->formattedName();
                 if (! property_exists($releventValues, $xName)) {
