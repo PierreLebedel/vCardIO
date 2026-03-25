@@ -193,7 +193,7 @@ class VCardProperty
             }
         }
 
-        //dump($this->getName(),$field);
+        // dump($this->getName(),$field);
 
         $this->fields[] = $field;
 
@@ -205,7 +205,7 @@ class VCardProperty
         $fieldClass = $this->type->getFieldClass();
 
         if (! $fieldClass) {
-            //dump('VCardProperty->addField() : fieldClass not found type:'.$this->type->value);
+            // dump('VCardProperty->addField() : fieldClass not found type:'.$this->type->value);
 
             return null;
         }
@@ -276,7 +276,7 @@ class VCardProperty
         }
 
         if (! property_exists($vCard, $this->getAlias())) {
-            //dump('VCardProperty->apply() : property:'.$this->getAlias().' not found in class '.basename(get_class($vCard)));
+            // dump('VCardProperty->apply() : property:'.$this->getAlias().' not found in class '.basename(get_class($vCard)));
 
             return $vCard;
         }

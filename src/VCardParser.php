@@ -161,7 +161,7 @@ class VCardParser
         }
 
         if (! $value) {
-            //dump('VCardParser empty value name:'.$name);
+            // dump('VCardParser empty value name:'.$name);
 
             return;
         }
@@ -169,7 +169,7 @@ class VCardParser
         $property = $this->getVCardBuilder()->getProperty($name);
 
         if (! $property) {
-            //dump('VCardParser property not found name:'.$name);
+            // dump('VCardParser property not found name:'.$name);
 
             return;
         }
@@ -202,7 +202,7 @@ class VCardParser
             return [];
         }
 
-        //dump($attributes);
+        // dump($attributes);
 
         foreach ($attributes as $k => $v) {
 
@@ -222,11 +222,11 @@ class VCardParser
                 }
 
                 if (! $attrK) {
-                    //dd('key not found in : '.$v);
+                    // dd('key not found in : '.$v);
                     $attrK = 'type';
                 }
 
-                //dump($attrK.':'.$v);
+                // dump($attrK.':'.$v);
 
                 unset($attributes[$k]);
 
@@ -272,8 +272,8 @@ class VCardParser
             }
         }
 
-        //dump($attributes);
-        //echo '<hr />';
+        // dump($attributes);
+        // echo '<hr />';
 
         return $attributes;
     }
