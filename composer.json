@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "laravel/pint": "^v1.0",
-        "pestphp/pest": "^4.4.3",
+        "pestphp/pest": "^2.0|^3.0|^4.0",
         "symfony/var-dumper": "^v6.2|^7.0"
     },
     "autoload": {
