@@ -6,5 +6,5 @@ namespace Pleb\VCardIO;
 
 class VCardPackage
 {
-    public const VERSION = '1.1.3';
+    public const VERSION = '1.1.4';
 }
