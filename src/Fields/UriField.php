@@ -29,8 +29,6 @@ class UriField extends AbstractField
 
         if ($this->format == 'geo') {
             $formattedResponse = $this->formatGeo($this->value);
-        } elseif ($this->format == 'tel') {
-            $formattedResponse = $this->formatTel($this->value);
         } elseif ($this->format == 'uuid') {
             $formattedResponse = $this->formatUuid($this->value);
         }
@@ -52,10 +50,6 @@ class UriField extends AbstractField
 
     public function cleanValue(): string
     {
-        if ($this->format == 'tel') {
-            return $this->formatTel($this->value);
-        }
-
         return $this->value;
     }
 
@@ -80,15 +74,6 @@ class UriField extends AbstractField
         }
 
         return $formattedResponse;
-    }
-
-    public function formatTel($input): string
-    {
-        if (strpos($input, 'tel:') === 0) {
-            return $input;
-        }
-
-        return 'tel:'.$input;
     }
 
     public function formatUuid($input): ?string

@@ -127,7 +127,7 @@ class VCardProperty
             'adr'   => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress', 'extendedAddress', 'street', 'locality', 'region', 'postalCode', 'country']),
             'label' => self::make($name, 'list-component', '*')->addAttrs('label,language,geo,tz,altid,pid,pref,type')->setStructure(['postOfficeAddress', 'extendedAddress', 'street', 'locality', 'region', 'postalCode', 'country']),
             // Communications Properties
-            'tel'    => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid')->addAttr('type', 'text,voice,fax,cell,video,pager,textphone', 'voice')->setFormat('tel'),
+            'tel'    => self::make($name, 'uri', '*')->addAttrs('pid,pref,altid')->addAttr('type', 'text,voice,fax,cell,video,pager,textphone', 'voice'),
             'email'  => self::make($name, 'text', '*')->addAttrs('pid,pref,type,altid'),
             'impp'   => self::make($name, 'uri', '*')->addAttrs('pid,pref,type,mediatype,altid'),
             'lang'   => self::make($name, 'language-tag', '*')->addAttrs('pid,pref,type,altid'),
