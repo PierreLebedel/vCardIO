@@ -78,11 +78,14 @@ class VCardBuilder
     {
         $versionEnum = null;
 
-        $versionProperty = $this->getProperty('version');
+        $versionProperty = $this->version ?? $this->getProperty('version');
 
         if ($versionProperty) {
-            if (! empty($versionProperty->fields)) {
+            if($versionProperty instanceof VCardVersionEnum){
+                $versionEnum = $versionProperty;
+            }elseif (! empty($versionProperty->fields)) {
                 $versionValue = reset($versionProperty->fields)->value;
+                
                 $versionEnum = VCardVersionEnum::tryFrom($versionValue);
             }
         }
