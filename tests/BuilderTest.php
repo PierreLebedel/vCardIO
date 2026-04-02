@@ -41,3 +41,25 @@ it('can conditionally chain setters with when', function () {
     assertEquals('Jeffrey Lebowski', $vCard->getFullName());
     assertStringContainsString('EMAIL:jeff@example.com', (string) $vCard);
 });
+
+it('exports utf-8 vcards with windows-safe line endings', function () {
+    $path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'vcardio-accented.vcf';
+
+    VCardBuilder::make()
+        ->version('3.0')
+        ->fullName('Élodie Brûlé')
+        ->name('Brûlé', 'Élodie')
+        ->organization('Société Générale')
+        ->export($path);
+
+    $raw = file_get_contents($path);
+
+    expect($raw)->not->toBeFalse();
+
+    expect(substr($raw, 0, 3))->not->toBe("\xEF\xBB\xBF");
+    assertStringContainsString("BEGIN:VCARD\r\nVERSION:3.0\r\n", $raw);
+    assertStringContainsString("FN:Élodie Brûlé\r\n", $raw);
+    assertStringContainsString("N:Brûlé;Élodie\r\n", $raw);
+    assertStringContainsString("ORG:Société Générale\r\n", $raw);
+    expect($raw)->toContain("\r\nEND:VCARD");
+});

@@ -14,6 +14,8 @@ use Throwable;
 
 abstract class AbstractVCard
 {
+    public const RFC_LINE_BREAK = "\r\n";
+
     public string $version;
 
     public stdClass $relevantData;
@@ -418,19 +420,28 @@ abstract class AbstractVCard
 
     public function toString(): string
     {
-        $vCardString = 'BEGIN:VCARD'.PHP_EOL;
-        $vCardString .= 'VERSION:'.$this->version.PHP_EOL;
+        $lines = [
+            'BEGIN:VCARD',
+            'VERSION:'.$this->version,
+        ];
 
         foreach ($this->properties as $name => $property) {
             if ($name == 'version') {
                 continue;
             }
-            $vCardString .= (string) $property.PHP_EOL;
+
+            $propertyString = trim((string) $property);
+
+            if ($propertyString === '') {
+                continue;
+            }
+
+            $lines[] = $propertyString;
         }
 
-        $vCardString .= 'END:VCARD';
+        $lines[] = 'END:VCARD';
 
-        return $vCardString;
+        return implode(self::RFC_LINE_BREAK, $lines);
     }
 
     public function __toString(): string
@@ -441,7 +452,7 @@ abstract class AbstractVCard
     public function export(string $filePath): void
     {
         try {
-            $fp = fopen($filePath, 'w');
+            $fp = fopen($filePath, 'wb');
             fwrite($fp, $this->toString());
             fclose($fp);
         } catch (Throwable $e) {

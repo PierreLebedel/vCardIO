@@ -56,12 +56,13 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
 
     public function toString(): string
     {
-        $collectionString = '';
+        $vCards = [];
+
         foreach ($this->vCards as $vCard) {
-            $collectionString .= (string) $vCard;
+            $vCards[] = $vCard->toString();
         }
 
-        return $collectionString;
+        return implode(AbstractVCard::RFC_LINE_BREAK, $vCards);
     }
 
     public function __toString(): string
@@ -74,11 +75,11 @@ class VCardsCollection implements \ArrayAccess, \Countable, \Iterator
         try {
             $mode = ($append) ? 'a' : 'w';
 
-            $fp = fopen($filePath, $mode);
+            $fp = fopen($filePath, $mode.'b');
 
             if ($mode == 'a') {
-                if (filesize($filePath) > 0) {
-                    fwrite($fp, PHP_EOL);
+                if (file_exists($filePath) && filesize($filePath) > 0) {
+                    fwrite($fp, AbstractVCard::RFC_LINE_BREAK);
                 }
             }
 
